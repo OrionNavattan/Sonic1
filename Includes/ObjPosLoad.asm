@@ -34,12 +34,23 @@ OPL_Init:
 		move.l	a1,(v_opl_ptr_alt_left).w
 		lea	(v_respawn_list).w,a2
 		move.w	#$101,(a2)+				; start respawn counter at 1
-		move.w	#($17C/4)-1,d0				; deletes half the stack as well; should be $100
-
+		
+	if FixBugs
+		move.w	#($FC/4)-1,d0
+	else
+	; This clears longwords, but the loop counter is measured in words!
+	; This causes $17C bytes to be cleared instead of $BE, overwriting half of the stack!
+		move.w	#($17c/4)-1,d0
+	endc	
+	
 	@clear_respawn_list:
-		clr.l	(a2)+
+		clr.l	(a2)+ 
 		dbf	d0,@clear_respawn_list			; clear object respawn list
-
+		
+	if FixBugs	
+		clr.w	(a2)+ ; manually clear the last word of the respawn list
+	endc
+	
 		lea	(v_respawn_list).w,a2
 		moveq	#0,d2
 		move.w	(v_camera_x_pos).w,d6

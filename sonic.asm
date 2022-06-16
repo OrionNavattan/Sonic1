@@ -38,6 +38,8 @@ AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 	if ~def(Revision)					; bit-perfect check will automatically set this variable
 Revision:	equ 1
 	endc
+	
+FixBugs:	equ 1	
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
