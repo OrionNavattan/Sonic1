@@ -13,6 +13,7 @@
 		opt	w+					; print warnings
 		opt	m+					; do not expand macros - if enabled, this can break assembling
 
+		include "Debugger.asm"
 		include "Mega Drive.asm"
 		include "Macros - More CPUs.asm"
 		include "Macros - 68k Extended.asm"
@@ -216,8 +217,6 @@ CheckSumError:
 	@endlessloop:
 		bra.s	@endlessloop
 ; ===========================================================================
-
-		include	"Includes\Errors.asm"
 
 Art_Text:	incbin	"Graphics\Level Select & Debug Text.bin" ; text used in level select and debug mode
 		even
@@ -1529,6 +1528,15 @@ ObjPos_Null:	endobj
 ; Sound driver data
 ; ---------------------------------------------------------------------------
 		include "sound/Sound Data.asm"
+		
+		even
+; --------------------------------------------------------------
+; Debugging modules
+; --------------------------------------------------------------
+
+   		include   "ErrorHandler.asm"
+
+		even	
 
 ROM_End:
 		END
