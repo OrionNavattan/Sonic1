@@ -7,8 +7,7 @@ sonic.asm_unsplit
 Unsplit.exe
 vbindiff.bat
 *.gsx
-SonLVL INI Files/dllcache/*
-SonLVL INI Files/SonLVL.log
+SonLVL INI Files/*
 sound/errors.txt
 .DS_Store
 *.sym
