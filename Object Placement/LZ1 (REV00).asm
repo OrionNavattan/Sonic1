@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
-; LZ1 object placement
+; LZ1 (REV00) object placement
 ; ---------------------------------------------------------------------------
-ObjPos_LZ1:
+ObjPos_LZ1 (REV00):
 		objpos $0070,$0010,LabyrinthBlock,$30
 		objpos $0118,$00B4,Rings,$12,rem
 		objpos $02AC,$00B0,Burrobot,$00,rem
@@ -70,7 +70,6 @@ ObjPos_LZ1:
 		objpos $0DD0,$0488,Jaws,$0A,rem
 		objpos $0DE0,$04F8,Bubble,$81
 		objpos $0E60,$0440,SpikeBall,$B5
-		objpos $0E90,$0054,Rings,$10,rem
 		objpos $0EC8,$03F0,Rings,$12,rem
 		objpos $0F38,$056C,Lamppost,$01,rem
 		objpos $0F50,$0380,SpikeBall,$B5
@@ -124,6 +123,7 @@ ObjPos_LZ1:
 		objpos $1280,$0300,LabyrinthConvey,$81
 		objpos $12C1,$02D5,LabyrinthConvey,$7F
 		objpos $12C8,$0460,LabyrinthConvey,$7F
+		objpos $12CC,$06D0,Spikes,$40
 		objpos $12D0,$05F8,Harpoon,$02,rem
 		objpos $12F0,$0280,Gargoyle,$01,rem
 		objpos $1310,$03D0,Spikes,$20,yflip
@@ -183,9 +183,9 @@ ObjPos_LZ1:
 		objpos $17A0,$0130,FloatingBlock,$FA,xflip,rem
 		objpos $17B0,$016C,Button,$0A
 		objpos $17F0,$01F1,Monitor,$06,rem
-		objpos $1A50,$00C6,HiddenBonus,$03
-		objpos $1A50,$00E0,Signpost,$00
-		objpos $1A58,$00B0,HiddenBonus,$03
+		objpos $1A50,$00CC,HiddenBonus,$03
+		objpos $1A50,$00E8,Signpost,$00
+		objpos $1A58,$00B4,HiddenBonus,$03
 		objpos $1A68,$009C,HiddenBonus,$03
 		objpos $1A80,$0090,HiddenBonus,$02
 		objpos $1AA0,$0090,GiantRing,$00

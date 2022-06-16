@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
-; SYZ3 object placement
+; SYZ3 (REV00) object placement
 ; ---------------------------------------------------------------------------
-ObjPos_SYZ3:
+ObjPos_SYZ3 (REV00):
 		objpos $0280,$00D8,BuzzBomber,$00,rem
 		objpos $0300,$00F8,BuzzBomber,$00,rem
 		objpos $0380,$0118,BuzzBomber,$00,rem
@@ -170,7 +170,6 @@ ObjPos_SYZ3:
 		objpos $1EC7,$04FD,Invisibarrier,$13
 		objpos $1EE0,$0339,BasicPlatform,$0C
 		objpos $1F30,$02F1,Crabmeat,$00,xflip,rem
-		objpos $1F38,$0549,FloatingBlock,$37
 		objpos $1FD0,$02F1,Crabmeat,$00,rem
 		objpos $2010,$0308,Rings,$41,rem
 		objpos $2011,$0593,Monitor,$06,rem

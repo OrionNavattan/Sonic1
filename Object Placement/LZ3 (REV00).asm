@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
-; LZ3 object placement
+; LZ3 (REV00) object placement
 ; ---------------------------------------------------------------------------
-ObjPos_LZ3:
+ObjPos_LZ3 (REV00):
 		objpos $00B8,$02B4,Rings,$12,rem
 		objpos $0130,$0310,Burrobot,$00,rem
 		objpos $0170,$0310,Burrobot,$00,rem
@@ -140,6 +140,7 @@ ObjPos_LZ3:
 		objpos $12F0,$01F0,LabyrinthBlock,$30
 		objpos $1300,$0280,LabyrinthConvey,$85
 		objpos $1320,$02F0,Spikes,$30
+		objpos $1320,$0410,SpikeBall,$26
 		objpos $1330,$0580,Jaws,$0C,xflip,rem
 		objpos $1350,$0188,Spikes,$10,xflip
 		objpos $1350,$01B8,Spikes,$10,xflip
@@ -165,11 +166,13 @@ ObjPos_LZ3:
 		objpos $14E0,$0210,Burrobot,$00,rem
 		objpos $14F0,$05F1,Monitor,$06,rem
 		objpos $1510,$0680,Pole,$04
+		objpos $1520,$04E0,Orbinaut,$00,rem
 		objpos $1558,$0210,Waterfall,$07
 		objpos $1558,$0220,Waterfall,$09
 		objpos $1568,$0230,Waterfall,$08,xflip
 		objpos $1570,$05D1,Monitor,$06,rem
 		objpos $1570,$0668,Spikes,$10
+		objpos $1580,$0550,Jaws,$0C,rem
 		objpos $1588,$0240,Waterfall,$08,xflip
 		objpos $1590,$03B1,Monitor,$06,rem
 		objpos $15A0,$0510,FloatingBlock,$F3,xflip,rem
@@ -227,7 +230,9 @@ ObjPos_LZ3:
 		objpos $1AD0,$0250,Burrobot,$00,rem
 		objpos $1B20,$0210,Burrobot,$00,rem
 		objpos $1B60,$0010,Burrobot,$00,rem
+		objpos $1BC0,$0030,LabyrinthBlock,$30
 		objpos $1BC0,$0810,FloatingBlock,$F8,rem
+		objpos $1BE0,$0030,LabyrinthBlock,$30
 		objpos $1C00,$0010,Burrobot,$00,rem
 		objpos $1C10,$05F1,Monitor,$04,rem
 		objpos $1E10,$0530,Gargoyle,$03,xflip,rem

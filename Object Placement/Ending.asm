@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
-; Ending object placement
+; ENDING object placement
 ; ---------------------------------------------------------------------------
-ObjPos_Ending:
+ObjPos_ENDING:
 		objpos $0010,$0170,Animals,$0C
 		objpos $0014,$01B2,Animals,$12
 		objpos $0028,$01B0,Animals,$0C

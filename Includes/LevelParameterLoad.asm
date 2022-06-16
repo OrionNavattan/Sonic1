@@ -54,7 +54,7 @@ LevelBoundaryList:
 		dc.w $0004, $0000, $20BF, $0000, $0720, camera_y_shift_default
 		; MZ
 		dc.w $0004, $0000, $17BF, $0000, $01D0, camera_y_shift_default
-		dc.w $0004, $0000, $17BF, $0000, $0520, camera_y_shift_default
+		dc.w $0004, $0000, $18BF, $0000, $0520, camera_y_shift_default ; Third value changed from $17DF to $18DF as part of signpost location change imported from ReadySonic
 		dc.w $0004, $0000, $1800, $0000, $0720, camera_y_shift_default
 		dc.w $0004, $0000, $16BF, $0000, $0720, camera_y_shift_default
 		; SLZ
