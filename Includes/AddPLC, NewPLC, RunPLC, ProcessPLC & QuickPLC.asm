@@ -95,7 +95,18 @@ RunPLC:
 
 	@normal_mode:
 		andi.w	#$7FFF,d2				; clear highest bit
+	if ~~FixBugs
+	; This is done too early: this variable is used to determine when
+	; there are PLCs to process, which means that as soon as this
+	; variable is set, PLC processing will occur during V-Int. If an
+	; interrupt occurs between here and the end of this function, then
+	; the PLC processor will begin despite it not being fully
+	; initialised yet, causing a crash (which can be triggered by 
+	; rolling past the signpost at the end of LZ1 and LZ2).
+	; S3K eliminates this race condition by moving this instruction 
+	; to the end of the function.
 		move.w	d2,(v_nem_tile_count).w			; load tile count
+	endc	
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5				; get next byte of header
 		asl.w	#8,d5					; move to high byte of word
@@ -109,7 +120,11 @@ RunPLC:
 		move.l	d0,(v_nem_d2).w
 		move.l	d5,(v_nem_header).w
 		move.l	d6,(v_nem_shift).w
-
+	if FixBugs
+	; See above
+		move.w	d2,(v_nem_tile_count).w			; load tile count	
+	endc	
+		
 	@exit:
 		rts
 
@@ -177,11 +192,32 @@ ProcessPLC_Exit:
 
 ProcessPLC_Finish:
 		lea	(v_plc_buffer).w,a0
+		
+	if FixBugs
+	; See below
+		lea 6(a0),a1
+		moveq	#$E,d0
+	@loop:
+		move.l	(a1)+,(a0)+
+		move.w	(a1)+,(a0)+
+		dbf	d0,@loop
+		
+		moveq	#0,d0
+		move.l	d0,(a0)+
+		move.w	d0,(a0)+
+	
+	else	
+	; This does not shift the PLC buffer correctly; it only transfers $58 bytes 
+	; instead of $5A, skipping the VRAM offset of the 16th and final cue, 
+	; and it does not clear the 16th cue, resulting in overcopying 
+	; and ultimately the game getting stuck in an infinite loop processing 
+	; the same cue forever.
 		moveq	#$15,d0
 
 	@loop:
 		move.l	6(a0),(a0)+				; shift contents of PLC buffer up 6 bytes
 		dbf	d0,@loop
+	endc	
 		rts
 
 ; ---------------------------------------------------------------------------

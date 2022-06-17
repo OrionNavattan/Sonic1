@@ -40,6 +40,12 @@ Fan_Delay:	; Routine 2
 @skip_timer:
 		tst.b	ost_fan_flag(a0)			; is fan switched on?
 		bne.w	@chkdel					; if not, branch
+	if FixBugs
+		; This check prevents fans from affecting debug mode when Sonic is turned into a object
+		tst.w	(v_debug_active).w		; is debug mode active?
+		bne.s	@animate	
+	endc	
+		
 		lea	(v_ost_player).w,a1
 		move.w	ost_x_pos(a1),d0
 		sub.w	ost_x_pos(a0),d0			; d0 = distance between fan and Sonic (-ve if Sonic is to the left)
