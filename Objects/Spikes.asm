@@ -92,23 +92,21 @@ Spike_Upright:
 Spike_Hurt:
 		tst.b	(v_invincibility).w			; is Sonic invincible?
 		bne.s	Spike_Display				; if yes, branch
+	if SpikeFix	
+		; This changes spike behavior to match all subsequent games
+		tst.w	ost_sonic_flash_time(a1)	; is Sonic flashing after being hurt?
+		bne.s	Spike_Display			; if yes, branch
+	else
+	endc	
 		move.l	a0,-(sp)				; save OST address for spikes to stack
 		movea.l	a0,a2					; a2 is OST for spikes now
 		lea	(v_ost_player).w,a0			; a0 is temporarily Sonic now
 		cmpi.b	#id_Sonic_Hurt,ost_routine(a0)		; is Sonic hurt or dead?
 		bcc.s	Spike_Skip_Hurt				; if yes, branch
-		if Revision<>2
-			move.l	ost_y_pos(a0),d3
-			move.w	ost_y_vel(a0),d0
-			ext.l	d0
-			asl.l	#8,d0
-		else
-								; this fixes the infamous "spike bug"
-			tst.w	ost_sonic_flash_time(a0)	; is Sonic flashing after being hurt?
-			bne.s	Spike_Skip_Hurt			; if yes, branch
-			jmp	(Spike_Bugfix).l		; this is a copy of the above code that was pushed aside for this
-	Spike_Resume:
-		endc
+		move.l	ost_y_pos(a0),d3
+		move.w	ost_y_vel(a0),d0
+		ext.l	d0
+		asl.l	#8,d0
 		sub.l	d0,d3
 		move.l	d3,ost_y_pos(a0)			; move Sonic away from spikes, based on his y speed
 		jsr	(HurtSonic).l				; lose rings/die

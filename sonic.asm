@@ -39,7 +39,9 @@ AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 Revision:	equ 1
 	endc
 	
-FixBugs:	equ 1	
+FixBugs:	equ 1	; Set to 1 to fix various engine and display bugs
+
+SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
@@ -72,21 +74,8 @@ Vectors:	dc.l v_stack_pointer&$FFFFFF			; Initial stack pointer value
 		dc.l VBlank					; IRQ level 6 (vertical retrace interrupt)
 		dc.l ErrorTrap					; IRQ level 7
 		dcb.l 16,ErrorTrap				; TRAP #00..#15 exceptions
-		dcb.l 8,ErrorTrap				; Unused (reserved)
-		if Revision<>2
-			dcb.l 8,ErrorTrap			; Unused (reserved)
-		else
-	Spike_Bugfix:
-								; Relocated code from Spike_Hurt. REVXB was a nasty hex-edit.
-			move.l	ost_y_pos(a0),d3
-			move.w	ost_y_vel(a0),d0
-			ext.l	d0
-			asl.l	#8,d0
-			jmp	(Spike_Resume).l
+		dcb.l 16,ErrorTrap				; Unused (reserved)
 
-			dc.w ErrorTrap
-			dcb.l 3,ErrorTrap
-		endc
 		dc.b "SEGA MEGA DRIVE "				; Hardware system ID (Console name)
 		dc.b "(C)SEGA 1991.APR"				; Copyright holder and release date (generally year)
 		dc.b "SONIC THE               HEDGEHOG                " ; Domestic name
