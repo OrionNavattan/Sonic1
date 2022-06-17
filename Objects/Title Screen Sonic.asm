@@ -20,7 +20,13 @@ TSon_Index:	index *,,2
 
 TSon_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto TSon_Delay next
+	if FixBugs
+		; This centers Sonic on the title screen
+		move.w	#$F8,ost_x_pos(a0)
+	else	
+		; This places Sonic a little off-center to the left on the title screen
 		move.w	#$F0,ost_x_pos(a0)
+	endc	
 		move.w	#$DE,ost_y_screen(a0)			; position is fixed to screen
 		move.l	#Map_TSon,ost_mappings(a0)
 		move.w	#(vram_title_sonic/sizeof_cell)+tile_pal2,ost_tile(a0)

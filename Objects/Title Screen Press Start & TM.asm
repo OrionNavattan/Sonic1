@@ -20,7 +20,13 @@ PSB_Index:	index *,,2
 
 PSB_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto PSB_Animate next
+	if FixBugs
+		; This centers the text on the title screen
+		move.w	#$D8,ost_x_pos(a0)
+	else	
+		; This places the text a little off-center to the left on the title screen
 		move.w	#$D0,ost_x_pos(a0)
+	endc	
 		move.w	#$130,ost_y_screen(a0)
 		move.l	#Map_PSB,ost_mappings(a0)
 		move.w	#vram_title/sizeof_cell,ost_tile(a0)

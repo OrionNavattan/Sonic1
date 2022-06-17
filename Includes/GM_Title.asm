@@ -101,9 +101,13 @@ GM_Title:
 		lea	(Eni_Title).l,a0			; load title screen mappings
 		move.w	#0,d0
 		bsr.w	EniDec
-
+	if FixBugs
+		; X-coordinate changed tp 4 to fix centering
+		copyTilemap	$FF0000,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
+	else
+		; This places the emblem, TM, and copyright mark slightly off-center to the left
 		copyTilemap	$FF0000,vram_fg,3,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
-
+	endc
 		locVRAM	0
 		lea	(Nem_GHZ_1st).l,a0			; load GHZ patterns
 		bsr.w	NemDec
@@ -114,7 +118,14 @@ GM_Title:
 		move.w	#$178,(v_countdown).w			; run title screen for $178 frames
 		lea	(v_ost_psb).w,a1
 		moveq	#0,d0
-		move.w	#7,d1					; should be $F; 7 only clears half the OST
+	if FixBugs
+		move.w	#$F,d1					
+	else	
+		; This only clears half of the OST. This leaves  stale data
+		; from the "SONIC TEAM PRESENTS" screen in the table,
+		; preventing the "PRESS START BUTTON" object from appearing.
+		move.w	#7,d1			
+	endc
 
 	@clear_ost_psb:
 		move.l	d0,(a1)+
@@ -124,11 +135,11 @@ GM_Title:
 		move.b	#id_PSBTM,(v_ost_psb).w			; load "PRESS START BUTTON" object
 		;clr.b	(v_ost_psb+ost_routine).w		; The 'Mega Games 10' version of Sonic 1 added this line, to fix the "PRESS START BUTTON" object not appearing
 
-		if Revision=0
-		else
-			tst.b   (v_console_region).w		; is console Japanese?
-			bpl.s   @isjap				; if yes, branch
-		endc
+;		if Revision=0
+;		else
+		tst.b   (v_console_region).w		; is console Japanese?
+		bpl.s   @isjap				; if yes, branch
+;		endc
 
 		move.b	#id_PSBTM,(v_ost_tm).w			; load "TM" object
 		move.b	#id_frame_psb_tm,(v_ost_tm+ost_frame).w
@@ -316,10 +327,10 @@ LevSel_Level_SS:
 		move.w	d0,(v_rings).w				; clear rings
 		move.l	d0,(v_time).w				; clear time
 		move.l	d0,(v_score).w				; clear score
-		if Revision=0
-		else
-			move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
-		endc
+		;if Revision=0
+		;else
+		move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
+		;endc
 		rts	
 ; ===========================================================================
 
@@ -339,38 +350,38 @@ PlayLevel:
 		move.l	d0,(v_emerald_list).w			; clear emeralds
 		move.l	d0,(v_emerald_list+4).w			; clear emeralds (also clears v_oscillating_direction)
 		move.b	d0,(v_continues).w			; clear continues
-		if Revision=0
-		else
+		;if Revision=0
+		;else
 			move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
-		endc
+		;endc
 		play.b	1, bsr.w, cmd_Fade			; fade out music
 		rts	
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Level	select - level pointers
 ; ---------------------------------------------------------------------------
-LevSel_Ptrs:	if Revision=0
+LevSel_Ptrs:	;if Revision=0
 		; old level order
-		dc.b id_GHZ, 0
-		dc.b id_GHZ, 1
-		dc.b id_GHZ, 2
-		dc.b id_LZ, 0
-		dc.b id_LZ, 1
-		dc.b id_LZ, 2
-		dc.b id_MZ, 0
-		dc.b id_MZ, 1
-		dc.b id_MZ, 2
-		dc.b id_SLZ, 0
-		dc.b id_SLZ, 1
-		dc.b id_SLZ, 2
-		dc.b id_SYZ, 0
-		dc.b id_SYZ, 1
-		dc.b id_SYZ, 2
-		dc.b id_SBZ, 0
-		dc.b id_SBZ, 1
-		dc.b id_LZ, 3					; Scrap Brain Zone 3
-		dc.b id_SBZ, 2					; Final Zone
-		else
+		;dc.b id_GHZ, 0
+		;dc.b id_GHZ, 1
+		;dc.b id_GHZ, 2
+		;dc.b id_LZ, 0
+		;dc.b id_LZ, 1
+		;dc.b id_LZ, 2
+		;dc.b id_MZ, 0
+		;dc.b id_MZ, 1
+		;dc.b id_MZ, 2
+		;dc.b id_SLZ, 0
+		;dc.b id_SLZ, 1
+		;dc.b id_SLZ, 2
+		;dc.b id_SYZ, 0
+		;dc.b id_SYZ, 1
+		;dc.b id_SYZ, 2
+		;dc.b id_SBZ, 0
+		;dc.b id_SBZ, 1
+		;dc.b id_LZ, 3					
+		;dc.b id_SBZ, 2					
+		;else
 		; correct level order
 		dc.b id_GHZ, 0
 		dc.b id_GHZ, 1
@@ -389,9 +400,9 @@ LevSel_Ptrs:	if Revision=0
 		dc.b id_SLZ, 2
 		dc.b id_SBZ, 0
 		dc.b id_SBZ, 1
-		dc.b id_LZ, 3
-		dc.b id_SBZ, 2
-		endc
+		dc.b id_LZ, 3		; Scrap Brain Zone 3
+		dc.b id_SBZ, 2		; Final Zone
+		;endc
 LevSel_Ptr_SS:	dc.b id_SS, 0					; Special Stage ($13)
 LevSel_Ptr_ST:	dc.w $8000					; Sound Test ($14)
 LevSel_Ptr_End:
@@ -399,11 +410,11 @@ LevSel_Ptr_End:
 ; ---------------------------------------------------------------------------
 ; Level	select codes
 ; ---------------------------------------------------------------------------
-LevSelCode_J:	if Revision=0
-		dc.b btnUp,btnDn,btnL,btnR,0,$FF
-		else
+LevSelCode_J:	;if Revision=0
+		;dc.b btnUp,btnDn,btnL,btnR,0,$FF
+		;else
 		dc.b btnUp,btnDn,btnDn,btnDn,btnL,btnR,0,$FF
-		endc
+		;endc
 		even
 
 LevSelCode_US:	dc.b btnUp,btnDn,btnL,btnR,0,$FF
@@ -463,10 +474,10 @@ PlayDemo:
 		move.w	d0,(v_rings).w				; clear rings
 		move.l	d0,(v_time).w				; clear time
 		move.l	d0,(v_score).w				; clear score
-		if Revision=0
-		else
+		;if Revision=0
+		;else
 			move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
-		endc
+		;endc
 		rts	
 
 		include_demo_list				; Includes\Demo Pointers.asm
@@ -650,33 +661,33 @@ lsline:		macro
 LevSel_Strings:	lsline "GREEN HILL ZONE  STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
-		if Revision=0
-		lsline "LABYRINTH ZONE   STAGE 1"
-		lsline "                 STAGE 2"
-		lsline "                 STAGE 3"
+		;if Revision=0
+		;lsline "LABYRINTH ZONE   STAGE 1"
+		;lsline "                 STAGE 2"
+		;lsline "                 STAGE 3"
+		;lsline "MARBLE ZONE      STAGE 1"
+		;lsline "                 STAGE 2"
+		;lsline "                 STAGE 3"
+		;lsline "STAR LIGHT ZONE  STAGE 1"
+		;lsline "                 STAGE 2"
+		;lsline "                 STAGE 3"
+		;lsline "SPRING YARD ZONE STAGE 1"
+		;lsline "                 STAGE 2"
+		;lsline "                 STAGE 3"
+		;else
 		lsline "MARBLE ZONE      STAGE 1"
-		lsline "                 STAGE 2"
-		lsline "                 STAGE 3"
-		lsline "STAR LIGHT ZONE  STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
 		lsline "SPRING YARD ZONE STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
-		else
-		lsline "MARBLE ZONE      STAGE 1"
-		lsline "                 STAGE 2"
-		lsline "                 STAGE 3"
-		lsline "SPRING YARD ZONE STAGE 1"
-		lsline "                 STAGE 2"
-		lsline "                 STAGE 3"
 		lsline "LABYRINTH ZONE   STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
 		lsline "STAR LIGHT ZONE  STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
-		endc
+		;endc
 		lsline "SCRAP BRAIN ZONE STAGE 1"
 		lsline "                 STAGE 2"
 		lsline "                 STAGE 3"
