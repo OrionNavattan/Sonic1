@@ -43,6 +43,8 @@ FixBugs:	equ 1	; Set to 1 to fix various engine and display bugs
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
+SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential
+
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
 		include "Nemesis File List.asm"
@@ -251,7 +253,13 @@ Pal_SBZCyc7:	incbin	"Palettes\Cycle - SBZ 7.bin"
 Pal_SBZCyc8:	incbin	"Palettes\Cycle - SBZ 8.bin"
 Pal_SBZCyc9:	incbin	"Palettes\Cycle - SBZ 9.bin"
 Pal_SBZCyc10:	incbin	"Palettes\Cycle - SBZ 10.bin"
+
+	if SimultaneousPaletteFades
+		include "Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut (Simultaneous).asm"
+	else
 		include	"Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut.asm"
+	endc
+	
 		include	"Includes\GM_Sega.asm"
 Pal_Sega1:	incbin	"Palettes\Sega - Stripe.bin"
 Pal_Sega2:	incbin	"Palettes\Sega - All.bin"
