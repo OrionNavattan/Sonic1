@@ -54,7 +54,9 @@ TSon_Move:	; Routine 4
 	@display:
 		bra.w	DisplaySprite
 
-		rts	
+	if ~~Optimize
+		rts
+	endc	
 ; ===========================================================================
 
 TSon_Animate:	; Routine 6
@@ -62,8 +64,9 @@ TSon_Animate:	; Routine 6
 		bsr.w	AnimateSprite
 		bra.w	DisplaySprite
 
-		rts	
-
+	if ~~Optimize
+		rts
+	endc
 ; ---------------------------------------------------------------------------
 ; Animation script
 ; ---------------------------------------------------------------------------

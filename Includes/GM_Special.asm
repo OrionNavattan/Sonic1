@@ -189,20 +189,25 @@ SS_NormalExit:
 		tst.l	(v_plc_buffer).w
 		bne.s	SS_NormalExit
 		play.w	1, bsr.w, sfx_EnterSS			; play special stage exit sound
+	if Optimize
+		bra.w	PaletteWhiteOut
+	else	
 		bsr.w	PaletteWhiteOut
-		rts	
+		rts
+	endc		
 ; ===========================================================================
 
 SS_ToSegaScreen:
 		move.b	#id_Sega,(v_gamemode).w			; goto Sega screen
 		rts
 
-		if Revision=0
-		else
-	SS_ToLevel:	cmpi.b	#id_Level,(v_gamemode).w
-			beq.s	SS_ToSegaScreen
-			rts
-		endc
+		;if Revision=0
+		;else
+	SS_ToLevel:	
+		cmpi.b	#id_Level,(v_gamemode).w
+		beq.s	SS_ToSegaScreen
+		rts
+		;endc
 
 ; ---------------------------------------------------------------------------
 ; Special stage	background mappings loading subroutine
@@ -284,9 +289,12 @@ SS_BGLoad:
 		locVRAM	$D000,d0
 		moveq	#$3F,d1
 		moveq	#$3F,d2
+	if Optimize	
+		bra.w	TilemapToVRAM				; copy tilemap for clouds to VRAM
+	else
 		bsr.w	TilemapToVRAM				; copy tilemap for clouds to VRAM
 		rts
-
+	endc
 ; ---------------------------------------------------------------------------
 ; Palette cycling routine - special stage
 

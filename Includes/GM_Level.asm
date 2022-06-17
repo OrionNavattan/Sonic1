@@ -297,11 +297,11 @@ Level_MainLoop:
 		bsr.w	MoveSonicInDemo
 		bsr.w	LZWaterFeatures
 		jsr	(ExecuteObjects).l
-		if Revision=0
-		else
-			tst.w	(f_restart).w			; is level restart flag set?
-			bne.w	GM_Level			; if yes, branch
-		endc
+		;if Revision=0
+		;else
+		tst.w	(f_restart).w			; is level restart flag set?
+		bne.w	GM_Level			; if yes, branch
+		;endc
 		tst.w	(v_debug_active).w			; is debug mode being used?
 		bne.s	@skip_death				; if yes, branch
 		cmpi.b	#id_Sonic_Death,(v_ost_player+ost_routine).w ; has Sonic just died?
@@ -321,11 +321,11 @@ Level_MainLoop:
 
 		cmpi.b	#id_Demo,(v_gamemode).w			; is this a demo?
 		beq.s	Level_Demo				; if yes, branch
-		if Revision=0
-			tst.w	(f_restart).w			; is level restart flag set?
-			bne.w	GM_Level			; if yes, branch
-		else
-		endc
+		;if Revision=0
+		;tst.w	(f_restart).w			; is level restart flag set?
+		;bne.w	GM_Level			; if yes, branch
+		;else
+		;endc
 		cmpi.b	#id_Level,(v_gamemode).w
 		beq.w	Level_MainLoop				; if gamemode is still $C (level), branch
 		rts	

@@ -39,7 +39,9 @@ AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 Revision:	equ 1
 	endc
 	
-FixBugs:	equ 1	; Set to 1 to fix various engine and display bugs
+FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs
+
+Optimize:	equ 1	; Apply a number of optimizations
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
@@ -1516,11 +1518,11 @@ ObjPosSBZPlatform_Index:
 		include	"Object Placement\Ending.asm"
 ObjPos_Null:	endobj
 
-		if Revision=0
-			dcb.b $62A,$FF
-		else
+		;if Revision=0
+			;dcb.b $62A,$FF
+		;else
 			dcb.b $63C,$FF
-		endc
+		;endc
 		;dcb.b ($10000-(*%$10000))-(ROM_End-SoundDriver),$FF
 
 ; ---------------------------------------------------------------------------

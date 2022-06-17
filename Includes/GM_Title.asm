@@ -600,8 +600,12 @@ soundtest_pos:	= (sizeof_vram_row*$18)+($18*2)
 		lsr.b	#4,d0					; divide by $10
 		bsr.w	LevSel_DrawSound			; draw low digit
 		move.b	d2,d0					; retrieve from d2
+	if Optimize
+		bra.w	LevSel_DrawSound			; draw high digit
+	else	
 		bsr.w	LevSel_DrawSound			; draw high digit
 		rts
+	endc
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw sound test number
