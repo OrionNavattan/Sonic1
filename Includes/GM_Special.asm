@@ -111,11 +111,11 @@ SS_MainLoop:
 		beq.w	SS_MainLoop				; if yes, branch
 
 		tst.w	(v_demo_mode).w				; is demo mode on?
-		if Revision=0
-			bne.w	SS_ToSegaScreen			; if yes, branch
-		else
-			bne.w	SS_ToLevel
-		endc
+		;if Revision=0
+		;bne.w	SS_ToSegaScreen			; if yes, branch
+		;else
+		bne.w	SS_ToLevel
+		;endc
 		move.b	#id_Level,(v_gamemode).w		; set screen mode to $0C (level)
 		cmpi.w	#id_FZ+1,(v_zone).w			; is level number higher than FZ?
 		blo.s	@level_ok				; if not, branch
