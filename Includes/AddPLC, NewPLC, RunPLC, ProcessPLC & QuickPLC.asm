@@ -95,7 +95,7 @@ RunPLC:
 
 	@normal_mode:
 		andi.w	#$7FFF,d2				; clear highest bit
-	if ~~FixBugs
+	if FixBugs = 0
 	; This is done too early: this variable is used to determine when
 	; there are PLCs to process, which means that as soon as this
 	; variable is set, PLC processing will occur during V-Int. If an
@@ -120,7 +120,7 @@ RunPLC:
 		move.l	d0,(v_nem_d2).w
 		move.l	d5,(v_nem_header).w
 		move.l	d6,(v_nem_shift).w
-	if FixBugs
+	if FixBugs = 1
 	; See above
 		move.w	d2,(v_nem_tile_count).w			; load tile count	
 	endc	
@@ -193,7 +193,7 @@ ProcessPLC_Exit:
 ProcessPLC_Finish:
 		lea	(v_plc_buffer).w,a0
 		
-	if FixBugs
+	if FixBugs = 1 
 	; See below
 		lea 6(a0),a1
 		moveq	#$E,d0

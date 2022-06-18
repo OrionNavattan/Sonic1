@@ -25,7 +25,18 @@ VBlank:
 		jsr	VBlank_Index(pc,d0.w)			; jsr to relevant VBlank routine
 
 VBlank_Music:
+	if FixBugs = 1
+		; This allows the sound driver to work correctly with interrupts, 
+		; previously not possible due to a stack usage flaw in the driver's 
+		; DoModulation subroutine. See there for details.
+		enable_ints      ; enable interrupts (we can accept horizontal interrupts from now on)
+        bset    #0,(f_hblank_run_snd).w    ; set "SMPS running flag"
+        bne.s   VBlank_Exit       ; if it was set already, don't call another instance of SMPS
+	endc
 		jsr	(UpdateSound).l
+	if FixBugs = 1
+	    clr.b   (f_hblank_run_snd).w       ; reset "SMPS running flag"
+	endc	
 
 VBlank_Exit:
 		addq.l	#1,(v_vblank_counter).w			; increment frame counter
@@ -69,8 +80,15 @@ VBlank_Lag:
 
 	@notPAL:
 		move.w	#1,(f_hblank_pal_change).w		; set flag to let HBlank know a frame has finished
+	if FixBugs = 0
+		; With the sound driver now able to run during interrupts, the various
+		; Z80 stops and starts in the VBlank routines create the potential for a 
+		; bus conflict if an interrupt occurs while the driver is running due to the 
+		; fact that it stops the Z80 itself while running. Removing all the instances
+		; of Z80 stops and starts durung interrupts eliminates this.
 		stopZ80
 		waitZ80
+	endc	
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
 		bne.s	@allwater				; if yes, branch
 
@@ -82,7 +100,9 @@ VBlank_Lag:
 
 	@waterbelow:
 		move.w	(v_vdp_hint_counter).w,(a5)		; set water palette position by sending VDP register $8Axx to control port (vdp_control_port)
+	if FixBugs = 0	
 		startZ80
+	endc	
 		bra.w	VBlank_Music
 ; ===========================================================================
 
@@ -126,8 +146,10 @@ VBlank_Pause:
 
 ; 8 - GM_Level> Level_MainLoop, Level_FDLoop, Level_DelayLoop
 VBlank_Level:
+	if FixBugs = 0
 		stopZ80
 		waitZ80
+	endc	
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
 		bne.s	@allwater				; if yes, branch
@@ -150,17 +172,24 @@ VBlank_Level:
 		move.b	#0,(f_sonic_dma_gfx).w
 
 	@nochg:
+	if FixBugs = 0
 		startZ80
+	endc	
 		movem.l	(v_camera_x_pos).w,d0-d7		; copy all camera & bg x/y positions to d0-d7
 		movem.l	d0-d7,(v_camera_x_pos_copy).w		; create duplicates in RAM
 		movem.l	(v_fg_redraw_direction).w,d0-d1		; copy all fg/bg redraw direction flags to d0-d1
 		movem.l	d0-d1,(v_fg_redraw_direction_copy).w	; create duplicates in RAM
+		
+	if FixBugs = 0
+		; Related to the change in VBlank_Music, these five lines are part 
+		; of a workaround for a stack usage flaw in the sound driver's 
+		; DoModulation subroutine. With that flaw corrected, these lines are no longer needed.
 		cmpi.b	#96,(v_vdp_hint_line).w			; is HBlank set to run on line 96 or below? (42% of the way down the screen)
 		bhs.s	DrawTiles_LevelGfx_HUD_PLC		; if yes, branch
 		move.b	#1,(f_hblank_run_snd).w			; set flag to run sound driver on HBlank
 		addq.l	#4,sp
 		bra.w	VBlank_Exit
-
+	endc
 ; ---------------------------------------------------------------------------
 ; Subroutine to	update fg/bg, run tile animations, HUD and and decompress up
 ; to 3 cells of Nemesis graphics
@@ -182,13 +211,17 @@ DrawTiles_LevelGfx_HUD_PLC:
 
 ; $A - GM_Special> SS_MainLoop
 VBlank_Special:
+	if FixBugs = 0
 		stopZ80
 		waitZ80
+	endc	
 		bsr.w	ReadJoypads
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy palette to CRAM
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
+	if FixBugs = 0		
 		startZ80
+	endc	
 		bsr.w	PalCycle_SS				; update cycling palette
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
 		beq.s	@nochg					; if not, branch
@@ -209,8 +242,10 @@ VBlank_Special:
 ; $18 - GM_Ending> End_LoadSonic (once), End_MainLoop
 VBlank_TitleCard:
 VBlank_Ending:
+	if FixBugs = 0
 		stopZ80
 		waitZ80
+	endc	
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
 		bne.s	@allwater				; if yes, branch
@@ -232,7 +267,9 @@ VBlank_Ending:
 		move.b	#0,(f_sonic_dma_gfx).w
 
 	@nochg:
+	if FixBugs = 0	
 		startZ80
+	endc	
 		movem.l	(v_camera_x_pos).w,d0-d7		; copy all camera & bg x/y positions to d0-d7
 		movem.l	d0-d7,(v_camera_x_pos_copy).w		; create duplicates in RAM
 		movem.l	(v_fg_redraw_direction).w,d0-d1		; copy all fg/bg redraw direction flags to d0-d1
@@ -261,13 +298,17 @@ VBlank_Fade:
 
 ; $16 - GM_Special> SS_FinLoop; GM_Continue> Cont_MainLoop
 VBlank_Continue:
+	if FixBugs = 0
 		stopZ80
 		waitZ80
+	endc	
 		bsr.w	ReadJoypads
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy palette to CRAM
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
+	if FixBugs = 0	
 		startZ80
+	endc	
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
 		beq.s	@nochg					; if not, branch
 
@@ -287,8 +328,11 @@ VBlank_Continue:
 ; ---------------------------------------------------------------------------
 
 ReadPad_Palette_Sprites_HScroll:
+
+	if FixBugs = 0		
 		stopZ80
 		waitZ80
+	endc
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
 		bne.s	@allwater				; if yes, branch
@@ -301,7 +345,9 @@ ReadPad_Palette_Sprites_HScroll:
 	@waterbelow:
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
+	if FixBugs = 0	
 		startZ80
+	endc	
 		rts
 
 ; ---------------------------------------------------------------------------
@@ -322,14 +368,21 @@ HBlank:
 		endr
 		move.w	#$8A00+223,4(a1)			; reset HBlank register
 		movem.l	(sp)+,a0-a1				; restore a0-a1 from stack
+	if FixBugs = 0
+		; Part of the same workaround described above in VBlank_Level. 
+		; Also no longer needed if the sound driver bug has been fixed. 	
 		tst.b	(f_hblank_run_snd).w			; is flag set to update sound & some graphics during HBlank?
 		bne.s	@update_hblank				; if yes, branch
-
+	endc
 	@nochg:
 		rte						; end of HBlank
 ; ===========================================================================
 
-; The following only runs during a level and HBlank is set to run on line 96 or below
+	if FixBugs = 0
+		; Part of the same workaround described above in VBlank_Level. 
+		; Also no longer needed if the sound driver bug has been fixed. 	
+		
+		; The following only runs during a level and HBlank is set to run on line 96 or below
 @update_hblank:
 		clr.b	(f_hblank_run_snd).w
 		movem.l	d0-a6,-(sp)				; save registers to stack
@@ -337,3 +390,4 @@ HBlank:
 		jsr	(UpdateSound).l				; update audio
 		movem.l	(sp)+,d0-a6				; restore registers from stack
 		rte						; end of HBlank
+	endc

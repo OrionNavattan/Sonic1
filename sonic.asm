@@ -256,7 +256,7 @@ Pal_SBZCyc8:	incbin	"Palettes\Cycle - SBZ 8.bin"
 Pal_SBZCyc9:	incbin	"Palettes\Cycle - SBZ 9.bin"
 Pal_SBZCyc10:	incbin	"Palettes\Cycle - SBZ 10.bin"
 
-	if SimultaneousPaletteFades
+	if SimultaneousPaletteFades = 1
 		include "Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut (Simultaneous).asm"
 	else
 		include	"Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut.asm"

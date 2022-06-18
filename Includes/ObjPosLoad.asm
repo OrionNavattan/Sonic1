@@ -35,7 +35,7 @@ OPL_Init:
 		lea	(v_respawn_list).w,a2
 		move.w	#$101,(a2)+				; start respawn counter at 1
 		
-	if FixBugs
+	if FixBugs = 1
 		move.w	#($FC/4)-1,d0
 	else
 	; This clears longwords, but the loop counter is measured in words!
@@ -47,7 +47,7 @@ OPL_Init:
 		clr.l	(a2)+ 
 		dbf	d0,@clear_respawn_list			; clear object respawn list
 		
-	if FixBugs	
+	if FixBugs	= 1
 		clr.w	(a2)+ ; manually clear the last word of the respawn list
 	endc
 	

@@ -189,7 +189,7 @@ SS_NormalExit:
 		tst.l	(v_plc_buffer).w
 		bne.s	SS_NormalExit
 		play.w	1, bsr.w, sfx_EnterSS			; play special stage exit sound
-	if Optimize
+	if Optimize = 1
 		bra.w	PaletteWhiteOut
 	else	
 		bsr.w	PaletteWhiteOut
@@ -289,7 +289,7 @@ SS_BGLoad:
 		locVRAM	$D000,d0
 		moveq	#$3F,d1
 		moveq	#$3F,d2
-	if Optimize	
+	if Optimize	= 1
 		bra.w	TilemapToVRAM				; copy tilemap for clouds to VRAM
 	else
 		bsr.w	TilemapToVRAM				; copy tilemap for clouds to VRAM

@@ -101,11 +101,11 @@ GM_Title:
 		lea	(Eni_Title).l,a0			; load title screen mappings
 		move.w	#0,d0
 		bsr.w	EniDec
-	if FixBugs
+	if FixBugs = 1
 		; X-coordinate changed tp 4 to fix centering
 		copyTilemap	$FF0000,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
 	else
-		; This places the emblem, TM, and copyright mark slightly off-center to the left
+		; This places the emblem, TM, and copyright mark slightly too far to the left
 		copyTilemap	$FF0000,vram_fg,3,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
 	endc
 		locVRAM	0
@@ -118,7 +118,7 @@ GM_Title:
 		move.w	#$178,(v_countdown).w			; run title screen for $178 frames
 		lea	(v_ost_psb).w,a1
 		moveq	#0,d0
-	if FixBugs
+	if FixBugs = 1
 		move.w	#$F,d1					
 	else	
 		; This only clears half of the OST. This leaves  stale data
@@ -288,15 +288,19 @@ LevelSelect:
 		cmpi.w	#$9E,d0					; is sound $9E being played?
 		beq.s	LevSel_Credits				; if yes, branch
 
+	if FixBugs = 0
 	@nocheat:
-		; This is a workaround for a bug, see Sound_ChkValue for more.
-		; Once you've fixed the bugs there, comment these four instructions out
+		; This is a workaround for a sound driver bug, See PlaySoundID for an explanation.
 		cmpi.w	#_lastMusic+1,d0			; is sound $80-$93 being played?
 		blo.s	@play					; if yes, branch
 		cmpi.w	#_firstSfx,d0				; is sound $94-$9F being played?
 		blo.s	LevelSelect				; if yes, branch
 
 	@play:
+	else
+		; With the sound driver bug fixed, the above code is no longer needed.
+	@nocheat:
+	endc
 		bsr.w	PlaySound1
 		bra.s	LevelSelect
 ; ===========================================================================
@@ -600,7 +604,7 @@ soundtest_pos:	= (sizeof_vram_row*$18)+($18*2)
 		lsr.b	#4,d0					; divide by $10
 		bsr.w	LevSel_DrawSound			; draw low digit
 		move.b	d2,d0					; retrieve from d2
-	if Optimize
+	if Optimize = 1
 		bra.w	LevSel_DrawSound			; draw high digit
 	else	
 		bsr.w	LevSel_DrawSound			; draw high digit

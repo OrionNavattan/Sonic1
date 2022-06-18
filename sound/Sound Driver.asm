@@ -41,8 +41,13 @@ UpdateSound:
 		jsr	DoFadeIn(pc)
 
 @skipfadein:
-		; DANGER! The following line only checks v_soundqueue and v_soundqueue+1, breaking v_soundqueue+2.
+	if FixBugs = 1
+		tst.l	v_soundqueue(a6)			; is a music or sound queued for played?
+	else
+		; This is a word instead of a longword, and consequently only checks 
+		; v_soundqueue and v_soundqueue+1, breaking v_soundqueue+2.
 		tst.w	v_soundqueue(a6)			; is a music or sound queued for played?
+	endc	
 		beq.s	@nosndinput				; if not, branch
 		jsr	CycleSoundQueue(pc)
 
@@ -195,6 +200,12 @@ FMUpdateTrack:
 		jsr	FMDoNext(pc)
 		jsr	FMPrepareNote(pc)
 		bra.w	FMNoteOn
+	if FixBugs = 1
+		; The driver fails to update modulation on the fame a 'no attack' note begins.
+		; Branching to the following two subroutines corrects this.
+		bsr.w   DoModulation
+    	bra.w   FMUpdateFreq
+	endc	
 ; ===========================================================================
 
 @notegoing:
@@ -322,18 +333,41 @@ NoteTimeoutUpdate:
 ; ---------------------------------------------------------------------------
 
 DoModulation:
+	if FixBugs = 1
+		; On top of the more serious bug described below, this function fails to check
+		; if the note frequency is zero (the rest frequency) before running, 
+		; resulting in modulation being applied to rests and corrupting them, giving them
+		; a 'rumbling' sound. The following two lines eliminate this issue.
+        btst    #1,(a5)     ; Is note playing?
+        bne.s   @dontreturn   ; no - return
+        btst    #3,(a5)     ; Is modulation active?
+        beq.s   @dontreturn ; Return if not
+	else
+		; This subroutine meddles with the stack in such a way that if an interrupt
+		; occurs at any time while it is running, it will end up returning oy itself
+		; resulting in an infinite loop. This was worked around with a hack in
+		; the VBLank and Hblank routines.
 		addq.w	#4,sp					; Do not return to caller (but see below)
 		btst	#chf_Vib,(a5)				; Is modulation active? (ch_Flags)
 		beq.s	@locret					; Return if not
+	endc	
 		tst.b	ch_VibDelay(a5)				; Has modulation wait expired?
 		beq.s	@waitdone				; If yes, branch
 		subq.b	#1,ch_VibDelay(a5)			; Update wait timeout
+		
+	if FixBugs = 1
+	@dontreturn:
+		addq.w  #4,sp       ; ++ Do not return to caller (but see below)
+	endc
 		rts
 ; ===========================================================================
 
 @waitdone:
 		subq.b	#1,ch_VibSpeed(a5)			; Update speed
 		beq.s	@updatemodulation			; If it expired, want to update modulation
+	if FixBugs = 1
+	    addq.w  #4,sp       ; ++ Do not return to caller (but see below)
+	endc	
 		rts
 ; ===========================================================================
 
@@ -344,6 +378,9 @@ DoModulation:
 		bne.s	@calcfreq				; If nonzero, branch
 		move.b	3(a0),ch_VibSteps(a5)			; Restore from modulation data
 		neg.b	ch_VibOff(a5)				; Negate modulation delta
+	if FixBugs
+	    addq.w  #4,sp       ; ++ Do not return to caller (but see below)
+	endc	
 		rts
 ; ===========================================================================
 
@@ -354,7 +391,9 @@ DoModulation:
 		add.w	ch_VibFreq(a5),d6			; Add cumulative modulation change
 		move.w	d6,ch_VibFreq(a5)			; Store it
 		add.w	ch_Freq(a5),d6				; Add note frequency to it
+	if FixBugs = 0
 		subq.w	#4,sp					; In this case, we want to return to caller after all
+	endc	
 
 @locret:
 		rts
@@ -521,10 +560,16 @@ PlaySoundID:
 		beq.w	SoundCmd_Stop
 		bpl.s	@locret					; If >= 0, return (not a valid sound, bgm or command)
 		move.b	#com_Null,v_sound_id(a6)		; reset	music flag
-		; DANGER! Music ends at $93, yet this checks until $9F; attempting to
-		; play sounds $94-$9F will cause a crash! Remove the '+$C' to fix this.
-		; See LevSel_NoCheat for more.
+
+	if FixBugs = 1
+		cmpi.b	#_lastMusic,d7			; Is this music ($81-$93)?
+	else
+		; While music ends at $93, this erroneously checks until $9F. Attempting to
+		; play sounds $94-$9F will cause the game to crash. This was worked around with
+		; a hack in the LevelSelect routine to filter out invalid IDs before they reached
+		; the driver.
 		cmpi.b	#_lastMusic+$C,d7			; Is this music ($81-$9F)?
+	endc
 		bls.w	Sound_PlayBGM				; Branch if yes
 		cmpi.b	#_firstSfx,d7				; Is this after music but before sfx? (redundant check)
 		blo.w	@locret					; Return if yes
@@ -532,13 +577,18 @@ PlaySoundID:
 		bls.w	Sound_PlaySFX				; Branch if yes
 		cmpi.b	#_firstSpecSfx,d7			; Is this after sfx but before special sfx? (redundant check)
 		blo.w	@locret					; Return if yes
-		; DANGER! Special SFXes end at $D0, yet this checks until $DF; attempting to
-		; play sounds $D1-$DF will cause a crash! Remove the '+$10' and change the 'blo' to a 'bls'
+	if FixBugs = 1
+		cmpi.b	#_lastSpecSfx,d7			; Is this special sfx ($D0-$DF)?
+		bls.w	Sound_PlaySpecial			; Branch if yes
+		cmpi.b	#_firstCmd,d7		; Is this after special sfx but before $E0?
+		blo.w	@locret			; Return if yes	
+	else	
+		; Basically the same bug as above. Special SFXes end at $D0, but this checks until $DF. 
+		; Attempting to play sounds $D1-$DF will cause the game to crash. Remove the '+$10' and change the 'blo' to a 'bls'
 		; and uncomment the two lines below to fix this.
 		cmpi.b	#_lastSpecSfx+$10,d7			; Is this special sfx ($D0-$DF)?
 		blo.w	Sound_PlaySpecial			; Branch if yes
-		;cmpi.b	#_firstCmd,d7		; Is this after special sfx but before $E0?
-		;blo.w	@locret			; Return if yes
+	endc
 		cmpi.b	#_lastCmd,d7				; Is this $E0-$E4?
 		bls.s	Sound_E0toE4				; Branch if yes
 
@@ -564,6 +614,14 @@ Sound_ExIndex:
 ; ---------------------------------------------------------------------------
 
 SoundCmd_Sega:
+	if FixBugs = 1
+		; The driver does not disable DAC panning before playing the Sega sound.
+		; This is not an issue in the unmodified game, but can become an 
+		; issue in romhacks with tracks that utilize DAC panning.
+		move.b  #$B6, d0    ; Register: FM3/6 Panning
+        move.b  #$C0, d1    ; Value: Enable both channels
+        jsr WriteFMII(pc)   ; Write to YM2612 Port 1 (for FM6) [sub_72764]
+	endc 
 		move.b	#$88,(z80_dac_sample).l			; Queue Sega PCM
 		startZ80
 		move.w	#$11,d1
@@ -648,13 +706,25 @@ Sound_PlayBGM:
 		movea.l	a4,a3
 		addq.w	#6,a4					; Point past header
 		moveq	#0,d7
+	if FixBugs = 1
+		; See fix below for explanation.
+		move.b	4(a3),d4				; load tempo dividing timing
+		moveq	#ch_Size,d6
+		move.b	#1,d5					; Note duration for first "note"	
+	endc	
 		move.b	2(a3),d7				; load number of FM+DAC tracks
 		beq.w	@bgm_fmdone				; branch if zero
 		subq.b	#1,d7
 		move.b	#sPanCenter,d1				; Default AMS+FMS+Panning
+	if FixBugs = 0
+		; These lines are placed too late; if the music track contains only PSG channels 
+		; (i.e., no FM or DAc), then "beq.w @bgm_fmdone" will skip them, and the PSG
+		; Will not be initialized properly, resulting in the track not playing or playing garbage. 
+		; Moving them before "beq.w @bgm_fmdone" eliminates this issue.
 		move.b	4(a3),d4				; load tempo dividing timing
 		moveq	#ch_Size,d6
 		move.b	#1,d5					; Note duration for first "note"
+	endc	
 		lea	v_music_FMDAC_RAM(a6),a1
 		lea	FMDACInitBytes(pc),a2
 
@@ -826,9 +896,12 @@ Sound_PlaySFX:
 		move.w	(a1)+,d1				; Voice pointer
 		add.l	a3,d1					; Relative pointer
 		move.b	(a1)+,d5				; Dividing timing
-		; DANGER! there is a missing 'moveq	#0,d7' here, without which SFXes whose
-		; index entry is above $3F will cause a crash. This is actually the same way that
-		; this bug is fixed in Ristar's driver.
+	if FixBugs = 1
+		moveq	#0,d7
+	else
+		; Without a 'moveq #0,d7' here, special SFXes whose
+		; index entry is above $3F will cause a crash.
+	endc	
 		move.b	(a1)+,d7				; Number of tracks (FM + PSG)
 		subq.b	#1,d7
 		moveq	#ch_Size,d6
@@ -947,8 +1020,12 @@ Sound_PlaySpecial:
 		add.l	a3,d0					; Relative pointer
 		move.l	d0,v_back_voice_table(a6)		; Store voice pointer
 		move.b	(a1)+,d5				; Dividing timing
-		; DANGER! there is a missing 'moveq	#0,d7' here, without which special SFXes whose
-		; index entry is above $3F will cause a crash. This instance was not fixed in Ristar's driver.
+	if FixBugs = 1
+		moveq	#0,d7
+	else	
+		; Without the 'moveq #0,d7' here, special SFXes whose
+		; index entry is above $3F will cause a crash.
+	endc	
 		move.b	(a1)+,d7				; Number of tracks (FM + PSG)
 		subq.b	#1,d7
 		moveq	#ch_Size,d6
@@ -1052,9 +1129,14 @@ StopSFX:
 		bne.s	@getfmpointer				; Branch if not
 		tst.b	v_Back_FM4+ch_Flags(a6)			; Is special SFX playing?
 		bpl.s	@getfmpointer				; Branch if not
-		; DANGER! there is a missing 'movea.l	a5,a3' here, without which the
-		; code is broken. It is dangerous to do a fade out when a GHZ waterfall
-		; is playing its sound!
+		
+	if FixBugs = 1
+		movea.l	a5,a3
+	else
+		; Without the above 'movea.l a5,a3' here, this code is broken. 
+		; It is dangerous to do a fade out when a GHZ waterfall is playing its sound!
+	endc	
+
 		lea	v_Back_FM4(a6),a5
 		movea.l	v_back_voice_table(a6),a1		; Get special voice pointer
 		bra.s	@gotfmpointer
@@ -1256,10 +1338,13 @@ SoundCmd_Stop:
 		moveq	#0,d1					; FM3/FM6 normal mode, disable timers
 		jsr	WriteFMI(pc)
 		movea.l	a6,a0
-		; DANGER! This should be clearing all variables and track data, but misses the last $10 bytes of v_Back_PSG3.
-		; Remove the '-$10' to fix this.
+	if FixBugs = 1
+		move.w	#((v_back_ram_end-v_backup_start)/4)-1,d0 ; Clear $400 bytes: all variables and track data	
+	else	
+		;This should be clearing all variables and track data, but misses the last $10 bytes of v_Back_PSG3.
 		move.w	#((v_back_ram_end-v_backup_start-$10)/4)-1,d0 ; Clear $390 bytes: all variables and most track data
-
+	endc
+	
 @clearramloop:
 		clr.l	(a0)+
 		dbf	d0,@clearramloop
@@ -1279,8 +1364,13 @@ InitMusicPlayback:
 		move.b	f_has_backup(a6),d2
 		move.b	f_speedup(a6),d3
 		move.b	v_fadein_counter(a6),d4
-		; DANGER! Only v_soundqueue and v_soundqueue+1 are backed up, once again breaking v_soundqueue+2
+		
+	if FixBugs = 1
+		move.l	v_soundqueue(a6),d5
+	else
+		; As before, this should be a longword rather than a word.
 		move.w	v_soundqueue(a6),d5
+	endc	
 		move.w	#((v_music_ram_end-v_backup_start)/4)-1,d0 ; Clear $220 bytes: all variables and music track data
 
 @clearramloop:
@@ -1294,33 +1384,31 @@ InitMusicPlayback:
 		move.b	d4,v_fadein_counter(a6)
 		move.w	d5,v_soundqueue(a6)
 		move.b	#com_Null,v_sound_id(a6)		; set music to $80 (silence)
-		; DANGER! This silences ALL channels, even the ones being used
-		; by SFX, and not music! @sendfmnoteoff does this already, and
-		; doesn't affect SFX channels, either.
-		; This should be replaced with an 'rts'.
+		
+	if FixBugs = 1
+		; This more thoroughly sets up the music tracks,allowing @Sendfmnoteoff
+		; to properly silence the hardware.
+		lea	v_music_ram+ch_Type(a6),a1
+		lea	FMDACInitBytes(pc),a2
+		moveq	#((v_music_FMDAC_RAM_end-v_music_FMDAC_RAM)/ch_Size)-1,d1		; 7 DAC/FM tracks
+		bsr.s	@writeloop
+		lea	PSGInitBytes(pc),a2
+		moveq	#((v_music_PSG_RAM_end-v_music_PSG_RAM)/ch_Size)-1,d1	; 3 PSG tracks
+
+@writeloop:
+		move.b	(a2)+,(a1)		; Write track's channel byte
+		lea	ch_Size(a1),a1		; Next track
+		dbf	d1,@writeloop		; Loop for all DAC/FM/PSG tracks
+
+		rts
+	else	
+		; This silences ALL channels, even the ones being used
+		; by SFX, and not music, and is redundant since sendfmnoteoff will 
+		; also do it, although we will need to define all channels properly 
+		; for it to work.
 		jsr	FMSilenceAll(pc)
 		bra.w	PSGSilenceAll
-		; DANGER! InitMusicPlayback, and Sound_PlayBGM for that matter,
-		; don't do a very good job of setting up the music tracks.
-		; Tracks that aren't defined in a music file's header don't have
-		; their channels defined, meaning @sendfmnoteoff won't silence
-		; hardware properly. In combination with removing the above
-		; calls to FMSilenceAll/PSGSilenceAll, this will cause hanging
-		; notes.
-		; To fix this, I suggest using this code, instead of an 'rts':
-		;lea	v_music_ram+ch_Type(a6),a1
-		;lea	FMDACInitBytes(pc),a2
-		;moveq	#((v_music_FMDAC_RAM_end-v_music_FMDAC_RAM)/ch_Size)-1,d1		; 7 DAC/FM tracks
-		;bsr.s	@writeloop
-		;lea	PSGInitBytes(pc),a2
-		;moveq	#((v_music_PSG_RAM_end-v_music_PSG_RAM)/ch_Size)-1,d1	; 3 PSG tracks
-
-;@writeloop:
-		;move.b	(a2)+,(a1)		; Write track's channel byte
-		;lea	ch_Size(a1),a1		; Next track
-		;dbf	d1,@writeloop		; Loop for all DAC/FM/PSG tracks
-
-		;rts
+	endc	
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to 
@@ -1412,11 +1500,14 @@ DoFadeIn:
 		bpl.s	@nextpsg				; Branch if not
 		subq.b	#1,ch_Volume(a5)			; Reduce volume attenuation
 		move.b	ch_Volume(a5),d6			; Get value
+	if ~~FixBugs
+		; This check is rendered redundant by the fix in PSGSendVolume.		
 		cmpi.b	#$10,d6					; Is it is < $10?
 		blo.s	@sendpsgvol				; Branch if yes
 		moveq	#$F,d6					; Limit to $F (maximum attenuation)
-
-@sendpsgvol:
+	@sendpsgvol:	
+	endc
+	
 		jsr	SetPSGVolume(pc)
 
 @nextpsg:
@@ -1485,11 +1576,41 @@ WriteFMIorII:
 		bne.s	WriteFMIIPart				; Branch if for part II
 		add.b	ch_Type(a5),d0				; Add in voice control bits
 
-; Strangely, despite this driver being SMPS 68k Type 1b,
-; WriteFMI and WriteFMII are the Type 1a versions.
-; In Sonic 1's prototype, they were the Type 1b versions.
-; I wonder why they were changed?
+	if Optimize = 1
+	; The following code is ported directly from Golden Axe II,
+	; and is much more efficient than the mess below.
+WriteFMI:          
+        lea    (ym2612_a0).l,a0
+@waitloop1:
+        btst    #7,(a0) 	; Is FM busy?
+        bne.s   @waitloop1  ; Loop if so
+        move.b  d0,(a0)
+@waitloop2:       
+		btst    #7,(a0)
+        bne.s   @waitloop2
+        move.b  d1,1(a0)
+		rts
+; ===========================================================================
 
+WriteFMIIPart:
+		move.b	ch_Type(a5),d2				; Get voice control bits
+		bclr	#2,d2					; Clear chip toggle
+		add.b	d2,d0					; Add in to destination register
+
+WriteFMII:                
+        lea    (ym2612_a0).l,a0
+@waitloop1:
+        btst    #7,(a0) 	; Is FM busy?
+        bne.s   @waitloop1  ; Loop if so
+        move.b  d0,2(a0)
+@waitloop2:
+        btst    #7,(a0) 	; Is FM busy?
+        bne.s   @waitloop2	; Loop if so
+        move.b  d1,3(a0)
+        rts
+	else
+	; For unclear reasons, stock Sonic 1 uses this inefficient version 
+	; of SMPS 68k Type 1b routines.
 WriteFMI:
 		move.b	(ym2612_a0).l,d2
 		btst	#7,d2					; Is FM busy?
@@ -1530,7 +1651,7 @@ WriteFMII:
 
 		move.b	d1,(ym2612_d1).l
 		rts
-
+	endc
 ; ---------------------------------------------------------------------------
 ; FM Note Values: b-0 to a#8
 ; ---------------------------------------------------------------------------
@@ -1653,7 +1774,7 @@ PSGUpdateVolFX:
 		tst.b	ch_Voice(a5)				; Test envelope
 		beq.w	locret_7298A				; Return if it is zero
 
-PSGDoVolFX:	; This can actually be made a bit more efficient, see the comments for more
+PSGDoVolFX:	
 		move.b	ch_Volume(a5),d6			; Get volume
 		moveq	#0,d0
 		move.b	ch_Voice(a5),d0				; Get envelope
@@ -1665,16 +1786,24 @@ PSGDoVolFX:	; This can actually be made a bit more efficient, see the comments f
 		move.b	ch_VolEnvPos(a5),d0			; Get volume envelope index
 		move.b	(a0,d0.w),d0				; Volume envelope value
 		addq.b	#1,ch_VolEnvPos(a5)			; Increment volume envelope index
-		btst	#7,d0					; Is volume envelope value negative?	; note, this line and the line below are redundant
-		beq.s	@gotflutter				; Branch if not				; especially because Sonic 1 only checks for 1 command
+		btst	#7,d0					; Is volume envelope value negative?
+	if Optimize = 1
+		; Eliminates an redundancy.
+		bmi.s	VolEnvCmd_Hold				; Branch if not				
+	else	
+		beq.s	@gotflutter				; Branch if not				
 		cmpi.b	#evcHold,d0				; Is it the terminator?
 		beq.s	VolEnvCmd_Hold				; If so, branch
-
+	endc
+	
 @gotflutter:
 		add.w	d0,d6					; Add volume envelope value to volume
+	if ~~FixBugs
+		; This check is rendered redundant by the fix in PSGSendVolume.
 		cmpi.b	#$10,d6					; Is volume $10 or higher?
 		blo.s	SetPSGVolume				; Branch if not
 		moveq	#$F,d6					; Limit to silence and fall through
+	endc	
 ; ===========================================================================
 
 SetPSGVolume:
@@ -1686,6 +1815,15 @@ SetPSGVolume:
 		bne.s	PSGCheckNoteTimeout			; Branch if yes
 
 PSGSendVolume:
+	if FixBugs = 1
+	; This filters all instances of PSG volumes that are too high, which overflow 
+	; and write into the next channel's frequency register. 
+	; This issue can sometimes cause sour notes from the PSG when fading-in.
+		cmpi.b  #$10, d6    ; Is volume $10 or higher?
+        blo.s   @skiplimit    ; Branch if not
+        moveq   #$F, d6     ; Limit to silence and fall through
+@skiplimit:
+	endc
 		or.b	ch_Type(a5),d6				; Add in track selector bits
 		addi.b	#$10,d6					; Mark it as a volume command
 		move.b	d6,(psg_input).l
@@ -1705,6 +1843,11 @@ PSGCheckNoteTimeout:
 
 VolEnvCmd_Hold:
 		subq.b	#1,ch_VolEnvPos(a5)			; Decrement volume envelope index
+	if FixBugs = 1
+		; Without these two lines, there is a risk of future volume updates breaking.
+		subq.b	#1,ch_VolEnvPos(a5)			; Decrement volume envelope index
+		jsr 	PSGDoVolFX
+	endc	
 		rts
 ; ===========================================================================
 
@@ -1716,14 +1859,15 @@ SendPSGNoteOff:
 		move.b	ch_Type(a5),d0				; PSG channel to change
 		ori.b	#$1F,d0					; Maximum volume attenuation
 		move.b	d0,(psg_input).l
-		; DANGER! If InitMusicPlayback doesn't silence all channels, there's the
+	if FixBugs = 1
+		; If InitMusicPlayback doesn't silence all channels, there's the
 		; risk of music accidentally playing noise because it can't detect if
 		; the PSG4/noise channel needs muting on track initialisation.
-		; S&K's driver fixes it by doing this:
-		;cmpi.b	#tPSG3 | $1F,d0				; Are stopping PSG3?
-		;bne.s	locret_729B4
-		;move.b	#tPSG4 | $1F,(psg_input).l		; If so, stop noise channel while we're at it
-
+		; The follow code is backported from S3&K addresses this issue
+		cmpi.b	#tPSG3 | $1F,d0				; Are stopping PSG3?
+		bne.s	locret_729B4
+		move.b	#tPSG4 | $1F,(psg_input).l		; If so, stop noise channel while we're at it
+	endc
 locret_729B4:
 		rts
 ; ===========================================================================
@@ -1808,6 +1952,16 @@ SongCom_RestoreSong:
 		movea.l	a6,a0
 		lea	v_backup_ram(a6),a1
 		move.w	#((v_music_ram_end-v_backup_start)/4)-1,d0 ; $220 bytes to restore: all variables and music track data
+	if FixBugs = 1
+		; This subroutine does not restore the mode of FM6 when fading in.
+		; If a track uses FM6 (Special Stage music), is interrupted by a track that uses the DAC (1-UP Jingle),
+		; and is then faded back in, FM6 will remain in DAC mode, causing the music 
+		; to be missing a channel. The following three lines always place FM6 back in FM mode when fading in.
+		; This doesn't cause any issues, since the Z80 DAC driver will set FM6 back to DAC mode if required.
+		move.b  #$2B, d0    ; Register: DAC mode (bit 7 = enable)
+        moveq   #$00, d1    ; Value: DAC mode disable
+        jsr WriteFMI(pc)    ; Write to YM2612 Port 0 [sub_7272E]
+	endc
 
 @restoreramloop:
 		move.l	(a1)+,(a0)+
@@ -1844,6 +1998,13 @@ SongCom_RestoreSong:
 		bset	#chf_Rest,(a5)				; Set 'track at rest' bit (ch_Flags)
 		jsr	PSGNoteOff(pc)
 		add.b	d6,ch_Volume(a5)			; Apply current volume fade-in
+	if FixBugs = 1
+		; This routine fails to set the noise mode, resulting in the PSG defaulting 
+		; to white noise after fading in. the following three lines correct this.
+		cmpi.b  #$E0, 1(a5) ; is this the Noise Channel?
+        bne.s   @nextpsg  ; no - skip
+        move.b  $1F(a5),(psg_input).l    ; restore Noise setting
+    endc	
 
 @nextpsg:
 		adda.w	#ch_Size,a5
@@ -2018,9 +2179,13 @@ SendVoiceTL:
 		movea.l	v_music_voice_table(a6),a1		; Voice pointer
 		tst.b	v_channel_mode(a6)
 		beq.s	@gotvoiceptr
-		; DANGER! This uploads the wrong voice! It should have been a5 instead
-		; of a6!
+	if FixBugs = 1
+		movea.l	ch_VoiceTable(a5),a1
+	else	
+		; This uploads the wrong voice, leading to corrupted sounds
+		; if the ROM increases in size.
 		movea.l	ch_VoiceTable(a6),a1
+	endc	
 		tst.b	v_channel_mode(a6)
 		bmi.s	@gotvoiceptr
 		movea.l	v_back_voice_table(a6),a1
