@@ -157,11 +157,11 @@ LPL_Camera:
 		move.b	(v_zone).w,d0
 		lsl.b	#2,d0
 		move.l	LoopTunnelList(pc,d0.w),(v_256x256_with_loop_1).w ; load level tile ids that contain loops and tunnels
-		if Revision=0
-			bra.w	LPL_ScrollBlockHeights
-		else
-			rts
-		endc
+	;	if Revision=0
+	;		bra.w	LPL_ScrollBlockHeights
+	;	else
+		rts
+	;	endc
 
 ; ---------------------------------------------------------------------------
 ; Sonic start position list - each zone has four acts, of which the fourth is
@@ -225,29 +225,29 @@ LoopTunnelList:
 
 ; ===========================================================================
 
-		if Revision=0
-LPL_ScrollBlockHeights:
-			moveq	#0,d0
-			move.b	(v_zone).w,d0
-			lsl.w	#3,d0
-			lea	ScrollBlockHeightList(pc,d0.w),a1
-			lea	(v_scroll_block_1_height).w,a2
-			move.l	(a1)+,(a2)+
-			move.l	(a1)+,(a2)+
-			rts
+		;if Revision=0
+;LPL_ScrollBlockHeights:
+			;moveq	#0,d0
+			;move.b	(v_zone).w,d0
+			;lsl.w	#3,d0
+			;lea	ScrollBlockHeightList(pc,d0.w),a1
+			;lea	(v_scroll_block_1_height).w,a2
+			;move.l	(a1)+,(a2)+
+			;move.l	(a1)+,(a2)+
+			;rts
 
-ScrollBlockHeightList:
+;ScrollBlockHeightList:
 ; Only the first value is used
-		dc.w $70, $100, $100, $100			; GHZ
-		dc.w $800, $100, $100, 0			; LZ
-		dc.w $800, $100, $100, 0			; MZ
-		dc.w $800, $100, $100, 0			; SLZ
-		dc.w $800, $100, $100, 0			; SYZ
-		dc.w $800, $100, $100, 0			; SBZ
-		zonewarning ScrollBlockHeightList,8
-		dc.w $70, $100, $100, $100			; Ending (GHZ)
+		;dc.w $70, $100, $100, $100			; GHZ
+		;dc.w $800, $100, $100, 0			; LZ
+		;dc.w $800, $100, $100, 0			; MZ
+		;dc.w $800, $100, $100, 0			; SLZ
+		;dc.w $800, $100, $100, 0			; SYZ
+		;dc.w $800, $100, $100, 0			; SBZ
+		;zonewarning ScrollBlockHeightList,8
+		;dc.w $70, $100, $100, $100			; Ending (GHZ)
 		
-		endc
+		;endc
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	initialise background position and scrolling
@@ -289,19 +289,19 @@ LPL_InitBG_Index:
 ; ===========================================================================
 
 LPL_InitBG_GHZ:
-		if Revision=0
-			bra.w	Deform_GHZ
-		else
-			clr.l	(v_bg1_x_pos).w
-			clr.l	(v_bg1_y_pos).w
-			clr.l	(v_bg2_y_pos).w
-			clr.l	(v_bg3_y_pos).w
-			lea	(v_bgscroll_buffer).w,a2
-			clr.l	(a2)+
-			clr.l	(a2)+
-			clr.l	(a2)+
-			rts
-		endc
+		;if Revision=0
+			;bra.w	Deform_GHZ
+		;else
+		clr.l	(v_bg1_x_pos).w
+		clr.l	(v_bg1_y_pos).w
+		clr.l	(v_bg2_y_pos).w
+		clr.l	(v_bg3_y_pos).w
+		lea	(v_bgscroll_buffer).w,a2
+		clr.l	(a2)+
+		clr.l	(a2)+
+		clr.l	(a2)+
+		rts
+;		endc
 ; ===========================================================================
 
 LPL_InitBG_LZ:
@@ -318,11 +318,11 @@ LPL_InitBG_SLZ:
 		asr.l	#1,d0
 		addi.w	#$C0,d0					; d0 = (v_camera_y_pos/2)+$C0
 		move.w	d0,(v_bg1_y_pos).w
-		if Revision=0
-		else
-			clr.l	(v_bg1_x_pos).w
-		endc
-		rts	
+		;if Revision=0
+		;else
+		clr.l	(v_bg1_x_pos).w
+		;endc
+		;rts	
 ; ===========================================================================
 
 LPL_InitBG_SYZ:
@@ -331,58 +331,58 @@ LPL_InitBG_SYZ:
 		asl.l	#1,d0
 		add.l	d2,d0
 		asr.l	#8,d0					; d0 = v_camera_y_pos/5 (approx)
-		if Revision=0
-			move.w	d0,(v_bg1_y_pos).w
-			move.w	d0,(v_bg2_y_pos).w
-		else
-			addq.w	#1,d0
-			move.w	d0,(v_bg1_y_pos).w
-			clr.l	(v_bg1_x_pos).w
-		endc
+		;if Revision=0
+		;	move.w	d0,(v_bg1_y_pos).w
+		;	move.w	d0,(v_bg2_y_pos).w
+		;else
+		addq.w	#1,d0
+		move.w	d0,(v_bg1_y_pos).w
+		clr.l	(v_bg1_x_pos).w
+		;endc
 		rts	
 ; ===========================================================================
 
 LPL_InitBG_SBZ:
-		if Revision=0
-			asl.l	#4,d0
-			asl.l	#1,d0
-			asr.l	#8,d0				; d0 = v_camera_y_pos/8
-		else
+		;if Revision=0
+			;asl.l	#4,d0
+			;asl.l	#1,d0
+			;asr.l	#8,d0				; d0 = v_camera_y_pos/8
+		;else
 			andi.w	#$7F8,d0
 			asr.w	#3,d0
 			addq.w	#1,d0				; d0 = (v_camera_y_pos/8)+1
-		endc
+		;endc
 		move.w	d0,(v_bg1_y_pos).w
 		rts	
 ; ===========================================================================
 
 LPL_InitBG_End:
-		if Revision=0
-			move.w	#$1E,(v_bg1_y_pos).w
-			move.w	#$1E,(v_bg2_y_pos).w
-			rts	
+		;if Revision=0
+			;move.w	#$1E,(v_bg1_y_pos).w
+			;move.w	#$1E,(v_bg2_y_pos).w
+			;rts	
 
-			move.w	#$A8,(v_bg1_x_pos).w
-			move.w	#$1E,(v_bg1_y_pos).w
-			move.w	#-$40,(v_bg2_x_pos).w
-			move.w	#$1E,(v_bg2_y_pos).w
-			rts
-		else
-			move.w	(v_camera_x_pos).w,d0
-			asr.w	#1,d0
-			move.w	d0,(v_bg1_x_pos).w
-			move.w	d0,(v_bg2_x_pos).w
-			asr.w	#2,d0
-			move.w	d0,d1
-			add.w	d0,d0
-			add.w	d1,d0
-			move.w	d0,(v_bg3_x_pos).w
-			clr.l	(v_bg1_y_pos).w
-			clr.l	(v_bg2_y_pos).w
-			clr.l	(v_bg3_y_pos).w
-			lea	(v_bgscroll_buffer).w,a2
-			clr.l	(a2)+
-			clr.l	(a2)+
-			clr.l	(a2)+
-			rts
-		endc
+			;move.w	#$A8,(v_bg1_x_pos).w
+			;move.w	#$1E,(v_bg1_y_pos).w
+			;move.w	#-$40,(v_bg2_x_pos).w
+			;move.w	#$1E,(v_bg2_y_pos).w
+			;rts
+		;else
+		move.w	(v_camera_x_pos).w,d0
+		asr.w	#1,d0
+		move.w	d0,(v_bg1_x_pos).w
+		move.w	d0,(v_bg2_x_pos).w
+		asr.w	#2,d0
+		move.w	d0,d1
+		add.w	d0,d0
+		add.w	d1,d0
+		move.w	d0,(v_bg3_x_pos).w
+		clr.l	(v_bg1_y_pos).w
+		clr.l	(v_bg2_y_pos).w
+		clr.l	(v_bg3_y_pos).w
+		lea	(v_bgscroll_buffer).w,a2
+		clr.l	(a2)+
+		clr.l	(a2)+
+		clr.l	(a2)+
+		rts
+;		endc

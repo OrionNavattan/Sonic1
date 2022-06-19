@@ -174,6 +174,15 @@ OPL_MovedRight:
 	@no_respawn:
 		bsr.w	OPL_SpawnObj				; check respawn flag and spawn object
 		beq.s	@loop_find_right			; loop until object is found outside window
+	if FixBugs = 1
+	; This routine does not deset the remember flag or restore the remember counter,
+	; which can lead to destroyed objects reappearing and vice versa if there are enough 
+	; objects on screen to completely fill the object RAM. 
+	; These three lines correct restore the remember counter for moving right.
+		tst.b	4(a0)		; was this object a remember state?
+		bpl.s	@found_right	; if not, branch
+		subq.b	#1,(a2)	; move right counter back	
+	endc	
 
 	@found_right:
 		move.l	a0,(v_opl_ptr_right).w			; save pointer for objpos
@@ -216,7 +225,12 @@ OPL_NoMove:
 OPL_SpawnObj:
 		tst.b	4(a0)					; is remember respawn flag set?
 		bpl.s	OPL_MakeItem				; if not, branch
+	if FixBugs = 1
+	; Part of the same fix in @norespawn.
+		btst	#7,2(a2,d2.w)				; set flag so it isn't loaded more than once
+	else
 		bset	#7,2(a2,d2.w)				; set flag so it isn't loaded more than once
+	endc	
 		beq.s	OPL_MakeItem				; branch if object hasn't already been destroyed
 		addq.w	#6,a0					; goto next object in objpos list
 		moveq	#0,d0
@@ -237,6 +251,10 @@ OPL_MakeItem:
 		move.b	d1,ost_status(a1)
 		move.b	(a0)+,d0				; get object id
 		bpl.s	@no_respawn_bit				; branch if remember respawn bit is not set
+	if FixBugs = 1	
+	; Part of the same fix in @norespawn.
+		bset	#$7,$2(a2,d2.w)	; set as removed (part of remembered sprites fix)
+	endc			
 		andi.b	#$7F,d0					; ignore respawn bit
 		move.b	d2,ost_respawn(a1)			; give object its place in the respawn table
 

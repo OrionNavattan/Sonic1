@@ -45,6 +45,8 @@ Optimize:	equ 1	; Apply a number of optimizations
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
+RemoveSpeedCaps: equ 1
+
 SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
@@ -1124,11 +1126,11 @@ Kos_EndFlowers:	incbin	"Graphics - Compressed\Ending Flowers.kos" ; ending seque
 		nemfile	Nem_CreditText
 		nemfile	Nem_EndStH
 
-		if Revision=0
-			dcb.b $104,$FF				; why?
-		else
+		;if Revision=0
+		;	dcb.b $104,$FF				; why?
+		;else
 			dcb.b $40,$FF
-		endc
+		;endc
 ; ---------------------------------------------------------------------------
 ; Collision data
 ; ---------------------------------------------------------------------------

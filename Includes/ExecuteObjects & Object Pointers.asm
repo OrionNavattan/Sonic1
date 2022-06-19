@@ -30,6 +30,11 @@ ExecuteObjects:
 ; ===========================================================================
 
 @dead:
+	if FixBugs = 1
+	; Drowning fixes.
+		cmpi.b	#id_Sonic_Drowned,(v_ost_player+ost_routine) ; has sonic drowned?
+		beq.s	@run_object						; if so, run objects a little longer
+	endc		
 		moveq	#countof_ost_inert-1,d7			; run first $20 objects normally
 		bsr.s	@run_object
 		moveq	#countof_ost_ert-1,d7			; remaining $60 objects are display only

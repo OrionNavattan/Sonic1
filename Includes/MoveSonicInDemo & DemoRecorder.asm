@@ -15,24 +15,24 @@ MoveSonicInDemo:
 ;	uses d0, a1
 ; ---------------------------------------------------------------------------
 
-DemoRecorder:
-		lea	($80000).l,a1				; memory address to record demo to
-		move.w	(v_demo_input_counter).w,d0		; get number of inputs so far
-		adda.w	d0,a1					; jump to last position in recorded data
-		move.b	(v_joypad_hold_actual).w,d0		; get joypad input state
-		cmp.b	(a1),d0					; is joypad input same as last frame?
-		bne.s	@next					; if not, branch
-		addq.b	#1,1(a1)				; increment time for current input
-		cmpi.b	#$FF,1(a1)				; has input timer hit 255 (maximum)?
-		beq.s	@next					; if yes, branch
-		rts	
+;DemoRecorder:
+;		lea	($80000).l,a1				; memory address to record demo to
+;		move.w	(v_demo_input_counter).w,d0		; get number of inputs so far
+;		adda.w	d0,a1					; jump to last position in recorded data
+;		move.b	(v_joypad_hold_actual).w,d0		; get joypad input state
+;		cmp.b	(a1),d0					; is joypad input same as last frame?
+;		bne.s	@next					; if not, branch
+;		addq.b	#1,1(a1)				; increment time for current input
+;		cmpi.b	#$FF,1(a1)				; has input timer hit 255 (maximum)?
+;		beq.s	@next					; if yes, branch
+;		rts	
 
-	@next:
-		move.b	d0,2(a1)				; write new input state
-		move.b	#0,3(a1)				; set time to 0
-		addq.w	#2,(v_demo_input_counter).w		; increment counter
-		andi.w	#$3FF,(v_demo_input_counter).w		; counter stops at $200 inputs
-		rts	
+;	@next:
+;		move.b	d0,2(a1)				; write new input state
+;		move.b	#0,3(a1)				; set time to 0
+;		addq.w	#2,(v_demo_input_counter).w		; increment counter
+;		andi.w	#$3FF,(v_demo_input_counter).w		; counter stops at $200 inputs
+;		rts	
 ; ===========================================================================
 
 MDemo_On:
@@ -68,11 +68,33 @@ MDemo_On:
 		move.b	(a1),d0					; get joypad state from demo
 		lea	(v_joypad_hold_actual).w,a0		; (a0) = actual joypad state
 		move.b	d0,d1
-		if Revision=0
-			move.b	(a0),d2
-		else
-			moveq	#0,d2
-		endc
+		;if Revision=0
+		;	move.b	(a0),d2
+		;else
+	if FixBugs = 1
+	; In REV00, this instruction was 'move.b (a0),d2'. The
+	; purpose of this is to XOR the current frame's input with the
+	; previous frame's input to determine which inputs had been pressed
+	; on the current frame. The usage of '(a0)' for this is a problem
+	; because it doesn't hold the *demo* inputs from the previous frame,
+	; but rather the *player's* inputs from the *current* frame.
+	; This meant that it was possible for the player to influence the
+	; demos by pressing buttons on the joypad. In REV01 of Sonic 1, this
+	; instruction was replaced with a 'moveq #0,d2', effectively
+	; dummying-out the process of differentiating newly-pressed inputs
+	; from old held inputs, causing every input to be treated as
+	; newly-pressed on every frame. While this isn't a problem in the unmodified
+	; game, it does become a problem if Sonic is given a
+	; double-jump ability, as the ability will constantly be activated
+	; when they shouldn't be. While not exactly the intended use for this
+	; variable, 'v_joypad_hold' does happen to hold the inputs from
+	; the previous frame, so we can use this here instead to fix this bug
+	; properly.
+		move.b	v_joypad_hold-v_joypad_hold_actual(a0),d2
+	else	
+		moveq	#0,d2
+	endc	
+		;endc
 		eor.b	d2,d0
 		move.b	d1,(a0)+				; force demo input
 		and.b	d1,d0

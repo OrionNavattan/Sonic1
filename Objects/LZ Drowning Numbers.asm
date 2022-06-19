@@ -160,16 +160,16 @@ Drown_ShowNumber:
 ; ---------------------------------------------------------------------------
 Drown_WobbleData:
 LZ_BG_Ripple_Data:
-		if Revision=0
-		dc.b 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2
-		dc.b 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
-		dc.b 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2
-		dc.b 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0
-		dc.b 0, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2, -3, -3, -3, -3, -3
-		dc.b -3, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4
-		dc.b -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3
-		dc.b -3, -3, -3, -3, -3, -3, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1
-		else
+	;	if Revision=0
+	;	dc.b 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2
+	;	dc.b 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+	;	dc.b 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2
+	;	dc.b 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0
+	;	dc.b 0, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2, -3, -3, -3, -3, -3
+	;	dc.b -3, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4
+	;	dc.b -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3
+	;	dc.b -3, -3, -3, -3, -3, -3, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1
+	;	else
 		rept 2
 		dc.b 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2
 		dc.b 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
@@ -180,7 +180,7 @@ LZ_BG_Ripple_Data:
 		dc.b -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -3
 		dc.b -3, -3, -3, -3, -3, -3, -2, -2, -2, -2, -2, -1, -1, -1, -1, -1
 		endr
-		endc
+	;	endc
 ; ===========================================================================
 
 Drown_Countdown:; Routine $A
@@ -242,18 +242,34 @@ Drown_Countdown:; Routine $A
 		move.w	#0,ost_y_vel(a0)
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
+	if FixBugs = 1
+	; Drowning Fixes. See Sonic_Drowned for more information.
+		move.b  #id_Sonic_Drowned,ost_routine(a0)       ; force Sonic to drown		
+	endc	
 		move.b	#1,(f_disable_scrolling).w
+	if FixBugs = 1
+	; The timer is not stopped when Sonic drowns. If he drowns at 9:58, his death animation 
+	; will be applied to his drowning sprite before the Time Over card appears.
+	; Stopping the timer when he drowns eliminates this edge case.
+		move.b	#0,(f_hud_time_update)	; stop the timer immediately	
+	endc	
 		movea.l	(sp)+,a0				; restore OST from stack
 		rts	
 ; ===========================================================================
 
 @kill_sonic:
 		subq.w	#1,ost_drown_restart_time(a0)		; decrement delay timer after drowning
+	if FixBugs = 1
+		bne.s 	@create_bubble
+	else	
 		bne.s	@delay_death				; branch if time remains
+	endc
 		move.b	#id_Sonic_Death,(v_ost_player+ost_routine).w ; kill Sonic
 		rts	
 ; ===========================================================================
-
+	if FixBugs = 0
+	; This code is no longer needed with the drowning fixes applied.
+	; See Sonic_Drowned for more information.
 	@delay_death:
 		move.l	a0,-(sp)				; save OST address to stack
 		lea	(v_ost_player).w,a0			; use Sonic's OST temporarily
@@ -261,6 +277,7 @@ Drown_Countdown:; Routine $A
 		addi.w	#$10,ost_y_vel(a0)			; make Sonic fall
 		movea.l	(sp)+,a0				; restore OST
 		bra.s	@create_bubble
+	endc	
 ; ===========================================================================
 
 @gotomakenum:

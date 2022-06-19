@@ -887,15 +887,15 @@ UCX_BehindMid:
 ;	uses d0
 ; ---------------------------------------------------------------------------
 
-AutoScroll:
-		tst.w	d0
-		bpl.s	@forwards
-		move.w	#-2,d0
-		bra.s	UCX_BehindMid
+;AutoScroll:
+;		tst.w	d0
+;		bpl.s	@forwards
+;		move.w	#-2,d0
+;		bra.s	UCX_BehindMid
 
-	@forwards:
-		move.w	#2,d0
-		bra.s	UCX_AheadOfMid
+;	@forwards:
+;		move.w	#2,d0
+;		bra.s	UCX_AheadOfMid
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	update camera and redraw flags as Sonic moves vertically

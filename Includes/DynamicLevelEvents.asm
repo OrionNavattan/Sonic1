@@ -342,11 +342,11 @@ DLE_MZ1_4:
 @next:
 		cmpi.w	#$500,(v_camera_y_pos).w
 		bcs.s	@exit					; branch if camera is above $500
-		if Revision=0
-		else
-			cmpi.w	#$B80,(v_camera_x_pos).w
-			bcs.s	@exit				; branch if camera is left of $B80
-		endc
+		;if Revision=0
+		;else
+		cmpi.w	#$B80,(v_camera_x_pos).w
+		bcs.s	@exit				; branch if camera is left of $B80
+		;endc
 		move.w	#$500,(v_boundary_top).w
 		addq.b	#2,(v_dle_routine).w			; goto DLE_MZ1_6 next
 
@@ -355,26 +355,26 @@ DLE_MZ1_4:
 ; ===========================================================================
 
 DLE_MZ1_6:
-		if Revision=0
-		else
-			cmpi.w	#$B80,(v_camera_x_pos).w
-			bcc.s	@skip_mid			; branch if camera is right of $B80
+		;if Revision=0
+		;else
+		cmpi.w	#$B80,(v_camera_x_pos).w
+		bcc.s	@skip_mid			; branch if camera is right of $B80
 
-			cmpi.w	#$340,(v_boundary_top).w
-			beq.s	@exit				; branch if top boundary is set for middle section
+		cmpi.w	#$340,(v_boundary_top).w
+		beq.s	@exit				; branch if top boundary is set for middle section
 
-			subq.w	#2,(v_boundary_top).w		; move top boundary up 2px
-			rts
+		subq.w	#2,(v_boundary_top).w		; move top boundary up 2px
+		rts
 	@skip_mid:
-			cmpi.w	#$500,(v_boundary_top).w
-			beq.s	@skip_btm			; branch if top boundary is set for bottom section
+		cmpi.w	#$500,(v_boundary_top).w
+		beq.s	@skip_btm			; branch if top boundary is set for bottom section
 
-			cmpi.w	#$500,(v_camera_y_pos).w
-			bcs.s	@exit				; branch if camera is above $500
+		cmpi.w	#$500,(v_camera_y_pos).w
+		bcs.s	@exit				; branch if camera is above $500
 
-			move.w	#$500,(v_boundary_top).w
+		move.w	#$500,(v_boundary_top).w
 	@skip_btm:
-		endc
+		;endc
 
 		cmpi.w	#$E70,(v_camera_x_pos).w
 		bcs.s	@exit					; branch if camera is left of $E70
