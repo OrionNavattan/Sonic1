@@ -163,11 +163,11 @@ Solid_Collision:
 		tst.b	(v_lock_multi).w			; are controls locked?
 		bmi.w	Solid_NoCollision			; if yes, branch
 		cmpi.b	#id_Sonic_Death,(v_ost_player+ost_routine).w ; is Sonic dying?
-		if Revision=0
-			bcc.w	Solid_NoCollision		; if yes, branch
-		else
-			bcc.w	Solid_Debug
-		endc
+;		if Revision=0
+;			bcc.w	Solid_NoCollision		; if yes, branch
+;		else
+		bcc.w	Solid_Debug
+;		endc
 		tst.w	(v_debug_active).w			; is debug mode being used?
 		bne.w	Solid_Debug				; if yes, branch
 		move.w	d0,d5					; d0/d5 = x pos of Sonic on object
@@ -229,6 +229,23 @@ Solid_SideAir:
 Solid_NoCollision:
 		btst	#status_pushing_bit,ost_status(a0)	; is Sonic pushing?
 		beq.s	Solid_Debug				; if not, branch
+	if FixBugs = 1
+	; The line after the endc sets Sonic's running animation, leading to the walk-jump
+	; bug wherein Sonic will use his walking sprite when jumping. drowning, or getting hurt
+	; if he is next to an object that calls the SolidObject routines.
+	; While deleting that line also largely fixes it, it does allow some edge cases 
+	; to still creep through. This code, albiet ungainly, eliminates the issue altogether
+		cmpi.b	#id_Roll,ost_anim(a1) 	; is Sonic in his jumping/rolling animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Drown,ost_anim(a1)	; is Sonic in his drowning animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Hurt,ost_anim(a1)	; is Sonic in his hurt animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Death,ost_anim(a1)	; is Sonic dead?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Burnt,ost_anim(a1)  ; is Sonic dead from being burnt?
+		beq.s	Solid_NotPushing		; if so, branch	
+	endc	
 		move.w	#id_Run,ost_anim(a1)			; use running animation
 
 Solid_NotPushing:

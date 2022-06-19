@@ -226,6 +226,12 @@ Sonic_Water:
 		move.w	#sonic_acceleration,(v_sonic_acceleration).w ; restore Sonic's acceleration
 		move.w	#sonic_deceleration,(v_sonic_deceleration).w ; restore Sonic's deceleration
 		asl	ost_y_vel(a0)
+	if FixBugs = 1
+	; If Sonic exits water while in his hurt state, the usual speed increase 
+	; is not applied nor is the splash effect displayed due to his y-velocity causing
+	; the following beq.w to always branch. Adding this tst corrects this.
+		tst.w	ost_y_vel(a0)
+	endc	
 		beq.w	@exit
 		move.b	#id_Splash,(v_ost_splash).w		; load splash object
 		cmpi.w	#-sonic_max_speed_surface,ost_y_vel(a0)
@@ -1435,6 +1441,11 @@ Sonic_Hurt:	; Routine 4
 		bsr.w	Sonic_HurtStop
 		bsr.w	Sonic_LevelBound
 		bsr.w	Sonic_RecordPosition
+	if FixBugs = 1
+	; The lack of a branch to Sonic's water routines here results in him not
+	; switching to his underwater physics if he enters it in his hurt state.
+		bsr.w	Sonic_Water
+	endc	
 		bsr.w	Sonic_Animate
 		bsr.w	Sonic_LoadGfx
 		jmp	(DisplaySprite).l
@@ -1666,6 +1677,11 @@ Sonic_Animate:
 		move.b	d0,ost_anim_restart(a0)			; set to "no restart"
 		move.b	#0,ost_anim_frame(a0)			; reset animation
 		move.b	#0,ost_anim_time(a0)			; reset frame duration
+	if FixBugs = 1
+	; Backported from Sonic 2. Not clearing this bit can result in Sonic using his pushing animation
+	; if he runs into a wall or solid object at high speeds and reverses immediately (aka the pushing while walking bug).
+		bclr	#status_pushing_bit,ost_status(a0)
+	endc	
 
 	@do:
 		add.w	d0,d0

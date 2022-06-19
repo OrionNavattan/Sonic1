@@ -132,6 +132,21 @@ Mon_Solid_Side:
 Mon_Solid_ChkPush:
 		btst	#status_pushing_bit,ost_status(a0)	; is monitor being pushed?
 		beq.s	Mon_Animate				; if not, branch
+	if FixBugs = 1
+		; Essentially the same bug as in Solid_NoCollision, but since monitors
+		; use their own code, the fix has to be inserted here too.
+		cmpi.b	#id_Roll,ost_anim(a1) 	; is Sonic in his jumping/rolling animation?
+		beq.s	Mon_Solid_ClearPush		; if so, branch
+		cmpi.b	#id_Drown,ost_anim(a1)	; is Sonic in his drowning animation?
+		beq.s	Mon_Solid_ClearPush		; if so, branch
+		cmpi.b	#id_Hurt,ost_anim(a1)	; is Sonic in his hurt animation?
+		beq.s	Mon_Solid_ClearPush		; if so, branch
+		cmpi.b	#id_Death,ost_anim(a1)	; is Sonic dead?
+		beq.s	Mon_Solid_ClearPush		; if so, branch
+		cmpi.b	#id_Burnt,ost_anim(a1)  ; is Sonic dead from being burnt?
+		beq.s	Mon_Solid_ClearPush		; if so, branch			; if not, branch
+		move.w	#id_Run,ost_anim(a1)
+	endc	
 		move.w	#id_Run,ost_anim(a1)
 
 Mon_Solid_ClearPush:

@@ -1500,7 +1500,7 @@ DoFadeIn:
 		bpl.s	@nextpsg				; Branch if not
 		subq.b	#1,ch_Volume(a5)			; Reduce volume attenuation
 		move.b	ch_Volume(a5),d6			; Get value
-	if ~~FixBugs
+	if FixBugs = 0
 		; This check is rendered redundant by the fix in PSGSendVolume.		
 		cmpi.b	#$10,d6					; Is it is < $10?
 		blo.s	@sendpsgvol				; Branch if yes
@@ -1519,6 +1519,21 @@ DoFadeIn:
 @fadedone:
 		bclr	#2,v_music_DAC+ch_Flags(a6)		; Clear 'SFX overriding' bit
 		clr.b	f_fadein_flag(a6)			; Stop fadein
+	if FixBugs = 1
+	 ; When the music is resumed when unpausing, the DAC's panning, AMS, and FMS values are
+	 ; reset. If the music was paused during a fade-in, however, the DAC does not resume
+	 ; when unpausing because these values are not restored when the DAC is blocked from running
+	 ; during the fadein. The following restores those values after every fade-in,
+	 ; eliminating this issue.
+	 
+		tst.b	v_music_DAC+ch_Flags(a6)					; is the DAC channel running?
+		bpl.s	@Resume_NoDAC				; if not, branch
+		move.b	#$B6,d0						; AMS/FMS/panning of FM6
+		move.b	v_music_DAC+ch_Pan(a6),d1	; load DAC channel's L/R/AMS/FMS value
+		jmp	WriteFMII(pc)				; write to FM 6
+		
+@Resume_NoDAC:	
+	endc
 		rts
 
 ; ---------------------------------------------------------------------------
@@ -1798,7 +1813,7 @@ PSGDoVolFX:
 	
 @gotflutter:
 		add.w	d0,d6					; Add volume envelope value to volume
-	if ~~FixBugs
+	if FixBugs = 0
 		; This check is rendered redundant by the fix in PSGSendVolume.
 		cmpi.b	#$10,d6					; Is volume $10 or higher?
 		blo.s	SetPSGVolume				; Branch if not
@@ -1863,7 +1878,7 @@ SendPSGNoteOff:
 		; If InitMusicPlayback doesn't silence all channels, there's the
 		; risk of music accidentally playing noise because it can't detect if
 		; the PSG4/noise channel needs muting on track initialisation.
-		; The follow code is backported from S3&K addresses this issue
+		; The follow code backported from S3&K addresses this issue.
 		cmpi.b	#tPSG3 | $1F,d0				; Are stopping PSG3?
 		bne.s	locret_729B4
 		move.b	#tPSG4 | $1F,(psg_input).l		; If so, stop noise channel while we're at it
@@ -1952,6 +1967,10 @@ SongCom_RestoreSong:
 		movea.l	a6,a0
 		lea	v_backup_ram(a6),a1
 		move.w	#((v_music_ram_end-v_backup_start)/4)-1,d0 ; $220 bytes to restore: all variables and music track data
+
+@restoreramloop:
+		move.l	(a1)+,(a0)+
+		dbf	d0,@restoreramloop
 	if FixBugs = 1
 		; This subroutine does not restore the mode of FM6 when fading in.
 		; If a track uses FM6 (Special Stage music), is interrupted by a track that uses the DAC (1-UP Jingle),
@@ -1962,11 +1981,6 @@ SongCom_RestoreSong:
         moveq   #$00, d1    ; Value: DAC mode disable
         jsr WriteFMI(pc)    ; Write to YM2612 Port 0 [sub_7272E]
 	endc
-
-@restoreramloop:
-		move.l	(a1)+,(a0)+
-		dbf	d0,@restoreramloop
-
 		bset	#2,v_music_DAC+ch_Flags(a6)		; Set 'SFX overriding' bit
 		movea.l	a5,a3
 		move.b	#$28,d6
