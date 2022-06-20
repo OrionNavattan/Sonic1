@@ -290,9 +290,9 @@ BLZ_ShipWait:
 
 	@beaten:
 		play.w	0, jsr, mus_LZ				; play LZ music
-		if Revision<>0
-			clr.b	(f_boss_boundary).w
-		endc
+;		if Revision<>0
+		clr.b	(f_boss_boundary).w
+;		endc
 		bset	#status_xflip_bit,ost_status(a0)	; ship face right
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_Escape1 next
 

@@ -46,6 +46,22 @@ Shi_Shield:	; Routine 2
 		move.w	(v_ost_player+ost_x_pos).w,ost_x_pos(a0) ; match Sonic's position & orientation
 		move.w	(v_ost_player+ost_y_pos).w,ost_y_pos(a0)
 		move.b	(v_ost_player+ost_status).w,ost_status(a0)
+		
+	if FixBugs = 1	
+		; This simply makes things look a little more polished by shifting the
+		; shield sprite to match Sonic's balancing animation as needed.
+		move.b	ost_status(a0),d0
+		move.w	#$A,d1
+		cmpi.b	#id_Balance,(v_ost_player+ost_anim).w ; is Sonic balancing?
+		bne.s	@noshift							; if not, branch
+	@shift:
+		sub.w	d1,ost_x_pos(a0)
+		btst	#status_xflip_bit,d0
+		beq.s	@noshift
+		add.w	d1,d1
+		add.w	d1,ost_x_pos(a0)
+	@noshift:		
+	endc	
 		lea	(Ani_Shield).l,a1
 		jsr	(AnimateSprite).l
 		jmp	(DisplaySprite).l
@@ -63,21 +79,21 @@ Shi_Stars:	; Routine 4
 		move.w	(v_sonic_pos_tracker_num).w,d0		; get current index value for position tracking data
 		move.b	ost_anim(a0),d1				; get animation id (1 to 4)
 		subq.b	#1,d1					; subtract 1 (0 to 3)
-		bra.s	@trail
+;		bra.s	@trail
 ; ===========================================================================
 ; unused - similar to below, but with star objects closer together
-		lsl.b	#4,d1					; multiply animation number by 16
-		addq.b	#4,d1					; add 4
-		sub.b	d1,d0					; subtract from tracker
-		move.b	ost_invincibility_last_pos(a0),d1	; retrieve previous index
-		sub.b	d1,d0					; subtract from tracker
-		addq.b	#4,d1					; increment tracking index
-		andi.b	#$F,d1					; cap at 15
-		move.b	d1,ost_invincibility_last_pos(a0)	; set new tracking index value
-		bra.s	@set_pos
+;		lsl.b	#4,d1					; multiply animation number by 16
+;		addq.b	#4,d1					; add 4
+;		sub.b	d1,d0					; subtract from tracker
+;		move.b	ost_invincibility_last_pos(a0),d1	; retrieve previous index
+;		sub.b	d1,d0					; subtract from tracker
+;		addq.b	#4,d1					; increment tracking index
+;		andi.b	#$F,d1					; cap at 15
+;		move.b	d1,ost_invincibility_last_pos(a0)	; set new tracking index value
+;		bra.s	@set_pos
 ; ===========================================================================
 
-@trail:
+;@trail:
 		lsl.b	#3,d1
 		move.b	d1,d2
 		add.b	d1,d1
@@ -100,6 +116,22 @@ Shi_Stars:	; Routine 4
 		move.w	(a1)+,ost_x_pos(a0)			; update position of stars
 		move.w	(a1)+,ost_y_pos(a0)
 		move.b	(v_ost_player+ost_status).w,ost_status(a0)
+	
+	if FixBugs = 1
+		; Again, making things a little more polished by adjusting the invincibility
+		; stars to match Sonic's balancing animation as needed.
+		move.b	ost_status(a0),d0
+		move.w	#$A,d1
+		cmpi.b	#id_Balance,(v_ost_player+ost_anim).w ; is Sonic balancing?
+		bne.s	@noshift							; if not, branch
+	@shift:
+		sub.w	d1,ost_x_pos(a0)
+		btst	#status_xflip_bit,d0
+		beq.s	@noshift
+		add.w	d1,d1
+		add.w	d1,ost_x_pos(a0)
+	@noshift:	
+	endc		
 		lea	(Ani_Shield).l,a1
 		jsr	(AnimateSprite).l
 		jmp	(DisplaySprite).l

@@ -2,6 +2,8 @@
 ; Sprite mappings - Bosses (ship, Eggman and flame)
 ; ---------------------------------------------------------------------------
 
+;Modifications in Map_Bosses to fix Eggman's unintentionally shaved mustache (ported from Mercury's ReadySonic)
+
 Map_Bosses:	index *
 		ptr frame_boss_ship
 		ptr frame_boss_face1
@@ -20,7 +22,7 @@ Map_Bosses:	index *
 frame_boss_ship:
 		spritemap
 		piece	-$1C, -$14, 1x2, $A
-		piece	$C, -$14, 2x2, $C
+		piece	$14, -$14, 2x2, $C  ; First item: $C to 14
 		piece	-$1C, -4, 4x3, $10, pal2
 		piece	4, -4, 4x3, $1C, pal2
 		piece	-$14, $14, 4x1, $28, pal2
@@ -29,12 +31,14 @@ frame_boss_ship:
 		
 frame_boss_face1:
 		spritemap
+		piece	$C, -$14, 1x2, $C ; Line added		
 		piece	-$C, -$1C, 2x1, 0
 		piece	-$14, -$14, 4x2, 2
 		endsprite
 		
 frame_boss_face2:
 		spritemap
+		piece	$C, -$14, 1x2, $C ; Line added	
 		piece	-$C, -$1C, 2x1, 0
 		piece	-$14, -$14, 4x2, $35
 		endsprite
@@ -62,6 +66,7 @@ frame_boss_hit:
 		
 frame_boss_panic:
 		spritemap
+		piece	$c, -$14, 1x2, $C ; Line added		
 		piece	4, -$1C, 2x1, $64
 		piece	-$C, -$1C, 2x1, 0
 		piece	-$14, -$14, 4x2, $35

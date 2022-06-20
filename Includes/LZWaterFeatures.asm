@@ -7,11 +7,11 @@
 LZWaterFeatures:
 		cmpi.b	#id_LZ,(v_zone).w			; check if level is LZ
 		bne.s	@notlabyrinth				; if not, branch
-		if Revision=0
-		else
-			tst.b   (f_disable_scrolling).w
-			bne.s	@set_height
-		endc
+;		if Revision=0
+;		else
+		tst.b   (f_disable_scrolling).w
+		bne.s	@set_height
+;		endc
 		cmpi.b	#id_Sonic_Death,(v_ost_player+ost_routine).w ; has Sonic just died?
 		bcc.s	@set_height				; if yes, skip other effects
 

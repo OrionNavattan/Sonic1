@@ -29,13 +29,13 @@ GM_Sega:
 		locVRAM	0
 		lea	(Nem_SegaLogo).l,a0			; load Sega logo patterns
 		bsr.w	NemDec
-		lea	($FF0000).l,a1
+		lea	(v_256x256_tiles).l,a1
 		lea	(Eni_SegaLogo).l,a0			; load Sega logo mappings
 		move.w	#0,d0
 		bsr.w	EniDec
 
-		copyTilemap	$FF0000,vram_bg,8,$A,sega_bg_width,sega_bg_height
-		copyTilemap	$FF0000+(sega_bg_width*sega_bg_height*2),vram_fg,0,0,sega_fg_width,sega_fg_height
+		copyTilemap	v_256x256_tiles,vram_bg,8,$A,sega_bg_width,sega_bg_height
+		copyTilemap	v_256x256_tiles+(sega_bg_width*sega_bg_height*2),vram_fg,0,0,sega_fg_width,sega_fg_height
 								; copy mappings to fg/bg nametables in VRAM
 
 		;if Revision=0

@@ -68,7 +68,12 @@ Bonus_Points:	; Bonus	points array
 Bonus_Points_0:	dc.w 0						; subtype 0 - 0 points (unused)
 Bonus_Points_1:	dc.w 1000					; subtype 1 - 10000 points
 Bonus_Points_2:	dc.w 100					; subtype 2 - 1000 points
-Bonus_Points_3:	dc.w 1						; subtype 3 - 10 points (should be 100)
+;if FixBugs = 1
+; Dead simple typo.
+Bonus_Points_3:	dc.w 10					; subtype 3 - 100 Points
+;	else
+;Bonus_Points_3:	dc.w 1						; subtype 3 - 100 Points
+;	endc
 ; ===========================================================================
 
 Bonus_Display:	; Routine 2

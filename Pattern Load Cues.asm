@@ -145,9 +145,9 @@ PLC_LZ2:	plcheader
 		plcm	Nem_LzDoorH				; large	horizontal door ($7CC0)
 		plcm	Nem_LzWheel				; wheel ($7EC0)
 		plcm	Nem_Gargoyle, $5D20			; gargoyle head
-		if Revision=0
-		plcm	Nem_LzSonic, $8800			; Sonic	holding	his breath
-		endc
+;		if Revision=0
+;		plcm	Nem_LzSonic, $8800			; Sonic	holding	his breath
+;		endc
 		plcm	Nem_LzPlatform, $89E0			; rising platform
 		plcm	Nem_Orbinaut,,LZ			; orbinaut enemy ($8CE0)
 		plcm	Nem_Jaws				; jaws enemy ($90C0)
@@ -218,7 +218,11 @@ PLC_SYZ2:	plcheader
 		plcm	Nem_Bumper, $7000			; bumper
 		plcm	Nem_BigSpike				; large	spikeball ($72C0)
 		plcm	Nem_SmallSpike				; small	spikeball ($7740)
+	if FixBugs = 0	
+	; This badnik is loaded despite not being used. and its presence corrupts
+	; one frame of the Roller's sprite.
 		plcm	Nem_Cater, vram_cater			; caterkiller enemy ($9FE0)
+	endc	
 		plcm	Nem_Button, vram_button		; button ($A1E0)
 		plcm	Nem_Spikes, vram_spikes			; spikes ($A360)
 		plcm	Nem_HSpring, vram_hspring		; horizontal spring ($A460)
@@ -285,12 +289,12 @@ PLC_Signpost:	plcheader
 ; ---------------------------------------------------------------------------
 ; Pattern load cues - beta special stage warp effect
 ; ---------------------------------------------------------------------------
-		if Revision=0
-PLC_Warp:	plcheader
-		plcm	Nem_Warp, $A820
-		else
+;		if Revision=0
+;PLC_Warp:	plcheader
+;		plcm	Nem_Warp, $A820
+;		else
 PLC_Warp:
-		endc
+;		endc
 	PLC_Warp_end:
 ; ---------------------------------------------------------------------------
 ; Pattern load cues - special stage
@@ -376,9 +380,9 @@ PLC_Ending:	plcheader
 		plcm	Nem_EndFlower, $7400			; flowers
 		plcm	Nem_EndEm				; emeralds ($78A0)
 		plcm	Nem_EndSonic				; Sonic ($7C20)
-		if Revision=0
-		plcm	Nem_EndEggman, $A480			; Eggman's death (unused)
-		endc
+;		if Revision=0
+;		plcm	Nem_EndEggman, $A480			; Eggman's death (unused)
+;		endc
 		plcm	Nem_Rabbit, $AA60, End			; rabbit
 		plcm	Nem_Chicken,, End			; chicken ($ACA0)
 		plcm	Nem_BlackBird,, End			; blackbird ($AE60)

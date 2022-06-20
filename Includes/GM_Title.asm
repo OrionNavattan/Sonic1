@@ -71,7 +71,11 @@ GM_Title:
 	@load_text:
 		move.w	(a5)+,(a6)
 		dbf	d1,@load_text				; load level select font
-
+	if FixBugs = 1
+	; This flag is set by the drowning routine, but if it is followed by a Game Over,
+	; it results in the title screen background not scrolling.
+		move.b	#0,(f_disable_scrolling).w ;Clear no background scroll flag 
+	endc
 		move.b	#0,(v_last_lamppost).w			; clear lamppost counter
 		move.w	#0,(v_debug_active).w			; disable debug item placement mode
 		move.w	#0,(v_demo_mode).w			; disable debug mode
@@ -97,16 +101,16 @@ GM_Title:
 		lea	(v_level_layout+level_max_width).w,a4	; background layout start address ($FFFFA440)
 		move.w	#draw_bg,d2
 		bsr.w	DrawChunks				; draw background
-		lea	($FF0000).l,a1
+		lea	(v_256x256_tiles).l,a1
 		lea	(Eni_Title).l,a0			; load title screen mappings
 		move.w	#0,d0
 		bsr.w	EniDec
 	if FixBugs = 1
 		; X-coordinate changed tp 4 to fix centering
-		copyTilemap	$FF0000,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
+		copyTilemap	v_256x256_tiles,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
 	else
 		; This places the emblem, TM, and copyright mark slightly too far to the left
-		copyTilemap	$FF0000,vram_fg,3,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
+		copyTilemap	v_256x256_tiles,vram_fg,3,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
 	endc
 		locVRAM	0
 		lea	(Nem_GHZ_1st).l,a0			; load GHZ patterns
@@ -240,6 +244,16 @@ Title_PressedStart:
 		btst	#bitA,(v_joypad_hold_actual).w		; check if A is pressed
 		beq.w	PlayLevel				; if not, play level
 
+	if FixBugs = 1
+	; If the level select is entered at very specific time, a strip of GHZ's background graphics
+	; will appear on the left edge of the screen due to the draw flags still being set. Clearing 
+	; the flags here eliminates this .
+		moveq	#0,d0				; clear d0
+		move.b	d0,(v_bg1_redraw_direction_copy).w		; clear background strip 1 draw flags
+		move.b	d0,(v_bg2_redraw_direction_copy).w		; clear background strip 2 draw flags
+		move.b	d0,(v_bg3_redraw_direction_copy).w		; clear background strip 3 draw flags
+		move.b	d0,(v_fg_redraw_direction_copy).w		; clear foreground strip draw flags	
+	endc
 		moveq	#id_Pal_LevelSel,d0
 		bsr.w	PalLoad_Now				; load level select palette
 		lea	(v_hscroll_buffer).w,a1

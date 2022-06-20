@@ -51,7 +51,13 @@ Over_Move:	; Routine 2
 @next:
 		move.w	#720,ost_anim_time(a0)			; set time delay to 12 seconds
 		addq.b	#2,ost_routine(a0)			; goto Over_Wait next
-		rts	
+	if FixBugs = 1
+	; The lack of a branch to DisplaySprite here can cause the text
+	; to flicker when they have reached the center of the screen.
+		bra.w   DisplaySprite
+	else	
+		rts
+	endc		
 ; ===========================================================================
 
 Over_Wait:	; Routine 4
@@ -77,10 +83,10 @@ Over_ChgMode:
 ; ===========================================================================
 
 Over_ResetLvl:
-		if Revision=0
-		else
-			clr.l	(v_time_lampcopy).w
-		endc
+;		if Revision=0
+;		else
+		clr.l	(v_time_lampcopy).w
+;		endc
 		move.w	#1,(f_restart).w			; restart level
 
 Over_Display:

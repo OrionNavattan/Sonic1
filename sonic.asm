@@ -32,9 +32,7 @@ EnableSRAM:	equ 0						; change to 1 to enable SRAM
 BackupSRAM:	equ 1
 AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 
-; Change to 0 to build the original version of the game, dubbed REV00
-; Change to 1 to build the later version, dubbed REV01, which includes various bugfixes and enhancements
-; Change to 2 to build the version from Sonic Mega Collection, dubbed REVXB, which fixes the infamous "spike bug"
+
 	if ~def(Revision)					; bit-perfect check will automatically set this variable
 Revision:	equ 1
 	endc
@@ -45,9 +43,11 @@ Optimize:	equ 1	; Apply a number of optimizations
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
-RemoveSpeedCaps: equ 1
+RemoveSpeedCaps: equ 1 ; Self-explanatory
 
 SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential
+
+ExtraLivesForPoints: equ 1 ; Extra lives will be awarded at 50000 point intervals for all regions
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 

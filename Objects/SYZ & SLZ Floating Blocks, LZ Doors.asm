@@ -60,22 +60,22 @@ FBlock_Main:	; Routine 0
 		move.b	(a2),d0					; get height from size list
 		add.w	d0,d0
 		move.w	d0,ost_fblock_move_dist(a0)		; set full height
-		if Revision=0
-		else
-			cmpi.b	#type_fblock_syzrect2x2+type_fblock_farrightbutton,ost_subtype(a0) ; is the subtype $37? (used once in SYZ3)
-			bne.s	@dontdelete			; if not, branch
-			cmpi.w	#$1BB8,ost_x_pos(a0)		; is object in its start position?
-			bne.s	@notatpos			; if not, branch
-			tst.b	(f_fblock_finish).w		; has similar object reached its destination?
-			beq.s	@dontdelete			; if not, branch
-			jmp	(DeleteObject).l
+;		if Revision=0
+;		else
+		cmpi.b	#type_fblock_syzrect2x2+type_fblock_farrightbutton,ost_subtype(a0) ; is the subtype $37? (used once in SYZ3)
+		bne.s	@dontdelete			; if not, branch
+		cmpi.w	#$1BB8,ost_x_pos(a0)		; is object in its start position?
+		bne.s	@notatpos			; if not, branch
+		tst.b	(f_fblock_finish).w		; has similar object reached its destination?
+		beq.s	@dontdelete			; if not, branch
+		jmp	(DeleteObject).l
 	@notatpos:
-			clr.b	ost_subtype(a0)			; stop object moving
-			tst.b	(f_fblock_finish).w
-			bne.s	@dontdelete
-			jmp	(DeleteObject).l
+		clr.b	ost_subtype(a0)			; stop object moving
+		tst.b	(f_fblock_finish).w
+		bne.s	@dontdelete
+		jmp	(DeleteObject).l
 	@dontdelete:
-		endc
+;		endc
 		moveq	#0,d0
 		cmpi.b	#id_LZ,(v_zone).w			; check if level is LZ
 		beq.s	@not_syzslz				; if yes, branch
@@ -133,21 +133,21 @@ FBlock_Action:	; Routine 2
 		bsr.w	SolidObject				; detect collision
 
 	@chkdel:
-		if Revision=0
-			out_of_range	DeleteObject,ost_fblock_x_start(a0)
-			bra.w	DisplaySprite
-		else
-			out_of_range.s	@chkdel2,ost_fblock_x_start(a0)
+;		if Revision=0
+;			out_of_range	DeleteObject,ost_fblock_x_start(a0)
+;			bra.w	DisplaySprite
+;		else
+		out_of_range.s	@chkdel2,ost_fblock_x_start(a0)
 		@display:
-			bra.w	DisplaySprite
-		@chkdel2:
-			cmpi.b	#type_fblock_syzrect2x2+type_fblock_farrightbutton,ost_subtype(a0)
-			bne.s	@delete
-			tst.b	ost_fblock_move_flag(a0)
-			bne.s	@display
-		@delete:
-			jmp	(DeleteObject).l
-		endc
+		bra.w	DisplaySprite
+	@chkdel2:
+		cmpi.b	#type_fblock_syzrect2x2+type_fblock_farrightbutton,ost_subtype(a0)
+		bne.s	@delete
+		tst.b	ost_fblock_move_flag(a0)
+		bne.s	@display
+	@delete:
+		jmp	(DeleteObject).l
+;		endc
 ; ===========================================================================
 FBlock_Types:	index *
 		ptr FBlock_Still				; 0

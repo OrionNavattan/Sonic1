@@ -37,19 +37,19 @@ ESth_Move:	; Routine 2
 		cmpi.w	#$C0,ost_x_pos(a0)			; has object reached $C0?
 		beq.s	@at_target				; if yes, branch
 		addi.w	#$10,ost_x_pos(a0)			; move object to the right
-		if Revision=0
-			bra.w	DisplaySprite
-		else
-			rts
-		endc
+;		if Revision=0
+;			bra.w	DisplaySprite
+;		else
+		rts
+;		endc
 
 @at_target:
 		addq.b	#2,ost_routine(a0)			; goto ESth_GotoCredits next
-		if Revision=0
-			move.w	#120,ost_esth_wait_time(a0)	; set duration for delay (2 seconds)
-		else
+;		if Revision=0
+;			move.w	#120,ost_esth_wait_time(a0)	; set duration for delay (2 seconds)
+;		else
 			move.w	#300,ost_esth_wait_time(a0)	; set duration for delay (5 seconds)
-		endc
+;		endc
 
 ESth_GotoCredits:
 		; Routine 4
@@ -58,8 +58,8 @@ ESth_GotoCredits:
 		move.b	#id_Credits,(v_gamemode).w		; exit to credits
 
 	@wait:
-		if Revision=0
-			bra.w	DisplaySprite
-		else
-			rts
-		endc
+;		if Revision=0
+;			bra.w	DisplaySprite
+;		else
+		rts
+;		endc

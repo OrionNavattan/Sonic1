@@ -46,14 +46,14 @@ Brick_Action:	; Routine 2
 		bsr.w	SolidObject
 
 	@chkdel:
-		if Revision=0
-			bsr.w	DisplaySprite
-			out_of_range	DeleteObject
-			rts	
-		else
-			out_of_range	DeleteObject
-			bra.w	DisplaySprite
-		endc
+;		if Revision=0
+;			bsr.w	DisplaySprite
+;			out_of_range	DeleteObject
+;			rts	
+;		else
+		out_of_range	DeleteObject
+		bra.w	DisplaySprite
+;		endc
 ; ===========================================================================
 Brick_TypeIndex:index *
 		ptr Brick_Still					; doesn't move
@@ -109,11 +109,11 @@ Brick_FallNow:
 		move.b	#id_Brick_FallLava,ost_subtype(a0)	; final subtype - slow wobble on lava
 		move.w	(a1),d0					; get 16x16 tile id the block is sitting on
 		andi.w	#$3FF,d0
-		if Revision=0
-			cmpi.w	#$2E8,d0			; wrong 16x16 tile check in REV00
-		else
-			cmpi.w	#$16A,d0			; is the 16x16 tile it's landed on lava?
-		endc
+;		if Revision=0
+;			cmpi.w	#$2E8,d0			; wrong 16x16 tile check in REV00
+;		else
+		cmpi.w	#$16A,d0			; is the 16x16 tile it's landed on lava?
+;		endc
 		bcc.s	@exit					; if yes, branch
 		move.b	#0,ost_subtype(a0)			; don't wobble
 

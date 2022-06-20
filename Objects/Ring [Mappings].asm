@@ -10,9 +10,9 @@ Map_Ring:	index *
 		ptr frame_ring_sparkle2
 		ptr frame_ring_sparkle3
 		ptr frame_ring_sparkle4
-		if Revision>0
+;		if Revision>0
 		ptr frame_ring_blank
-		endc
+;		endc
 		
 frame_ring_front:
 		spritemap					; ring front

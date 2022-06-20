@@ -101,10 +101,10 @@ Pow_ChkInvinc:
 		move.b	#id_ani_stars4,(v_ost_stars4+ost_anim).w
 		tst.b	(f_boss_boundary).w			; is boss mode on?
 		bne.s	Pow_NoMusic				; if yes, branch
-		if Revision<>0
-			cmpi.w	#air_alert,(v_air).w
-			bls.s	Pow_NoMusic
-		endc
+		;if Revision<>0
+		cmpi.w	#air_alert,(v_air).w ; is drowning music playing?
+		bls.s	Pow_NoMusic			; if so, do not play invincibility music
+		;endc
 		play.w	0, jmp, mus_Invincible			; play invincibility music
 ; ===========================================================================
 
