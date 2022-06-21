@@ -621,7 +621,7 @@ soundtest_pos:	= (sizeof_vram_row*$18)+($18*2)
 		bsr.w	LevSel_DrawSound			; draw low digit
 		move.b	d2,d0					; retrieve from d2
 ;	if Optimize=0
-		bsr.w	LevSel_DrawSound			; draw high digit
+;		bsr.w	LevSel_DrawSound			; draw high digit
 ;		rts
 ;	else
 		bra.w	LevSel_DrawSound			; draw high digit

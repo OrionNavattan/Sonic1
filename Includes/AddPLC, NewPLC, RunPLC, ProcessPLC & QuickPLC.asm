@@ -106,6 +106,7 @@ RunPLC:
 	; S3K eliminates this race condition by moving this instruction 
 	; to the end of the function.
 		move.w	d2,(v_nem_tile_count).w			; load tile count
+	else	
 	endc	
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5				; get next byte of header
