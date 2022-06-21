@@ -136,12 +136,9 @@ include_FindWallLeftObj:	macro
 FindWallLeftObj:
 		add.w	ost_x_pos(a0),d3
 		move.w	ost_y_pos(a0),d2
-	if FixBugs=0
-	else	
-	; Colliding with left walls is erratic with this function due
-	; to a missing instruction to flip collision on the 16x16 block.
-		eori.w	#$F,d3					
-	endc	
+		; Engine bug: colliding with left walls is erratic with this function.
+		; Caused by a missing instruction to flip collision on the 16x16 block.
+		;eori.w	#$F,d3					; enable this line to fix bug
 		lea	(v_angle_right).w,a4			; write angle here
 		move.b	#0,(a4)
 		movea.w	#-$10,a3				; width of a 16x16 tile

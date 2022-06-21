@@ -213,9 +213,8 @@ BFZ_Eggman_Crush:
 		move.w	d0,(v_ost_player+ost_x_vel).w		; set rebound speed for Sonic
 		tst.b	ost_fz_flash_num(a0)			; is boss flashing from hit?
 		bne.s	@flash					; if yes, branch
-	if FixBugs=0
-	else
-	; The code does not check if the boss has been defeated, making it possible to underflow
+	if FixBugs = 1
+	; The base game does not check if the boss has been defeated, making it possible to underflow
 	; the hit counter and make him unbeatable. This rectifies that oversight.
 		tst.b	ost_col_property(a0)	;has the boss been defeated?
 		beq.s	@animate	;if so, don't let it be hit again	

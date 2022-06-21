@@ -20,12 +20,12 @@ TSon_Index:	index *,,2
 
 TSon_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto TSon_Delay next
-	if FixBugs=0
+	if FixBugs = 1
+		; This centers Sonic on the title screen
+		move.w	#$F8,ost_x_pos(a0)
+	else	
 		; This places Sonic a little too far left on the title screen
 		move.w	#$F0,ost_x_pos(a0)
-	else
-		; This centers Sonic on the title screen
-		move.w	#$F8,ost_x_pos(a0)		
 	endc	
 		move.w	#$DE,ost_y_screen(a0)			; position is fixed to screen
 		move.l	#Map_TSon,ost_mappings(a0)
@@ -54,9 +54,9 @@ TSon_Move:	; Routine 4
 	@display:
 		bra.w	DisplaySprite
 
-;	if Optimize = 0
-;		rts
-;	endc	
+	if Optimize = 0
+		rts
+	endc	
 ; ===========================================================================
 
 TSon_Animate:	; Routine 6
@@ -64,9 +64,9 @@ TSon_Animate:	; Routine 6
 		bsr.w	AnimateSprite
 		bra.w	DisplaySprite
 
-;	if Optimize = 0
-;		rts
-;	endc
+	if Optimize = 0
+		rts
+	endc
 ; ---------------------------------------------------------------------------
 ; Animation script
 ; ---------------------------------------------------------------------------

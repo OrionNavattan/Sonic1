@@ -242,14 +242,12 @@ Drown_Countdown:; Routine $A
 		move.w	#0,ost_y_vel(a0)
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; Drowning Fixes. See Sonic_Drowned for more information.
 		move.b  #id_Sonic_Drowned,ost_routine(a0)       ; force Sonic to drown		
 	endc	
 		move.b	#1,(f_disable_scrolling).w
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; The timer is not stopped when Sonic drowns. If he drowns at 9:58, his death animation 
 	; will be applied to his drowning sprite before the Time Over card appears.
 	; Stopping the timer when he drowns eliminates this edge case.
@@ -261,15 +259,15 @@ Drown_Countdown:; Routine $A
 
 @kill_sonic:
 		subq.w	#1,ost_drown_restart_time(a0)		; decrement delay timer after drowning
-	if FixBugs=0
-		bne.s	@delay_death				; branch if time remains
-	else
+	if FixBugs = 1
 		bne.s 	@create_bubble
+	else	
+		bne.s	@delay_death				; branch if time remains
 	endc
 		move.b	#id_Sonic_Death,(v_ost_player+ost_routine).w ; kill Sonic
 		rts	
 ; ===========================================================================
-	if FixBugs=0
+	if FixBugs = 0
 	; This code is no longer needed with the drowning fixes applied.
 	; See Sonic_Drowned for more information.
 	@delay_death:
@@ -279,7 +277,6 @@ Drown_Countdown:; Routine $A
 		addi.w	#$10,ost_y_vel(a0)			; make Sonic fall
 		movea.l	(sp)+,a0				; restore OST
 		bra.s	@create_bubble
-	else	
 	endc	
 ; ===========================================================================
 

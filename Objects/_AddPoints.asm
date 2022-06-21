@@ -45,11 +45,10 @@ AddPoints:
 		blo.s   @noextralife			; if not, branch
 
 		addi.l  #points_for_life,(v_score_next_life).w ; increase requirement by 50000
-	if ExtraLivesForPoints=0
+	if ExtraLivesForPoints = 1
+	else
 		tst.b   (v_console_region).w
 		bmi.s   @noextralife			; branch if Mega Drive is not Japanese
-	else
-		; Removing the above lines removes the region restriction.
 	endc	
 		addq.b  #1,(v_lives).w			; give extra life
 		addq.b  #1,(f_hud_lives_update).w

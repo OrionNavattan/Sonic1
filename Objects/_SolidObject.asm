@@ -150,18 +150,6 @@ Solid_SkipRenderChk:
 		ext.w	d3
 		add.w	d3,d2					; d2 = combined Sonic + object half height
 		move.w	ost_y_pos(a1),d3
-	if FixBugs=0
-	else
-	; Part of ducking size fix.	
-		cmpi.b	#id_Duck,ost_anim(a1)
-		bne.s	@skip
-		
-	@short:
-		subi.w	#5,d2
-		addi.w	#5,d3
-		
-	@skip:		
-	endc	
 		sub.w	ost_y_pos(a0),d3			; d3 = y pos of Sonic on object (0 is centre)
 		addq.w	#4,d3
 		add.w	d2,d3					; d3 = y pos of Sonic's feet on object (0 is top)
@@ -241,8 +229,7 @@ Solid_SideAir:
 Solid_NoCollision:
 		btst	#status_pushing_bit,ost_status(a0)	; is Sonic pushing?
 		beq.s	Solid_Debug				; if not, branch
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; The line after the endc sets Sonic's running animation, leading to the walk-jump
 	; bug wherein Sonic will use his walking sprite when jumping. drowning, or getting hurt
 	; if he is next to an object that calls the SolidObject routines.

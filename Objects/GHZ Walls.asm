@@ -132,18 +132,6 @@ Edge_ChkCollision:
 		ext.w	d3
 		add.w	d3,d2					; add ost_height to stated height
 		move.w	ost_y_pos(a1),d3
-	if FixBugs=0
-	else
-	; Part of ducking size fix.
-		cmpi.b	#id_Duck,ost_anim(a1)
-		bne.s	@skip
-		
-	@short:
-		subi.w	#5,d2
-		addi.w	#5,d3
-		
-	@skip:		
-	endc	
 		sub.w	ost_y_pos(a0),d3			; d3: +ve if Sonic is below; -ve if Sonic is above
 		add.w	d2,d3					; add total height of object
 		bmi.s	Edge_Ignore				; branch if Sonic is outside upper boundary

@@ -23,8 +23,7 @@ Sonic_Index:	index *,,2
 		ptr Sonic_Hurt ; #id_Sonic_Hurt equ $4
 		ptr Sonic_Death	; #id_Sonic_Death equ $6
 		ptr Sonic_ResetLevel ; #id_Sonic_ResetLevel equ $8
-	if FixBugs=0
-	else
+	if FixBugs = 1
 		ptr Sonic_Drowned ; #id_Sonic_Drowned equ $A
 	endc	
 ; ===========================================================================
@@ -190,8 +189,7 @@ Sonic_Water:
 		move.w	(v_water_height_actual).w,d0
 		cmp.w	ost_y_pos(a0),d0			; is Sonic above the water?
 		bge.s	@abovewater				; if yes, branch
-	if FixBugs=0
-	else	
+	if FixBugs = 1	
 		; If Sonic jumps when he is just above the point where he would be considered submerged,
 		; his position may briefly fall under the water's surface again.
 		; This causes the physics code that would normally simulate the water's surface tension
@@ -228,8 +226,7 @@ Sonic_Water:
 		move.w	#sonic_acceleration,(v_sonic_acceleration).w ; restore Sonic's acceleration
 		move.w	#sonic_deceleration,(v_sonic_deceleration).w ; restore Sonic's deceleration
 		asl	ost_y_vel(a0)
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; If Sonic exits water while in his hurt state, the usual speed increase 
 	; is not applied nor is the splash effect displayed due to his y-velocity causing
 	; the following beq.w to always branch. Adding this tst corrects this.
@@ -383,8 +380,7 @@ Sonic_LookUp:
 		btst	#bitUp,(v_joypad_hold).w		; is up being pressed?
 		beq.s	Sonic_Duck				; if not, branch
 		move.b	#id_LookUp,ost_anim(a0)			; use "looking up" animation
-	if FixBugs=0
-	else
+	if FixBugs = 1
 		; If Sonic looks up while near the top of a level, the camera's
 		; y-pos will continue to increase even after it visibly stops at the top boundary.
 		; This results in a delay in the camera returning to neutral
@@ -412,8 +408,7 @@ Sonic_Duck:
 		btst	#bitDn,(v_joypad_hold).w		; is down being pressed?
 		beq.s	Sonic_ResetScr				; if not, branch
 		move.b	#id_Duck,ost_anim(a0)			; use "ducking" animation
-	if FixBugs=0
-	else
+	if FixBugs = 1
 		; If Sonic ducks while near the bottom of a level, the camera's
 		; y-pos will continue to decrease even after it visibly stops at the bottom boundary.
 		; This results in a delay in the camera returning to neutral
@@ -700,8 +695,7 @@ Sonic_RollSpeed:
 		subq.w	#sonic_height-sonic_height_roll,ost_y_pos(a0)
 
 @update_speed:
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; This is almost unnoticeable in the unmodified game, but if Sonic looks up or ducks,
 	; then immediately starts rolling afterwards, the camera will get stuck and not finish 
 	; scrolling back to neutral until Sonic exits his roll. This is because the code 
@@ -910,8 +904,7 @@ Sonic_LevelBound:
 
 	@chkbottom:
 		move.w	(v_boundary_bottom).w,d0
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; This routine checks the current bottom boundary instead of the intended one,
 	; leading to the occasional instance of Sonic dying if he goes too fast in the GHZ1 and 3 tunnels.
 	; This can be corrected by using the intended boundary if it is moving down, 
@@ -1024,12 +1017,6 @@ Sonic_Jump:
 		addq.l	#4,sp
 		move.b	#1,ost_sonic_jump(a0)
 		clr.b	ost_sonic_sbz_disc(a0)
-	if FixBugs=0
-	else
-	; Clearing the control lock immediately after jumping eliminates possible input lag
-	;that can occur if jumping after hitting a horizontal spring or sliding down a slope.
-		clr.w	ost_sonic_lock_time(a0)	;clear horiz control lock
-	endc	
 		play.w	1, jsr, sfx_Jump			; play jumping sound
 		move.b	#sonic_height,ost_height(a0)
 		move.b	#sonic_width,ost_width(a0)
@@ -1454,8 +1441,7 @@ Sonic_Hurt:	; Routine 4
 		bsr.w	Sonic_HurtStop
 		bsr.w	Sonic_LevelBound
 		bsr.w	Sonic_RecordPosition
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; The lack of a branch to Sonic's water routines here results in him not
 	; switching to his underwater physics if he enters it in his hurt state.
 		bsr.w	Sonic_Water
@@ -1505,27 +1491,27 @@ Sonic_Death:	; Routine 6
 
 GameOver:
 
-	if FixBugs=0
-		move.w	(v_boundary_bottom).w,d0
-	else
-	; The game waits until Sonic has fallen 32 pixels below the bottom boundary before proceeding with
+	if FixBugs = 1
+	; The game waits until Sonic has fallen 32 pixels below the bottom boundary before proceeding
 	; resetting the level or displaying the game over/time over cards. However, this also 
 	; results in a noticeable delay if Sonic died the top of a level, and a near instant reset 
 	; if he died near the bottom. Using the screen position for this comparison eliminates the time difference.
-		move.w	(v_camera_y_pos).w,d0		
+		move.w	(v_camera_y_pos).w,d0	
+	else
+		move.w	(v_boundary_bottom).w,d0
 	endc	
 		addi.w	#224+32,d0
 		cmp.w	ost_y_pos(a0),d0			; has Sonic fallen more than 32px below the bottom boundary (if no bugfix) or camera position (if bugfix) after dying?
-	if FixBugs=0	
-		bcc.w	@exit					; if not, branch
-	else
+	if FixBugs = 1	
 	; This checks if Sonic has fallen 32 pixels below the bottom boundary (or if the above fix is applied,
 	; the camera position), and if he has, proceeds with level reset or displaying the Game Over/Time Over cards.
 	; However, going above the top boundary is treated the same as falling below the bottom boundary 
 	; due to the use of an unsigned condition. This not only causes Sonic to die if he is pushed above the top boundary,
 	; but also causes his death sprite to disappear if its animation sends it above the top boundary!
 	; Simply changing the branch condition to a signed one fixes both issues.
-		bge.w	@exit					; if not, branch	
+		bge.w	@exit					; if not, branch
+	else
+		bcc.w	@exit					; if not, branch
 	endc	
 		move.w	#-$38,ost_y_vel(a0)
 		addq.b	#2,ost_routine(a0)			; goto Sonic_ResetLevel next
@@ -1656,8 +1642,7 @@ Sonic_LoopPlane:
 		rts
 
 
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; The code for drowning assumes that Sonic is in his normal state. Unfortunately, it does
 	; not work all that well when Sonic is in his hurt state. If he drowns in his hurt state, 
 	; the gravity from that state will still apply, and he will still interact with floors and walls
@@ -1692,8 +1677,7 @@ Sonic_Animate:
 		move.b	d0,ost_anim_restart(a0)			; set to "no restart"
 		move.b	#0,ost_anim_frame(a0)			; reset animation
 		move.b	#0,ost_anim_time(a0)			; reset frame duration
-	if FixBugs=0
-	else
+	if FixBugs = 1
 	; Backported from Sonic 2. Not clearing this bit can result in Sonic using his pushing animation
 	; if he runs into a wall or solid object at high speeds and reverses immediately (aka the pushing while walking bug).
 		bclr	#status_pushing_bit,ost_status(a0)

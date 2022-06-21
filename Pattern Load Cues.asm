@@ -218,11 +218,10 @@ PLC_SYZ2:	plcheader
 		plcm	Nem_Bumper, $7000			; bumper
 		plcm	Nem_BigSpike				; large	spikeball ($72C0)
 		plcm	Nem_SmallSpike				; small	spikeball ($7740)
-	if FixBugs=0	
-	; This badnik is loaded despite not being used, and its presence corrupts
+	if FixBugs = 0	
+	; This badnik is loaded despite not being used. and its presence corrupts
 	; one frame of the Roller's sprite.
 		plcm	Nem_Cater, vram_cater			; caterkiller enemy ($9FE0)
-	else	
 	endc	
 		plcm	Nem_Button, vram_button		; button ($A1E0)
 		plcm	Nem_Spikes, vram_spikes			; spikes ($A360)

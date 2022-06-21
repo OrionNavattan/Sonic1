@@ -54,9 +54,9 @@ frame_ring_sparkle4:
 		piece	-8, -8, 2x2, $A, yflip
 		endsprite
 		
-;		if Revision>0
+		if Revision>0
 frame_ring_blank:
 		spritemap
 		endsprite
-;		endc
+		endc
 		even

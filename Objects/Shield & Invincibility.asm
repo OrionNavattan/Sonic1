@@ -47,8 +47,7 @@ Shi_Shield:	; Routine 2
 		move.w	(v_ost_player+ost_y_pos).w,ost_y_pos(a0)
 		move.b	(v_ost_player+ost_status).w,ost_status(a0)
 		
-	if FixBugs=0
-	else
+	if FixBugs = 1	
 		; This simply makes things look a little more polished by shifting the
 		; shield sprite to match Sonic's balancing animation as needed.
 		move.b	ost_status(a0),d0
@@ -118,8 +117,7 @@ Shi_Stars:	; Routine 4
 		move.w	(a1)+,ost_y_pos(a0)
 		move.b	(v_ost_player+ost_status).w,ost_status(a0)
 	
-	if FixBugs=0
-	else
+	if FixBugs = 1
 		; Again, making things a little more polished by adjusting the invincibility
 		; stars to match Sonic's balancing animation as needed.
 		move.b	ost_status(a0),d0

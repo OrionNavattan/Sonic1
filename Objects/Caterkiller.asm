@@ -385,11 +385,6 @@ Cat_Head_Break:
 		move.w	d0,ost_x_vel(a0)			; set x speed
 		move.w	#-$400,ost_y_vel(a0)
 		move.b	#id_Cat_Fragment,ost_routine(a0)	; goto Cat_Fragment next
-	if FixBugs=0
-	else
-	; Part of Caterkiller defeat fix. See React_Caterkiller for more information.
-		move.b	#id_col_4x4+id_col_hurt,ost_col_type(a0)     
-	endc			
 		andi.b	#$F8,ost_frame(a0)			; use first head/body frame
 
 Cat_Fragment:	; Routine $C
