@@ -847,20 +847,21 @@ UCX_Camera:
 		move.w	(v_ost_player+ost_x_pos).w,d0
 		sub.w	(v_camera_x_pos).w,d0			; d0 = Sonic's distance from left edge of screen
 		subi.w	#144,d0					; is distance less than 144px?
-	if FixBugs = 1
+	if FixBugs=0	
 	; The use of unsigned branch conditions in this function 
 	; result in a bug where the camera may scroll the wrong
 	; way during a scripted event near the horizontal boundaries of a level 
 	; due to an overflow.
+		bcs.s	UCX_BehindMid				; if yes, branch	
+	else		
 		bmi.s	UCX_BehindMid
-	else	
-		bcs.s	UCX_BehindMid				; if yes, branch
 	endc	
 		subi.w	#16,d0					; is distance more than 160px?
-	if FixBugs = 1
-		bpl.s	UCX_AheadOfMid				; if yes, branch
-	else	
+	if FixBugs=0	
 		bcc.s	UCX_AheadOfMid				; if yes, branch
+	else	
+		bpl.s	UCX_AheadOfMid				; if yes, branch
+
 	endc	
 		clr.w	(v_camera_x_diff).w			; no camera movement
 		rts	
@@ -887,7 +888,8 @@ UCX_SetScreen:
 ; ===========================================================================
 
 UCX_BehindMid:
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; The game limits the camera to moving no more than 16 pixels up, down, or to the right at 
 	; any one time so that the graphics can be drawn properly, but it does NOT apply this
 	; limit when the camera is moving left, potentially causing issues if one inserts

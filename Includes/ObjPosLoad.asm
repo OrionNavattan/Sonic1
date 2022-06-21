@@ -35,19 +35,22 @@ OPL_Init:
 		lea	(v_respawn_list).w,a2
 		move.w	#$101,(a2)+				; start respawn counter at 1
 		
-	if FixBugs = 1
-		move.w	#($FC/4)-1,d0
-	else
+	if FixBugs=0
+		else
 	; This clears longwords, but the loop counter is measured in words!
 	; This causes $17C bytes to be cleared instead of $BE, overwriting half of the stack!
 		move.w	#($17c/4)-1,d0
+	
+	else
+		move.w	#($FC/4)-1,d0
 	endc	
 	
 	@clear_respawn_list:
 		clr.l	(a2)+ 
 		dbf	d0,@clear_respawn_list			; clear object respawn list
 		
-	if FixBugs	= 1
+	if FixBugs=0
+	else
 		clr.w	(a2)+ ; manually clear the last word of the respawn list
 	endc
 	
@@ -174,7 +177,8 @@ OPL_MovedRight:
 	@no_respawn:
 		bsr.w	OPL_SpawnObj				; check respawn flag and spawn object
 		beq.s	@loop_find_right			; loop until object is found outside window
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; This routine does not deset the remember flag or restore the remember counter,
 	; which can lead to destroyed objects reappearing and vice versa if there are enough 
 	; objects on screen to completely fill the object RAM. 
@@ -225,11 +229,11 @@ OPL_NoMove:
 OPL_SpawnObj:
 		tst.b	4(a0)					; is remember respawn flag set?
 		bpl.s	OPL_MakeItem				; if not, branch
-	if FixBugs = 1
+	if FixBugs=0
+		bset	#7,2(a2,d2.w)				; set flag so it isn't loaded more than once	
+	else
 	; Part of the same fix in @norespawn.
 		btst	#7,2(a2,d2.w)				; set flag so it isn't loaded more than once
-	else
-		bset	#7,2(a2,d2.w)				; set flag so it isn't loaded more than once
 	endc	
 		beq.s	OPL_MakeItem				; branch if object hasn't already been destroyed
 		addq.w	#6,a0					; goto next object in objpos list
@@ -251,7 +255,8 @@ OPL_MakeItem:
 		move.b	d1,ost_status(a1)
 		move.b	(a0)+,d0				; get object id
 		bpl.s	@no_respawn_bit				; branch if remember respawn bit is not set
-	if FixBugs = 1	
+	if FixBugs=0
+	else	
 	; Part of the same fix in @norespawn.
 		bset	#$7,$2(a2,d2.w)	; set as removed (part of remembered sprites fix)
 	endc			

@@ -341,11 +341,11 @@ FBlock_FarRightButton:
 		addq.w	#1,ost_fblock_move_dist(a0)		; increment movement counter
 		cmpi.w	#$380,ost_fblock_move_dist(a0)		; has object moved $380 pixels?
 		bne.s	@end					; if not, branch
-		if Revision=0
-		else
-			move.b	#1,(f_fblock_finish).w
-			clr.b	ost_fblock_move_flag(a0)
-		endc
+;		if Revision=0
+;		else
+		move.b	#1,(f_fblock_finish).w
+		clr.b	ost_fblock_move_flag(a0)
+;		endc
 		clr.b	ost_subtype(a0)				; stop object moving
 
 	@end:

@@ -71,7 +71,7 @@ MDemo_On:
 		;if Revision=0
 		;	move.b	(a0),d2
 		;else
-	if FixBugs = 1
+	if FixBugs=0
 	; In REV00, this instruction was 'move.b (a0),d2'. The
 	; purpose of this is to XOR the current frame's input with the
 	; previous frame's input to determine which inputs had been pressed
@@ -90,9 +90,10 @@ MDemo_On:
 	; variable, 'v_joypad_hold' does happen to hold the inputs from
 	; the previous frame, so we can use this here instead to fix this bug
 	; properly.
-		move.b	v_joypad_hold-v_joypad_hold_actual(a0),d2
-	else	
 		moveq	#0,d2
+	else
+		move.b	v_joypad_hold-v_joypad_hold_actual(a0),d2
+
 	endc	
 		;endc
 		eor.b	d2,d0

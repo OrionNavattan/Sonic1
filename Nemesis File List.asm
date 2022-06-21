@@ -1,11 +1,11 @@
 ; ---------------------------------------------------------------------------
 ; Labels and file names for Nemesis-compressed graphics
 ; ---------------------------------------------------------------------------
-		if Revision=0
-		nemesis	Nem_SegaLogo,"Sega Logo"		; large Sega logo
-		else
+;		if Revision=0
+;		nemesis	Nem_SegaLogo,"Sega Logo"		; large Sega logo
+;		else
 		nemesis	Nem_SegaLogo,"Sega Logo (JP1)"		; large Sega logo
-		endc
+;		endc
 		nemesis	Nem_TitleFg,"Title Screen Foreground"
 		nemesis	Nem_TitleSonic,"Title Screen Sonic"
 		nemesis	Nem_TitleTM,"Title Screen TM"
@@ -178,15 +178,15 @@
 		nemesis Nem_EndFlower,"Ending - Flowers"
 		nemesis Nem_CreditText,"Ending - Credits"
 		nemesis Nem_EndStH,"Ending - StH Logo"
-		if Revision=0
-		nemesis	Nem_EndEggman,"Unused - Eggman Ending"
-		endc
+;		if Revision=0
+;		nemesis	Nem_EndEggman,"Unused - Eggman Ending"
+;		endc
 		
-		if Revision=0
-		nemesis Nem_Smoke,"Unused - Smoke"
-		nemesis Nem_SyzSparkle,"Unused - SYZ Sparkles"
-		nemesis Nem_LzSonic,"Unused - LZ Sonic Holding Breath" ; Sonic holding his breath
-		nemesis Nem_UnkFire,"Unused - Fireball"		; unused fireball
-		nemesis Nem_Warp,"Unused - Special Stage Warp"	; entry to special stage flash
-		nemesis Nem_Goggle,"Unused - Goggles"		; unused goggles
-		endc
+;		if Revision=0
+;		nemesis Nem_Smoke,"Unused - Smoke"
+;		nemesis Nem_SyzSparkle,"Unused - SYZ Sparkles"
+;		nemesis Nem_LzSonic,"Unused - LZ Sonic Holding Breath" ; Sonic holding his breath
+;		nemesis Nem_UnkFire,"Unused - Fireball"		; unused fireball
+;		nemesis Nem_Warp,"Unused - Special Stage Warp"	; entry to special stage flash
+;		nemesis Nem_Goggle,"Unused - Goggles"		; unused goggles
+;		endc

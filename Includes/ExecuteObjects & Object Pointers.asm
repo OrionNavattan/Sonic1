@@ -30,7 +30,8 @@ ExecuteObjects:
 ; ===========================================================================
 
 @dead:
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; With the rewritten drowning routines, this is required for the bubbles from
 	; Sonic's mouth to display as he drowns. See Sonic_Drowned for more information.
 		cmpi.b	#id_Sonic_Drowned,(v_ost_player+ost_routine) ; has sonic drowned?

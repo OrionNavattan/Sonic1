@@ -348,9 +348,9 @@ LPL_InitBG_SBZ:
 			;asl.l	#1,d0
 			;asr.l	#8,d0				; d0 = v_camera_y_pos/8
 		;else
-			andi.w	#$7F8,d0
-			asr.w	#3,d0
-			addq.w	#1,d0				; d0 = (v_camera_y_pos/8)+1
+		andi.w	#$7F8,d0
+		asr.w	#3,d0
+		addq.w	#1,d0				; d0 = (v_camera_y_pos/8)+1
 		;endc
 		move.w	d0,(v_bg1_y_pos).w
 		rts	

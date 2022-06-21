@@ -9,12 +9,12 @@ EndSTH:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	ESth_Index(pc,d0.w),d1
-		if Revision=0
-			jmp	ESth_Index(pc,d1.w)
-		else
-			jsr	ESth_Index(pc,d1.w)
-			jmp	(DisplaySprite).l
-		endc
+;		if Revision=0
+;			jmp	ESth_Index(pc,d1.w)
+;		else
+		jsr	ESth_Index(pc,d1.w)
+		jmp	(DisplaySprite).l
+;		endc
 ; ===========================================================================
 ESth_Index:	index *,,2
 		ptr ESth_Main

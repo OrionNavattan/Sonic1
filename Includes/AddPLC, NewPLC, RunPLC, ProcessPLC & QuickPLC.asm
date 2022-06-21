@@ -95,7 +95,7 @@ RunPLC:
 
 	@normal_mode:
 		andi.w	#$7FFF,d2				; clear highest bit
-	if FixBugs = 0
+	if FixBugs=0
 	; This is done too early: this variable is used to determine when
 	; there are PLCs to process, which means that as soon as this
 	; variable is set, PLC processing will occur during V-Int. If an
@@ -120,7 +120,8 @@ RunPLC:
 		move.l	d0,(v_nem_d2).w
 		move.l	d5,(v_nem_header).w
 		move.l	d6,(v_nem_shift).w
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; See above
 		move.w	d2,(v_nem_tile_count).w			; load tile count	
 	endc	
@@ -193,20 +194,7 @@ ProcessPLC_Exit:
 ProcessPLC_Finish:
 		lea	(v_plc_buffer).w,a0
 		
-	if FixBugs = 1 
-	; See below
-		lea 6(a0),a1
-		moveq	#$E,d0
-	@loop:
-		move.l	(a1)+,(a0)+
-		move.w	(a1)+,(a0)+
-		dbf	d0,@loop
-		
-		moveq	#0,d0
-		move.l	d0,(a0)+
-		move.w	d0,(a0)+
-	
-	else	
+	if FixBugs=0	
 	; This does not shift the PLC buffer correctly; it only transfers $58 bytes 
 	; instead of $5A, skipping the VRAM offset of the 16th and final cue, 
 	; and it does not clear the 16th cue, resulting in overcopying 
@@ -217,6 +205,19 @@ ProcessPLC_Finish:
 	@loop:
 		move.l	6(a0),(a0)+				; shift contents of PLC buffer up 6 bytes
 		dbf	d0,@loop
+	else 
+	
+		lea 6(a0),a1
+		moveq	#$E,d0
+	@loop:
+		move.l	(a1)+,(a0)+
+		move.w	(a1)+,(a0)+
+		dbf	d0,@loop
+		
+		moveq	#0,d0
+		move.l	d0,(a0)+
+		move.w	d0,(a0)+
+
 	endc	
 		rts
 
