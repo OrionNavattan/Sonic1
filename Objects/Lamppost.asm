@@ -112,6 +112,12 @@ Lamp_Blue:	; Routine 2
 		lea	(v_respawn_list).w,a2
 		moveq	#0,d0
 		move.b	ost_respawn(a0),d0
+	if FixBugs=0
+	; Lampposts placed in debug mode do not check the respawn list properly, causing them to be 
+	; already activated if one was activated previously.
+	else
+		beq.s	@donothing		; Fixes issue with checkpoints placed in debug mode always being activated if another one was activated previously	
+	endc	
 		bset	#0,2(a2,d0.w)				; remember lamppost as red
 
 	@donothing:

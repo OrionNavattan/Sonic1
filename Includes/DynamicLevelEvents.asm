@@ -5,6 +5,18 @@
 ; ---------------------------------------------------------------------------
 
 DynamicLevelEvents:
+
+	if FixBugs=0
+	else
+	; While this should not happen in the unmodified game, this is a precaution to prevent
+	; DLE from running in the ending and the special stage.
+		cmpi.b	#id_Title,(v_gamemode).w	;exit if on the Title
+		beq.s	@keep_boundary
+		cmpi.b	#id_Special,(v_gamemode).w	;exit if in a Special Stage
+		beq.s	@keep_boundary	
+	endc
+
+
 		moveq	#0,d0
 		move.b	(v_zone).w,d0
 		add.w	d0,d0

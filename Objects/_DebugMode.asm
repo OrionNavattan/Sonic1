@@ -24,6 +24,27 @@ Debug_Main:	; Routine 0
 		andi.w	#$3FF,(v_bg1_y_pos).w
 		move.b	#0,ost_frame(a0)
 		move.b	#0,ost_anim(a0)
+	if FixBugs=0
+	else	
+	; Clearing the standing flags and Sonic's speed when entering debug mode 
+	; prevents some unintended behaviors when exiting it.
+		clr.w	ost_x_vel(a0)
+		clr.w	ost_y_vel(a0)
+		clr.w	ost_inertia(a0)
+		btst	#status_platform_bit,ost_status(a0)	; is Sonic standing on an object?
+		beq.s	@setpos		; if not, branch
+		bclr	#status_platform_bit,ost_status(a0)	; clear Sonic's standing flag
+		moveq	#0,d0
+		move.b	ost_sonic_on_obj(a0),d0	; get object id	
+		clr.b	ost_sonic_on_obj(a0)	; clear object id
+		lsl.w	#6,d0
+		addi.l	#v_ost_all&$FFFFFF,d0
+		movea.l	d0,a2
+		bclr	#status_platform_bit,ost_status(a2)	; clear object's standing flag
+		clr.b	ost_solid(a2)
+		
+	@setpos:
+	endc	
 		cmpi.b	#id_Special,(v_gamemode).w		; is game mode $10 (special stage)?
 		bne.s	@islevel				; if not, branch
 
@@ -166,9 +187,14 @@ Debug_ChgItem:
 
 @createitem:
 		btst	#bitC,(v_joypad_press_actual).w		; is button C pressed?
-		beq.s	@backtonormal				; if not, branch
+		beq.s	@backtonormal				; if not, branch	
 		jsr	(FindFreeObj).l
 		bne.s	@backtonormal
+	if FixBugs=0
+	else
+	; Part of debug mode improvements.
+		move.b	#0,(v_respawn_list+2).w	
+	endc	
 		move.w	ost_x_pos(a0),ost_x_pos(a1)
 		move.w	ost_y_pos(a0),ost_y_pos(a1)
 		move.b	ost_mappings(a0),ost_id(a1)		; create object (object id is held in high byte of mappings pointer)

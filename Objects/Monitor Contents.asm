@@ -10,7 +10,10 @@ PowerUp:
 		move.b	ost_routine(a0),d0
 		move.w	Pow_Index(pc,d0.w),d1
 		jsr	Pow_Index(pc,d1.w)
-		bra.w	DisplaySprite
+; if FixBugs=0		
+;		bra.w	DisplaySprite
+;	else
+;	endc
 ; ===========================================================================
 Pow_Index:	index *,,2
 		ptr Pow_Main
@@ -40,7 +43,12 @@ Pow_Move:	; Routine 2
 		bpl.w	Pow_Checks				; if not, branch
 		bsr.w	SpeedToPos				; update position
 		addi.w	#$18,ost_y_vel(a0)			; reduce object speed
-		rts	
+;	if FixBugs=0
+;		rts
+;	else	
+	; Clusterfuck fix	
+		bra.w 	DisplaySprite
+;		endc
 ; ===========================================================================
 
 Pow_Checks:
@@ -51,7 +59,12 @@ Pow_ChkEggman:
 		move.b	ost_anim(a0),d0
 		cmpi.b	#id_ani_monitor_eggman,d0		; does monitor contain Eggman?
 		bne.s	Pow_ChkSonic
-		rts						; Eggman monitor does nothing
+;	if FixBugs=0
+;		rts							; Eggman monitor does nothing
+;	else		
+	; Clusterfuck fix
+		bra.W 	DisplaySprite		; Eggman monitor does nothing
+;	endc					
 ; ===========================================================================
 
 Pow_ChkSonic:
@@ -61,7 +74,13 @@ Pow_ChkSonic:
 	ExtraLife:
 		addq.b	#1,(v_lives).w				; add 1 to the number of lives you have
 		addq.b	#1,(f_hud_lives_update).w		; update the lives counter
-		play.w	0, jmp, mus_ExtraLife			; play extra life music
+;	if FixBugs=0
+;		play.w	0, jmp, mus_ExtraLife			; play extra life music
+;	else	
+	; Clusterfuck fix
+		play.w	0, jsr, mus_ExtraLife			; play extra life music
+		bra.w 	DisplaySprite
+;	endc	
 ; ===========================================================================
 
 Pow_ChkShoes:
@@ -73,7 +92,14 @@ Pow_ChkShoes:
 		move.w	#sonic_max_speed_shoes,(v_sonic_max_speed).w ; change Sonic's top speed
 		move.w	#sonic_acceleration_shoes,(v_sonic_acceleration).w ; change Sonic's acceleration
 		move.w	#sonic_deceleration_shoes,(v_sonic_deceleration).w ; change Sonic's deceleration
-		play.w	0, jmp, cmd_Speedup			; speed up the music
+;	if FixBugs=0
+;		play.w	0, jmp, cmd_Speedup			; speed up the music
+;	else
+	; Clusterfuck fix			
+		play.w	0, jsr, cmd_Speedup			; speed up the music
+		bra.w 	DisplaySprite
+;	endc
+		
 ; ===========================================================================
 
 Pow_ChkShield:
@@ -82,7 +108,12 @@ Pow_ChkShield:
 
 		move.b	#1,(v_shield).w				; give Sonic a shield
 		move.b	#id_ShieldItem,(v_ost_shield).w		; load shield object ($38)
-		play.w	0, jmp, sfx_Shield			; play shield sound
+;	if FixBugs=0
+;		play.w	0, jmp, sfx_Shield			; play shield sound
+	else			
+		play.w	0, jsr, sfx_Shield			; play shield sound
+		bra.w 	DisplaySprite
+;	endc
 ; ===========================================================================
 
 Pow_ChkInvinc:
@@ -101,15 +132,32 @@ Pow_ChkInvinc:
 		move.b	#id_ani_stars4,(v_ost_stars4+ost_anim).w
 		tst.b	(f_boss_boundary).w			; is boss mode on?
 		bne.s	Pow_NoMusic				; if yes, branch
-		;if Revision<>0
+;	if Revision<>0
 		cmpi.w	#air_alert,(v_air).w ; is drowning music playing?
-		bls.s	Pow_NoMusic			; if so, do not play invincibility music
-		;endc
-		play.w	0, jmp, mus_Invincible			; play invincibility music
+;	if Fixbugs=0	
+;		bls.s	Pow_NoMusic			; if so, do not play invincibility music
+	;else
+	; With the clusterfuck fix implemented, we can optimize this slightly
+	; by eliminating a redundant label.
+		bls.s	@displaysprite			; if so, do not play invincibility music
+	;endc
+	;endc
+;	if Fixbugs=0
+;		play.w	0, jmp, sfx_Shield			; play shield sound
+;	else
+	; Clusterfuck fix
+		play.w	0, jsr, mus_Invincible			; play invincibility music
+	@displaysprite:	
+		bra.w 	DisplaySprite
+;	endc
 ; ===========================================================================
 
-Pow_NoMusic:
-		rts	
+;	if FixBugs=0
+;Pow_NoMusic:
+;		bsr.w 	DisplaySprite
+;		rts	
+;	else
+;	endc	
 ; ===========================================================================
 
 Pow_ChkRings:
@@ -128,7 +176,12 @@ Pow_ChkRings:
 		beq.w	ExtraLife
 
 	Pow_RingSound:
-		play.w	0, jmp, sfx_Ring			; play ring sound
+;	if FixBugs=0
+;		play.w	0, jmp, sfx_Ring			; play ring sound
+;	else
+		play.w	0, jsr, sfx_Ring			; play ring sound
+		bra.w 	DisplaySprite
+;	endc	
 ; ===========================================================================
 
 Pow_ChkS:
@@ -137,6 +190,7 @@ Pow_ChkS:
 		nop	
 
 Pow_ChkEnd:
+		bsr.w 	DisplaySprite
 		rts						; 'S' and goggles monitors do nothing
 ; ===========================================================================
 

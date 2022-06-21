@@ -36,6 +36,12 @@ Mon_Main:	; Routine 0
 		lea	(v_respawn_list).w,a2
 		moveq	#0,d0
 		move.b	ost_respawn(a0),d0
+	if FixBugs=0
+	; Monitors placed in debug mode do not interact with the respawn list properly, 
+	; causing them to always be broken after placing and breaking one.
+	else
+		beq.s	@notbroken  ; Fixes issue where monitors placed in debug mode are always broken after placing and breaking one	
+	endc		
 		bclr	#7,2(a2,d0.w)
 		btst	#0,2(a2,d0.w)				; has monitor been broken?
 		beq.s	@notbroken				; if not, branch
