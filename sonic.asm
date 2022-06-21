@@ -33,13 +33,13 @@ BackupSRAM:	equ 1
 AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 
 
-	if ~def(Revision)					; bit-perfect check will automatically set this variable
-Revision:	equ 1
-	endc
+;	if ~def(Revision)					; bit-perfect check will automatically set this variable
+;Revision:	equ 1
+;	endc
 	
 FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs
 
-Optimize:	equ 1	; Apply a number of optimizations
+;Optimize:	equ 1	; Apply a number of optimizations
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
 
@@ -87,11 +87,11 @@ Vectors:	dc.l v_stack_pointer&$FFFFFF			; Initial stack pointer value
 		dc.b "SONIC THE               HEDGEHOG                " ; Domestic name
 		dc.b "SONIC THE               HEDGEHOG                " ; International name
 
-	if Revision=0
-		dc.b "GM 00001009-00"				; Serial/version number (Rev 0)
-	else
+;	if Revision=0
+;		dc.b "GM 00001009-00"				; Serial/version number (Rev 0)
+;	else
 		dc.b "GM 00004049-01"				; Serial/version number (Rev non-0)
-	endc
+;	endc
 
 Checksum: 	dc.w $0
 		dc.b "J               "				; I/O support
@@ -860,16 +860,16 @@ Art_LivesNums:	incbin	"Graphics\Lives Counter Numbers.bin"	; 8x8 pixel numbers o
 		include "Pattern Load Cues.asm"
 
 		align	$200,$FF
-		if Revision=0
-			nemfile	Nem_SegaLogo
-	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo (REV00).eni" ; large Sega logo (mappings)
-			even
-		else
-			dcb.b	$300,$FF
-			nemfile	Nem_SegaLogo
+;		if Revision=0
+;			nemfile	Nem_SegaLogo
+;	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo (REV00).eni" ; large Sega logo (mappings)
+;			even
+;		else
+		dcb.b	$300,$FF
+		nemfile	Nem_SegaLogo
 	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo.eni"	; large Sega logo (mappings)
-			even
-		endc
+		even
+;		endc
 Eni_Title:	incbin	"Tilemaps\Title Screen.eni"		; title screen foreground (mappings)
 		even
 		nemfile	Nem_TitleFg
@@ -890,18 +890,18 @@ Art_Sonic:	incbin	"Graphics\Sonic.bin"			; Sonic
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - various
 ; ---------------------------------------------------------------------------
-		if Revision=0
-			nemfile	Nem_Smoke
-			nemfile	Nem_SyzSparkle
-		endc
+;		if Revision=0
+;			nemfile	Nem_Smoke
+;			nemfile	Nem_SyzSparkle
+;		endc
 		nemfile	Nem_Shield
 		nemfile	Nem_Stars
-		if Revision=0
-			nemfile	Nem_LzSonic
-			nemfile	Nem_UnkFire
-			nemfile	Nem_Warp
-			nemfile	Nem_Goggle
-		endc
+;		if Revision=0
+;			nemfile	Nem_LzSonic
+;			nemfile	Nem_UnkFire
+;			nemfile	Nem_Warp
+;			nemfile	Nem_Goggle
+;		endc
 
 		include "Objects\Special Stage Walls [Mappings].asm" ; Map_SSWalls
 
@@ -1079,11 +1079,11 @@ Blk256_LZ:	incbin	"256x256 Mappings\LZ.kos"
 Blk16_MZ:	incbin	"16x16 Mappings\MZ.eni"
 		even
 		nemfile	Nem_MZ
-Blk256_MZ:	if Revision=0
-			incbin	"256x256 Mappings\MZ (REV00).kos"
-		else
+Blk256_MZ:	;if Revision=0
+;			incbin	"256x256 Mappings\MZ (REV00).kos"
+;		else
 			incbin	"256x256 Mappings\MZ.kos"
-		endc
+;		endc
 		even
 Blk16_SLZ:	incbin	"16x16 Mappings\SLZ.eni"
 		even
@@ -1098,11 +1098,11 @@ Blk256_SYZ:	incbin	"256x256 Mappings\SYZ.kos"
 Blk16_SBZ:	incbin	"16x16 Mappings\SBZ.eni"
 		even
 		nemfile	Nem_SBZ
-Blk256_SBZ:	if Revision=0
-			incbin	"256x256 Mappings\SBZ (REV00).kos"
-		else
+Blk256_SBZ:	;if Revision=0
+;			incbin	"256x256 Mappings\SBZ (REV00).kos"
+;		else
 			incbin	"256x256 Mappings\SBZ.kos"
-		endc
+;		endc
 		even
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - bosses and ending sequence
@@ -1117,9 +1117,9 @@ Blk256_SBZ:	if Revision=0
 		nemfile	Nem_EndEm
 		nemfile	Nem_EndSonic
 		nemfile	Nem_TryAgain
-		if Revision=0
-			nemfile	Nem_EndEggman
-		endc
+;		if Revision=0
+;			nemfile	Nem_EndEggman
+;		endc
 Kos_EndFlowers:	incbin	"Graphics - Compressed\Ending Flowers.kos" ; ending sequence animated flowers
 		even
 		nemfile	Nem_EndFlower
@@ -1129,7 +1129,7 @@ Kos_EndFlowers:	incbin	"Graphics - Compressed\Ending Flowers.kos" ; ending seque
 		;if Revision=0
 		;	dcb.b $104,$FF				; why?
 		;else
-			dcb.b $40,$FF
+		dcb.b $40,$FF
 		;endc
 ; ---------------------------------------------------------------------------
 ; Collision data
@@ -1163,15 +1163,15 @@ SS_3:		incbin	"Special Stage Layouts\3.eni"
 		even
 SS_4:		incbin	"Special Stage Layouts\4.eni"
 		even
-		if Revision=0
-	SS_5:		incbin	"Special Stage Layouts\5 (REV00).eni"
-			even
-	SS_6:		incbin	"Special Stage Layouts\6 (REV00).eni"
-		else
-	SS_5:		incbin	"Special Stage Layouts\5.eni"
-			even
-	SS_6:		incbin	"Special Stage Layouts\6.eni"
-		endc
+;		if Revision=0
+;	SS_5:		incbin	"Special Stage Layouts\5 (REV00).eni"
+;			even
+;	SS_6:		incbin	"Special Stage Layouts\6 (REV00).eni"
+;		else
+	SS_5:	incbin	"Special Stage Layouts\5.eni"
+		even
+	SS_6:	incbin	"Special Stage Layouts\6.eni"
+;		endc
 		even
 ; ---------------------------------------------------------------------------
 ; Animated uncompressed graphics
@@ -1372,11 +1372,11 @@ Level_SLZ_unused:	dc.b 0,	0, 0, 0
 
 Level_SYZ1:	incbin	"Level Layouts\syz1.bin"
 		even
-Level_SYZ_bg:	if Revision=0
-			incbin	"Level Layouts\syzbg.bin"
-		else
+Level_SYZ_bg:	;if Revision=0
+;			incbin	"Level Layouts\syzbg.bin"
+;		else
 			incbin	"Level Layouts\syzbg (JP1).bin"
-		endc
+;		endc
 		even
 Level_SYZ1_unused:	dc.b 0,	0, 0, 0
 Level_SYZ2:	incbin	"Level Layouts\syz2.bin"

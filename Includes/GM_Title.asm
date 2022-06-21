@@ -71,7 +71,8 @@ GM_Title:
 	@load_text:
 		move.w	(a5)+,(a6)
 		dbf	d1,@load_text				; load level select font
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; This flag is set by the drowning routine, but if it is followed by a Game Over,
 	; it results in the title screen background not scrolling.
 		move.b	#0,(f_disable_scrolling).w ;Clear no background scroll flag 
@@ -105,12 +106,12 @@ GM_Title:
 		lea	(Eni_Title).l,a0			; load title screen mappings
 		move.w	#0,d0
 		bsr.w	EniDec
-	if FixBugs = 1
-		; X-coordinate changed tp 4 to fix centering
-		copyTilemap	v_256x256_tiles,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
-	else
+	if FixBugs=0
 		; This places the emblem, TM, and copyright mark slightly too far to the left
 		copyTilemap	v_256x256_tiles,vram_fg,3,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
+	else	
+		; X-coordinate changed tp 4 to fix centering
+		copyTilemap	v_256x256_tiles,vram_fg,4,4,$22,$16	; copy title screen mappings to fg nametable in VRAM
 	endc
 		locVRAM	0
 		lea	(Nem_GHZ_1st).l,a0			; load GHZ patterns
@@ -122,13 +123,13 @@ GM_Title:
 		move.w	#$178,(v_countdown).w			; run title screen for $178 frames
 		lea	(v_ost_psb).w,a1
 		moveq	#0,d0
-	if FixBugs = 1
-		move.w	#$F,d1					
-	else	
+	if FixBugs=0	
 		; This only clears half of the OST. This leaves  stale data
 		; from the "SONIC TEAM PRESENTS" screen in the table,
 		; preventing the "PRESS START BUTTON" object from appearing.
-		move.w	#7,d1			
+		move.w	#7,d1
+	else			
+		move.w	#$F,d1						
 	endc
 
 	@clear_ost_psb:
@@ -244,7 +245,8 @@ Title_PressedStart:
 		btst	#bitA,(v_joypad_hold_actual).w		; check if A is pressed
 		beq.w	PlayLevel				; if not, play level
 
-	if FixBugs = 1
+	if FixBugs=0
+	else
 	; If the level select is entered at very specific time, a strip of GHZ's background graphics
 	; will appear on the left edge of the screen due to the draw flags still being set. Clearing 
 	; the flags here eliminates this .
@@ -302,7 +304,7 @@ LevelSelect:
 		cmpi.w	#$9E,d0					; is sound $9E being played?
 		beq.s	LevSel_Credits				; if yes, branch
 
-	if FixBugs = 0
+	if FixBugs=0
 	@nocheat:
 		; This is a workaround for a sound driver bug, See PlaySoundID for an explanation.
 		cmpi.w	#_lastMusic+1,d0			; is sound $80-$93 being played?
@@ -618,12 +620,13 @@ soundtest_pos:	= (sizeof_vram_row*$18)+($18*2)
 		lsr.b	#4,d0					; divide by $10
 		bsr.w	LevSel_DrawSound			; draw low digit
 		move.b	d2,d0					; retrieve from d2
-	if Optimize = 1
-		bra.w	LevSel_DrawSound			; draw high digit
-	else	
+;	if Optimize=0
 		bsr.w	LevSel_DrawSound			; draw high digit
-		rts
-	endc
+;		rts
+;	else
+		bra.w	LevSel_DrawSound			; draw high digit
+
+;	endc
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw sound test number

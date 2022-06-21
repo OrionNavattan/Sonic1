@@ -248,6 +248,29 @@ Enemy_Points:	dc.w 100/10
 ; ===========================================================================
 
 React_Caterkiller:
+	if FixBugs=0
+	else
+	; The Caterkiller's body is despawned one frame after the head, creating the possibility of
+	; Sonic being hurt if he rolls into one from the front at high speeds. This works around the issue
+	; by skipping getting hurt if Sonic and the Caterkiller are facing opposite directions.
+		move.b	#1,d0
+		move.w	ost_inertia(a0),d1
+		bmi.s	@skip
+		move.b	#0,d0
+		
+	@skip:
+		move.b	ost_status(a1),d1
+		andi.b	#1,d1
+		cmp.b	d0,d1			;are Sonic and the Caterkiller facing the same way?
+		bne.s	@hurt			;if not, move on
+		btst	#status_air,ost_status(a0)	;is Sonic in the air?	
+		bne.s	@hurt			;if so, move on
+		btst	#status_jump_bit,ost_status(a0)	;is Sonic spinning?
+		beq.s	@hurt			;if not, move on
+		moveq	#-1,d0			;else, he's rolling on the ground, and shouldn't be hurt
+		rts				
+	@hurt:
+	endc
 		bset	#status_broken_bit,ost_status(a1)
 
 React_ChkHurt:
@@ -260,7 +283,7 @@ React_ChkHurt:
 ; ===========================================================================
 
 	@notinvincible:
-		nop	
+;		nop	
 		tst.w	ost_sonic_flash_time(a0)		; is Sonic flashing?
 		bne.s	@isflashing				; if yes, branch
 		movea.l	a1,a2
@@ -375,7 +398,11 @@ React_Special:
 		move.b	ost_col_type(a1),d1			; get collision type
 		andi.b	#$3F,d1					; read only bits 0-5 (size)
 		cmpi.b	#id_col_8x8,d1
-		beq.s	@caterkiller				; branch if $CB (caterkiller)
+;	if Optimize=0
+;		beq.s	@caterkiller					; branch if $CB (caterkiller)
+;	else		
+		beq.w	React_Caterkiller				; branch if $CB (caterkiller)
+;	endc	
 		cmpi.b	#id_col_20x16,d1
 		beq.s	@yadrin					; branch if $CC (yadrin)
 		cmpi.b	#id_col_8x8_2,d1
@@ -384,9 +411,13 @@ React_Special:
 		beq.s	@D7orE1					; branch if $E1 (LZ pole)
 		rts	
 ; ===========================================================================
-
-@caterkiller:
-		bra.w	React_Caterkiller			; set flag to fragment caterkiller, then hurt Sonic
+;	if Optimize=0
+;@caterkiller:
+;		bra.w	React_Caterkiller			; set flag to fragment caterkiller, then hurt Sonic
+;	else
+		; Why proxy the branch through a label when you can just jump to it directly?
+		; Sonic 2 suffered enough from this...
+;	endc		
 ; ===========================================================================
 
 @yadrin:

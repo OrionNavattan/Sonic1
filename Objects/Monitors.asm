@@ -132,7 +132,8 @@ Mon_Solid_Side:
 Mon_Solid_ChkPush:
 		btst	#status_pushing_bit,ost_status(a0)	; is monitor being pushed?
 		beq.s	Mon_Animate				; if not, branch
-	if FixBugs = 1
+	if FixBugs=0
+	else
 		; Essentially the same bug as in Solid_NoCollision, but since monitors
 		; use their own code, the fix has to be inserted here too.
 		cmpi.b	#id_Roll,ost_anim(a1) 	; is Sonic in his jumping/rolling animation?
