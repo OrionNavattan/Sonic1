@@ -65,7 +65,12 @@ BGHZ_ShipMain:	; Routine 2
 		moveq	#0,d0
 		move.b	ost_routine2(a0),d0
 		move.w	BGHZ_ShipIndex(pc,d0.w),d1
-		jsr	BGHZ_ShipIndex(pc,d1.w)
+;		jsr	BGHZ_ShipIndex(pc,d1.w)
+		jmp	BGHZ_ShipIndex(pc,d1.w)
+		
+		; Ideally this should done at the end of each potential path of this routine rather than here
+		; to eliminate the possibility of the object queuing for display before immediately deleting itself.
+BGHZ_ShipDisplay:
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
 		move.b	ost_status(a0),d0
@@ -84,7 +89,7 @@ BGHZ_ShipIndex:	index *,,2
 		ptr BGHZ_Escape
 ; ===========================================================================
 
-BGHZ_ShipStart:
+BGHZ_ShipStart: ; Ship Routine 0 
 		move.w	#$100,ost_y_vel(a0)			; move ship down
 		bsr.w	BossMove				; update parent position
 		cmpi.w	#$338,ost_bghz_parent_y_pos(a0)		; has ship reached target position?
@@ -125,7 +130,8 @@ BGHZ_Update:
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
 	@exit:
-		rts	
+		;rts
+		bra.w BGHZ_ShipDisplay
 ; ===========================================================================
 
 @beaten:
@@ -133,7 +139,8 @@ BGHZ_Update:
 		bsr.w	AddPoints				; give Sonic 1000 points
 		move.b	#id_BGHZ_Explode,ost_routine2(a0)
 		move.w	#179,ost_bghz_wait_time(a0)		; set timer to 3 seconds
-		rts	
+		;rts
+		bra.w BGHZ_ShipDisplay	
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to load explosions when a boss is beaten
@@ -186,7 +193,7 @@ BossMove:
 ; ===========================================================================
 
 
-BGHZ_MakeBall:
+BGHZ_MakeBall: ; Ship Routine 2
 		move.w	#-$100,ost_x_vel(a0)			; move ship left
 		move.w	#-$40,ost_y_vel(a0)			; move ship upwards
 		bsr.w	BossMove				; update parent position
@@ -209,7 +216,7 @@ BGHZ_MakeBall:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
-BGHZ_ShipMove:
+BGHZ_ShipMove: ; Ship Routine 4 
 		subq.w	#1,ost_bghz_wait_time(a0)		; decrement timer
 		bpl.s	@wait					; branch if time remains
 		addq.b	#2,ost_routine2(a0)			; goto BGHZ_ChgDir next
@@ -229,7 +236,7 @@ BGHZ_ShipMove:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
-BGHZ_ChgDir:
+BGHZ_ChgDir: ; Ship Routine 6
 		subq.w	#1,ost_bghz_wait_time(a0)		; decrement timer
 		bmi.s	@chg_dir				; branch if below 0
 		bsr.w	BossMove				; update parent position
@@ -246,7 +253,7 @@ BGHZ_ChgDir:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
-BGHZ_Explode:
+BGHZ_Explode:	; Ship Routine 8
 		subq.w	#1,ost_bghz_wait_time(a0)		; decrement timer
 		bmi.s	@stop_exploding				; branch if below 0
 		bra.w	BossExplode				; load explosion object
@@ -263,10 +270,11 @@ BGHZ_Explode:
 		move.b	#1,(v_boss_status).w			; set boss beaten flag
 
 	@exit:
-		rts	
+		;rts
+		bra.w	BGHZ_ShipDisplay
 ; ===========================================================================
 
-BGHZ_Recover:
+BGHZ_Recover:	; Ship Routine 10
 		addq.w	#1,ost_bghz_wait_time(a0)		; increment timer
 		beq.s	@stop_falling				; branch if 0
 		bpl.s	@ship_recovers				; branch if 1 or more
@@ -303,7 +311,7 @@ BGHZ_Recover:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
-BGHZ_Escape:
+BGHZ_Escape: ; Ship Routine 12 
 		move.w	#$400,ost_x_vel(a0)			; move ship right
 		move.w	#-$40,ost_y_vel(a0)			; move ship upwards
 		cmpi.w	#$2AC0,(v_boundary_right).w		; check for new boundary
@@ -358,17 +366,17 @@ BGHZ_FaceMain:	; Routine 4
 @update:
 		move.b	d1,ost_anim(a0)				; set animation
 		subq.b	#2,d0					; is ship on BGHZ_Escape?
-		bne.s	@display				; if not, branch
+		bne.s	BGHZ_Display				; if not, branch
 		move.b	#id_ani_boss_panic,ost_anim(a0)		; use sweating animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
 
-	@display:
+;	@display:
 		bra.s	BGHZ_Display
 ; ===========================================================================
 
 @delete:
-		jmp	(DeleteObject).l
+		jmp	(DeleteObject).l  ; No clusterfuck bug
 ; ===========================================================================
 
 BGHZ_FlameMain:	; Routine 6
@@ -379,15 +387,17 @@ BGHZ_FlameMain:	; Routine 6
 		move.b	#id_ani_boss_bigflame,ost_anim(a0)	; use big flame animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
-		bra.s	@display
+;		bra.s	@display
+		bra.s	BGHZ_Display
 ; ===========================================================================
 
 @chk_moving:
 		move.w	ost_x_vel(a1),d0
-		beq.s	@display				; branch if ship isn't moving
+;		beq.s	@display				; branch if ship isn't moving
+		beq.s	BGHZ_Display
 		move.b	#id_ani_boss_flame1,ost_anim(a0)
 
-@display:
+;@display:
 		bra.s	BGHZ_Display
 ; ===========================================================================
 

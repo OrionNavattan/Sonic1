@@ -110,7 +110,7 @@ Pow_ChkShield:
 		move.b	#id_ShieldItem,(v_ost_shield).w		; load shield object ($38)
 ;	if FixBugs=0
 ;		play.w	0, jmp, sfx_Shield			; play shield sound
-	else			
+;	else			
 		play.w	0, jsr, sfx_Shield			; play shield sound
 		bra.w 	DisplaySprite
 ;	endc
@@ -131,7 +131,7 @@ Pow_ChkInvinc:
 		move.b	#id_ShieldItem,(v_ost_stars4).w		; load stars object ($3804)
 		move.b	#id_ani_stars4,(v_ost_stars4+ost_anim).w
 		tst.b	(f_boss_boundary).w			; is boss mode on?
-		bne.s	Pow_NoMusic				; if yes, branch
+		bne.s	@displaysprite				; if yes, branch
 ;	if Revision<>0
 		cmpi.w	#air_alert,(v_air).w ; is drowning music playing?
 ;	if Fixbugs=0	
@@ -190,8 +190,11 @@ Pow_ChkS:
 		nop	
 
 Pow_ChkEnd:
-		bsr.w 	DisplaySprite
-		rts						; 'S' and goggles monitors do nothing
+;	if FixBugs=0
+;		rts
+;	else		
+		bra.w 	DisplaySprite						; 'S' and goggles monitors do nothing
+;	endc	
 ; ===========================================================================
 
 Pow_Delete:	; Routine 4

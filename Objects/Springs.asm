@@ -135,8 +135,8 @@ Spring_BounceLR:
 		move.w	#sonic_lock_time_spring,ost_sonic_lock_time(a1) ; lock controls for 0.25 seconds
 		move.w	ost_x_vel(a1),ost_inertia(a1)
 	if FixBugs=0
-	; This will always flip Sonic unconditionally. If he manages to hit a horizontal spring
-	; while facing away from it, it will flip him unnecessarily, 
+	; Using bchg will always flip Sonic unconditionally. If he manages to hit a horizontal spring
+	; while facing away from it, he will be flipped unnecessarily, 
 	; causing him to face the wrong way while moving away from it. 
 	; This can be fixed by setting or clearing his flip bit based on his X-velocity. 
 		bchg	#status_xflip_bit,ost_status(a1)
