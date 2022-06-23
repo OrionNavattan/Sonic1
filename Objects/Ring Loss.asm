@@ -52,6 +52,7 @@ RLoss_Count:	; Routine 0
 		move.b	#3,ost_priority(a1)
 		move.b	#id_col_6x6+id_col_item,ost_col_type(a1) ; goto RLoss_Collect when touched
 		move.b	#8,ost_displaywidth(a1)
+	If RingChanges=0	
 		move.b	#255,(v_syncani_3_time).w		; reset deletion/animation timer
 		tst.w	d4
 		bmi.s	@skip_calcsine
@@ -111,6 +112,100 @@ RLoss_Bounce:	; Routine 2
 		cmp.w	ost_y_pos(a0),d0			; has object moved below level boundary?
 		bcs.s	RLoss_Delete				; if yes, branch
 		bra.w	DisplaySprite
+	else
+		tst.w	d4
+		bmi.s	@angle_ok ; Skip calcsine
+		move.w	d4,d0
+		bsr.w	CalcSine
+		move.w	d4,d2
+		lsr.w	#8,d2
+		; Following lines enable underwater physics for scattered rings
+		tst.b	(v_water_direction).w		; Does the level have water?
+		beq.s	@skiphalvingvel		; If not, branch and skip underwater checks
+		move.w	(v_water_height_actual).w,d6	; Move water level to d6
+		cmp.w	ost_y_pos(a0),d6		; Is the ring object underneath the water level?
+		bgt.s	@skiphalvingvel		; If not, branch and skip underwater commands
+		asr.w	d0			; Half d0. Makes the ring's x_vel bounce to the left/right slower
+		asr.w	d1			; Half d1. Makes the ring's y_vel bounce up/down slower
+@skiphalvingvel:
+		asl.w	d2,d0
+		asl.w	d2,d1
+		move.w	d0,d2
+		move.w	d1,d3
+		addi.b	#$10,d4
+		bcc.s	@angle_ok
+		subi.w	#$80,d4
+		bcc.s	@angle_ok
+		move.w	#$288,d4
+
+	@angle_ok:
+		move.w	d2,ost_x_vel(a1)
+		move.w	d3,ost_y_vel(a1)
+		neg.w	d2
+		neg.w	d4
+		dbf	d5,@loop				; repeat for number of rings (max 31)
+
+	@fail:
+		move.w	#0,(v_rings).w				; reset number of rings to zero
+		move.b	#$80,(v_hud_rings_update).w		; update ring counter
+		move.b	#0,(v_ring_reward).w
+		; Following three lines part of new local ring timer.
+		move.b   #255,d0                  ; Move #255 to d0
+        move.b  d0,ost_anim_delay(a0)       ; Move d0 to new timer
+        move.b  d0,(v_syncani_3_time).w      ; Move d0 to old timer (for animated purposes)
+		play.w	1, jsr, sfx_RingLoss			; play ring loss sound
+
+RLoss_Bounce:	; Routine 2
+		move.b	(v_syncani_3_frame).w,ost_frame(a0)	; set synchronised frame
+		bsr.w	SpeedToPos				; update position
+		addi.w	#$18,ost_y_vel(a0)			; apply gravity
+		tst.b	(v_water_direction).w		; Does the level have water?
+		beq.s	@skipbounceslow		; If not, branch and skip underwater checks
+		move.w	(v_water_height_actual).w,d6	; Move water level to d6
+		cmp.w	ost_y_pos(a0),d6		; Is the ring object underneath the water level?
+		bgt.s	@skipbounceslow		; If not, branch and skip underwater commands
+		subi.w	#$E,ost_y_vel(a0)	; Reduce gravity by $E ($18-$E=$A), giving the underwater effect
+@skipbounceslow		
+		bmi.s	@chkdel					; branch if moving upwards
+		move.b	(v_vblank_counter_byte).w,d0		; get byte that increments every frame
+		add.b	d7,d0					; add OST index of current object (numbered $7F to 0)
+		andi.b	#3,d0					; read only bits 0-1
+		bne.s	@chkdel					; branch if either are set
+		
+		;Following four lines make rings bounce at bottom of level
+		move.w	(v_boundary_bottom).w,d0
+		addi.w	#$E0,d0
+		cmp.w	ost_y_pos(a0),d0	; has object moved below level boundary?
+		blt.s	@bounce		; if yes, branch
+		jsr	(FindFloorObj).l			; find floor every 4th frame
+		tst.w	d1					; has ring hit the floor?
+		bpl.s	@chkdel					; if not, branch
+		add.w	d1,ost_y_pos(a0)			; align to floor
+		
+	@bounce: ;Label is part of making rings bouce at bottom of level
+		move.w	ost_y_vel(a0),d0
+		asr.w	#2,d0
+		sub.w	d0,ost_y_vel(a0)			; reduce y speed by 25%
+		neg.w	ost_y_vel(a0)				; invert y speed (bounce)
+
+	@chkdel:
+		; Following two lines increment new ring timers, replacing above two lines.
+		subq.b  #1,ost_anim_delay(a0)       ; Subtract 1
+        beq.w   DeleteObject            ; If 0, delete
+        ; Following two lines prevent scattered rings from disappearing at vertical boundaries on y-wrapped stages.
+		cmpi.w	#$FF00,(v_boundary_top).w		; is vertical wrapping enabled?
+		beq.w	@flash			; if so, branch
+		move.w	(v_boundary_bottom).w,d0
+		addi.w	#224,d0
+
+		; Following four lines make rings flash just before they delete.
+	@flash:	
+		btst	#0,ost_anim_delay(a0) ; Test the first bit of the timer, so rings flash every other frame.
+		beq.w	DisplaySprite      ; If the bit is 0, the ring will appear.
+		cmpi.b	#80,ost_anim_delay(a0) ; Rings will flash during last 80 steps of their life.
+		bhi.w	DisplaySprite      ; If the timer is higher than 80, obviously the rings will STAY visible.
+		rts			
+	endc	
 ; ===========================================================================
 
 RLoss_Collect:	; Routine 4

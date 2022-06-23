@@ -2149,8 +2149,23 @@ Sonic_WalkVertR:
 ; ===========================================================================
 
 @outside_wall:
+	if FixBugs=0
 		cmpi.w	#$E,d1
 		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
+	else
+	; This code is backported from Sonic 2 and improves quarterloop behavior.
+		move.b	ost_y_vel(a0),d0
+		bpl.s	@next1
+		neg.b	d0
+	@next1:
+		addq.b	#4,d0
+		cmpi.b	#$E,d0
+		bcs.s	@next2
+		move.b	#$E,d0
+	@next2:
+		cmp.b	d0,d1
+		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
+	endc	
 
 @on_disc:
 		add.w	d1,ost_x_pos(a0)			; align to wall

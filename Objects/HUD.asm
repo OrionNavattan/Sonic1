@@ -26,11 +26,13 @@ HUD_Main:	; Routine 0
 		move.b	#0,ost_priority(a0)
 
 HUD_Flash:	; Routine 2
+	if FixBugs=0
+	; The timer is supposed to flash with under a minute to go, 
+	; but it only does so if you also have no rings!
 		tst.w	(v_rings).w				; do you have any rings?
 		beq.s	@norings				; if not, branch
 		clr.b	ost_frame(a0)				; make all counters yellow
 		jmp	(DisplaySprite).l
-; ===========================================================================
 
 @norings:
 		moveq	#0,d0
@@ -38,6 +40,17 @@ HUD_Flash:	; Routine 2
 		bne.s	@display				; branch if set
 
 		addq.w	#id_frame_hud_ringred,d0		; make ring counter flash red
+	else
+	
+		moveq	#0,d0
+		btst	#3,(v_frame_counter_low).w
+		bne.s	@display
+		tst.w	(v_rings).w	; do you have any rings?
+		bne.s	@haverings	; if so, branch
+		addq.w	#1,d0		; make ring counter flash red
+
+@haverings:
+		endc
 		cmpi.b	#9,(v_time_min).w			; have 9 minutes elapsed?
 		bne.s	@display				; if not, branch
 		addq.w	#id_frame_hud_timered,d0		; make time counter flash red (only flashes if you also have no rings)

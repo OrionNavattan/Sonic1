@@ -37,17 +37,23 @@ AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 ;Revision:	equ 1
 ;	endc
 	
-FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs
+FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs.
 
-;Optimize:	equ 1	; Apply a number of optimizations
+;Optimize:	equ 1	; Apply a number of optimizations.
 
-SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games
+SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games.
 
-RemoveSpeedCaps: equ 1 ; Self-explanatory
+RemoveSpeedCaps: equ 1 ; Self-explanatory.
 
-SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential
+SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential.
 
-ExtraLivesForPoints: equ 1 ; Extra lives will be awarded at 50000 point intervals for all regions
+ExtraLivesForPoints: equ 1 ; Extra lives will be awarded at 50000 point intervals for all regions.
+
+BurntSprite: equ 1 ; Enables an unused burnt sprite for death from fire hazards, and changes harpoon death to use the spike sound.
+
+RingChanges: equ 1 ; Scattered rings will have underwater physics, will no longer disappear at the wrap point of y-wrapped levels, 
+; will bounce at the bottom of levels, have individual timers so that they will not accumulate if you are hurt multiple times in rapid succession,
+; and flash briefly before disappearing.
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 

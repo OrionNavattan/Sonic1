@@ -71,7 +71,12 @@ SolidObject_NoRenderChk:
 
 	@stand:
 		move.w	d4,d2
+	if RingChanges=0	
 		bsr.w	MoveWithPlatform
+	else
+	; The modifications to lost rings require this to be extended to a jsr.
+		jsr	MoveWithPlatform
+	endc	
 		moveq	#0,d4
 		rts	
 

@@ -369,14 +369,26 @@ HurtSonic:
 
 KillSonic:
 		tst.w	(v_debug_active).w			; is debug mode	active?
+	if BurntSprite=0	
 		bne.s	@dontdie				; if yes, branch
+	else
+	; This branch has to be extended to a word due to the below additions pushing it 
+	; out of range.
+		bne.w	@dontdie				; if yes, branch
+	endc	
 		move.b	#0,(v_invincibility).w			; remove invincibility
 		move.b	#id_Sonic_Death,ost_routine(a0)		; run death animation/action
 		bsr.w	Sonic_ResetOnFloor			; reset several of Sonic's flags
+	if BurntSprite=0
+		; This status bit reset has to be moved down after the death sprite and sound code,
+		; as we will need to read it for one of the checks.
 		bset	#status_air_bit,ost_status(a0)
+	else
+	endc	
 		move.w	#-$700,ost_y_vel(a0)			; move Sonic up
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
+	if BurntSprite=0	
 		move.w	ost_y_pos(a0),$38(a0)			; unused
 		move.b	#id_Death,ost_anim(a0)
 		bset	#tile_hi_bit,ost_tile(a0)
@@ -386,6 +398,42 @@ KillSonic:
 		move.w	#sfx_SpikeHit,d0			; play spikes death sound
 
 	@sound:
+	else
+		; This enables the unused burnt sprite. Also changes harpoon death sound
+		; to the spike sound.
+		cmpi.b  #id_Fireball,(a2)   	 ; Was cause of death fireball?
+		beq.s   @burnt       			 ; if yes, branch
+		cmpi.b  #id_GrassFire,(a2)   	 ; Was cause of death burning grass?
+		beq.s   @burnt   				 ; if yes, branch
+		cmpi.b  #id_LavaTag,(a2)   		 ; Was cause of death lava?
+		beq.s   @burnt      			 ; if yes, branch
+		cmpi.b  #id_Flamethrower,(a2)    ; Was cause of death SBZ flamethrower?
+		beq.s   @burnt       			 ; if yes, branch
+		cmpi.b	#id_Gargoyle,(a2)	 	 ; Was cause of death LZ gargoyle?
+		bne.s	@notburnt				 ; if not, branch
+		btst	#status_underwater_bit,ost_status(a0) ; Did the gargoyle kill Sonic underwater?
+		bne.s	@notburnt 							  ; If not, branch
+		
+	@burnt:	
+		move.b	#id_Burnt,ost_anim(a0)  ; set burnt sprite
+		move.w	#sfx_Flame,d0  ; set flamethrower sound
+		bra.s   @sound_gfx
+	
+	@notburnt:
+		move.b	#id_Death,ost_anim(a0)  ; set normal death sprite
+		move.w	#sfx_Death,d0	; set normal death sound
+		cmpi.b	#id_Spikes,(a2)	; Was cause of death spikes?
+		beq.s	@spikes 		; if yes, branch
+		cmpi.b	#id_Harpoon,(a2) ; was cause of death LZ harpoon?
+		bne.s	@sound_gfx		 ; if not, branch
+		
+	@spikes:	
+		move.w	#sfx_SpikeHit,d0 ; set spikes death sound
+
+	@sound_gfx:
+		bset	#status_air_bit,obStatus(a0) ; Reset Sonic's status bit
+		bset	#tile_hi_bit,ost_tile(a0)	
+	endc
 		jsr	(PlaySound1).l
 
 	@dontdie:

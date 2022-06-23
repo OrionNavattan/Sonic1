@@ -9,10 +9,11 @@ PowerUp:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	Pow_Index(pc,d0.w),d1
-		jsr	Pow_Index(pc,d1.w)
-; if FixBugs=0		
+;	 if FixBugs=0	
+;		jsr	Pow_Index(pc,d1.w)		
 ;		bra.w	DisplaySprite
 ;	else
+		jmp	Pow_Index(pc,d1.w)	
 ;	endc
 ; ===========================================================================
 Pow_Index:	index *,,2
@@ -131,19 +132,25 @@ Pow_ChkInvinc:
 		move.b	#id_ShieldItem,(v_ost_stars4).w		; load stars object ($3804)
 		move.b	#id_ani_stars4,(v_ost_stars4+ost_anim).w
 		tst.b	(f_boss_boundary).w			; is boss mode on?
-		bne.s	@displaysprite				; if yes, branch
+;	if Fixbugs=0		
+;		bne.s	Pow_NoMusic				; if yes, branch
+;	else
+	; With the clusterfuck fix implemented, we can optimize this slightly
+	; by eliminating a redundant label.
+		bne.s	@displaysprite			; if so, do not play invincibility music
+;	endc	
 ;	if Revision<>0
 		cmpi.w	#air_alert,(v_air).w ; is drowning music playing?
 ;	if Fixbugs=0	
 ;		bls.s	Pow_NoMusic			; if so, do not play invincibility music
-	;else
+;	else
 	; With the clusterfuck fix implemented, we can optimize this slightly
 	; by eliminating a redundant label.
 		bls.s	@displaysprite			; if so, do not play invincibility music
-	;endc
+;	endc
 	;endc
 ;	if Fixbugs=0
-;		play.w	0, jmp, sfx_Shield			; play shield sound
+;		play.w	0, jmp, mus_Invincible			; play shield sound
 ;	else
 	; Clusterfuck fix
 		play.w	0, jsr, mus_Invincible			; play invincibility music
@@ -154,7 +161,6 @@ Pow_ChkInvinc:
 
 ;	if FixBugs=0
 ;Pow_NoMusic:
-;		bsr.w 	DisplaySprite
 ;		rts	
 ;	else
 ;	endc	
@@ -192,7 +198,7 @@ Pow_ChkS:
 Pow_ChkEnd:
 ;	if FixBugs=0
 ;		rts
-;	else		
+;	else
 		bra.w 	DisplaySprite						; 'S' and goggles monitors do nothing
 ;	endc	
 ; ===========================================================================
@@ -200,4 +206,7 @@ Pow_ChkEnd:
 Pow_Delete:	; Routine 4
 		subq.w	#1,ost_anim_time(a0)
 		bmi.w	DeleteObject				; delete after half a second
-		rts	
+;	if FixBugs=0	
+;		rts	
+;	else
+		bra.w	DisplaySprite

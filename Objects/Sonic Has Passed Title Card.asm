@@ -58,6 +58,11 @@ Has_Main:	; Routine 0
 ; ===========================================================================
 
 @plc_free:
+	if FixBugs=0
+	else
+	; Clear Speed Shoes at end of level, preventing the Act Clear Music from being sped up	
+		move.w	#1,(v_ost_player+ost_sonic_shoe_time).w 
+	endc	
 		movea.l	a0,a1					; replace current object with 1st from list
 		lea	(Has_Config).l,a2			; position, routine & frame settings
 		moveq	#6,d1					; 6 additional items

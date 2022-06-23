@@ -68,8 +68,10 @@ BGHZ_ShipMain:	; Routine 2
 ;		jsr	BGHZ_ShipIndex(pc,d1.w)
 		jmp	BGHZ_ShipIndex(pc,d1.w)
 		
-		; Ideally this should done at the end of each potential path of this routine rather than here
-		; to eliminate the possibility of the object queuing for display before immediately deleting itself.
+		; This has been reworked so that the following is branched to at the end of the branches 
+		; of the subroutines that require it, instead of being executed after every branch 
+		; unconditionally. This eliminates the possibility of the object deleting itself before
+		; 
 BGHZ_ShipDisplay:
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
@@ -256,7 +258,8 @@ BGHZ_ChgDir: ; Ship Routine 6
 BGHZ_Explode:	; Ship Routine 8
 		subq.w	#1,ost_bghz_wait_time(a0)		; decrement timer
 		bmi.s	@stop_exploding				; branch if below 0
-		bra.w	BossExplode				; load explosion object
+		bsr.w	BossExplode				; load explosion object ; bra changed to bsr
+		bra.w	BGHZ_ShipDisplay
 ; ===========================================================================
 
 @stop_exploding:
