@@ -9,8 +9,9 @@ Points:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	Poi_Index(pc,d0.w),d1
-		jsr	Poi_Index(pc,d1.w)
-		bra.w	DisplaySprite
+		;jsr	Poi_Index(pc,d1.w)
+		jmp	Poi_Index(pc,d1.w)	
+		;bra.w	DisplaySprite
 ; ===========================================================================
 Poi_Index:	index *,,2
 		ptr Poi_Main
@@ -31,4 +32,5 @@ Poi_Slower:	; Routine 2
 		bpl.w	DeleteObject				; if not, delete
 		bsr.w	SpeedToPos				; update position
 		addi.w	#$18,ost_y_vel(a0)			; reduce object speed
-		rts	
+		;rts
+		bra.w	DisplaySprite

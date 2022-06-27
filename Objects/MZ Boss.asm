@@ -67,7 +67,10 @@ BMZ_ShipMain:	; Routine 2
 		moveq	#0,d0
 		move.b	ost_routine2(a0),d0
 		move.w	BMZ_ShipIndex(pc,d0.w),d1
-		jsr	BMZ_ShipIndex(pc,d1.w)
+		;jsr	BMZ_ShipIndex(pc,d1.w)
+		jmp	BMZ_ShipIndex(pc,d1.w)
+	
+BMZ_ShipDisplay:	
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
 		moveq	#status_xflip+status_yflip,d0
@@ -84,7 +87,7 @@ BMZ_ShipIndex:index *,,2
 		ptr BMZ_Escape
 ; ===========================================================================
 
-BMZ_ShipStart:
+BMZ_ShipStart: ; Ship Routine 0
 		move.b	ost_bmz_wobble(a0),d0			; get wobble byte
 		addq.b	#2,ost_bmz_wobble(a0)			; increment wobble (wraps to 0 after $FE)
 		jsr	(CalcSine).l				; convert to sine
@@ -106,11 +109,13 @@ BMZ_Update:
 		move.w	ost_bmz_parent_y_pos(a0),ost_y_pos(a0)	; update actual position
 		move.w	ost_bmz_parent_x_pos(a0),ost_x_pos(a0)
 		cmpi.b	#id_BMZ_Explode,ost_routine2(a0)
-		bcc.s	@exit
+		;bcc.s	@exit
+		bcc.w	BMZ_ShipDisplay
 		tst.b	ost_status(a0)				; has boss been beaten?
 		bmi.s	@beaten					; if yes, branch
 		tst.b	ost_col_type(a0)			; is ship collision clear?
-		bne.s	@exit					; if not, branch
+		;bne.s	@exit					; if not, branch
+		bne.w	BMZ_ShipDisplay
 		tst.b	ost_bmz_flash_num(a0)			; is ship flashing?
 		bne.s	@flash					; if yes, branch
 		move.b	#$28,ost_bmz_flash_num(a0)		; set ship to flash 40 times
@@ -126,11 +131,13 @@ BMZ_Update:
 	@is_white:
 		move.w	d0,(a1)					; load colour stored in	d0
 		subq.b	#1,ost_bmz_flash_num(a0)		; decrement flash counter
-		bne.s	@exit					; branch if not 0
+		;bne.s	@exit					; branch if not 0
+		bne.w	BMZ_ShipDisplay
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
-	@exit:
-		rts	
+;	@exit:
+		;rts
+		bra.w	BMZ_ShipDisplay
 ; ===========================================================================
 
 @beaten:
@@ -139,10 +146,11 @@ BMZ_Update:
 		move.b	#id_BMZ_Explode,ost_routine2(a0)
 		move.w	#180,ost_bmz_wait_time(a0)		; set timer to 3 seconds
 		clr.w	ost_x_vel(a0)				; stop boss moving
-		rts	
+		;rts
+		bra.w 	BMZ_ShipDisplay
 ; ===========================================================================
 
-BMZ_ShipMove:
+BMZ_ShipMove:  ; Ship Routine 2
 		moveq	#0,d0
 		move.b	ost_subtype(a0),d0
 		move.w	BMZ_ShipMove_Index(pc,d0.w),d0
@@ -158,7 +166,7 @@ BMZ_ShipMove_Index:
 		ptr BMZ_DropFire
 ; ===========================================================================
 
-BMZ_ChgDir:
+BMZ_ChgDir: ; Move Routine 0 & 4
 		tst.w	ost_x_vel(a0)				; is ship moving horizontally?
 		bne.s	@is_moving_h				; if yes, branch
 		moveq	#$40,d0					; ship should move down
@@ -170,6 +178,7 @@ BMZ_ChgDir:
 	@above_max:
 		move.w	d0,ost_y_vel(a0)			; set y speed
 		bra.w	BossMove				; update parent position
+		; Above Ok, returns to BMZ_ShipMove_Index
 ; ===========================================================================
 
 @at_peak:
@@ -234,10 +243,10 @@ BMZ_ChgDir:
 		addq.b	#2,ost_subtype(a0)			; goto BMZ_DropFire next
 
 @exit:
-		rts	
+		rts	; OK, returns to BMZ_ShipMove_Index
 ; ===========================================================================
 
-BMZ_DropFire:
+BMZ_DropFire:  	; Move Routine 2 & 6
 		bsr.w	BossMove				; update parent position
 		move.w	ost_bmz_parent_y_pos(a0),d0
 		subi.w	#$22C,d0
@@ -262,13 +271,15 @@ BMZ_DropFire:
 		addq.b	#2,ost_subtype(a0)			; goto BMZ_ChgDir next
 
 	@exit:
-		rts	
+		rts	  ; OK, returns to BMZ_ShipMove_Index
 ; ===========================================================================
 
-BMZ_Explode:
+BMZ_Explode:  ; Ship Routine 4
 		subq.w	#1,ost_bmz_wait_time(a0)		; decrement timer
 		bmi.s	@stop_exploding				; branch if below 0
-		bra.w	BossExplode				; load explosion object
+		;bra.w	BossExplode				; load explosion object
+		bsr.w	BossExplode				; load explosion object
+		bra.w	BMZ_ShipDisplay
 ; ===========================================================================
 
 @stop_exploding:
@@ -278,15 +289,16 @@ BMZ_Explode:
 		addq.b	#2,ost_routine2(a0)			; goto BMZ_Recover next
 		move.w	#-$26,ost_bmz_wait_time(a0)		; set timer (counts up)
 		tst.b	(v_boss_status).w
-		bne.s	@exit
+		;bne.s	@exit
+		bne.w	BMZ_ShipDisplay
 		move.b	#1,(v_boss_status).w			; set boss beaten flag
 		clr.w	ost_y_vel(a0)
 
-	@exit:
-		rts	
+	;@exit:
+		bra.w	BMZ_ShipDisplay
 ; ===========================================================================
 
-BMZ_Recover:
+BMZ_Recover:  ; Ship Routine 6
 		addq.w	#1,ost_bmz_wait_time(a0)		; increment timer
 		beq.s	@stop_falling				; branch if 0
 		bpl.s	@ship_recovers				; branch if 1 or more
@@ -326,7 +338,7 @@ BMZ_Recover:
 		bra.w	BMZ_Update				; update actual position
 ; ===========================================================================
 
-BMZ_Escape:
+BMZ_Escape:  ; Ship Routine 8
 		move.w	#$500,ost_x_vel(a0)			; move ship right
 		move.w	#-$40,ost_y_vel(a0)			; move ship upwards
 		cmpi.w	#$1960,(v_boundary_right).w		; check for new boundary
@@ -345,7 +357,7 @@ BMZ_Escape:
 ; ===========================================================================
 
 @delete:
-		jmp	(DeleteObject).l
+		jmp	(DeleteObject).l 
 ; ===========================================================================
 
 BMZ_FaceMain:	; Routine 4
@@ -385,12 +397,13 @@ BMZ_FaceMain:	; Routine 4
 @update:
 		move.b	d1,ost_anim(a0)				; set animation
 		subq.b	#4,d0					; is ship on BMZ_Escape?
-		bne.s	@display				; if not, branch
+		;bne.s 	@display
+		bne.s	BMZ_Display				; if not, branch
 		move.b	#id_ani_boss_panic,ost_anim(a0)		; use sweating animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
 
-	@display:
+;	@display:
 		bra.s	BMZ_Display
 ; ===========================================================================
 
@@ -406,15 +419,15 @@ BMZ_FlameMain:	; Routine 6
 		move.b	#id_ani_boss_bigflame,ost_anim(a0)	; use big flame animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
-		bra.s	@display
+		bra.s	BMZ_Display
 ; ===========================================================================
 
 @chk_moving:
 		tst.w	ost_x_vel(a1)
-		beq.s	@display				; branch if ship isn't moving
+		beq.s	BMZ_Display				; branch if ship isn't moving
 		move.b	#id_ani_boss_flame1,ost_anim(a0)
 
-@display:
+;@display:
 		bra.s	BMZ_Display
 ; ===========================================================================
 

@@ -193,7 +193,7 @@ Debug_ChgItem:
 	if FixBugs=0
 	else
 	; Part of debug mode improvements.
-		move.b	#0,(v_respawn_list+2).w	
+		clr.b	(v_respawn_list+2).w	
 	endc	
 		move.w	ost_x_pos(a0),ost_x_pos(a1)
 		move.w	ost_y_pos(a0),ost_y_pos(a1)
@@ -213,6 +213,14 @@ Debug_ChgItem:
 		beq.s	@stayindebug				; if not, branch
 		moveq	#0,d0
 		move.w	d0,(v_debug_active).w			; deactivate debug mode
+	if FixBugs=0
+	else
+		; This restores the HUD when exiting placement mode.
+        bsr.w   Hud_Base
+        move.b  #1,(v_hud_rings_update).w
+        move.b  #1,(f_hud_time_update).w
+        move.b	#1,(f_hud_score_update).W
+	endc	
 		move.l	#Map_Sonic,(v_ost_player+ost_mappings).w
 		move.w	#vram_sonic/$20,(v_ost_player+ost_tile).w
 		move.b	d0,(v_ost_player+ost_anim).w

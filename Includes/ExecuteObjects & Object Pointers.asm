@@ -129,7 +129,7 @@ Obj_Index:
 		ptr Newtron
 		ptr Roller
 		ptr EdgeWalls					; $44
-		ptr SideStomp
+		;ptr SideStomp
 		ptr MarbleBrick
 		ptr Bumper
 		ptr BossBall					; $48

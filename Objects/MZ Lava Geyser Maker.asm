@@ -10,8 +10,10 @@ GeyserMaker:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	GMake_Index(pc,d0.w),d1
-		jsr	GMake_Index(pc,d1.w)
-		bra.w	Geyser_ChkDel
+		;jsr	GMake_Index(pc,d1.w)
+		jmp	GMake_Index(pc,d1.w)	
+		
+		;bra.w	Geyser_ChkDel
 ; ===========================================================================
 GMake_Index:	index *,,2
 		ptr GMake_Main
@@ -50,7 +52,8 @@ GMake_Wait:	; Routine 2
 		addq.b	#2,ost_routine(a0)			; if Sonic is within range, goto GMake_ChkType next
 
 	@cancel:
-		rts	
+		;rts
+		bra.w	Geyser_ChkDel	
 ; ===========================================================================
 
 GMake_MakeLava:	; Routine 6
@@ -82,14 +85,16 @@ GMake_ChkType:	; Routine 4
 		tst.b	ost_subtype(a0)				; is object type 0 (geyser) ?
 		beq.s	GMake_Display				; if yes, branch
 		addq.b	#2,ost_routine(a0)			; goto GMake_MakeLava next
-		rts	
+		;rts
+		bra.w	Geyser_ChkDel	
 ; ===========================================================================
 
 GMake_Display:	; Routine 8
 		lea	(Ani_Geyser).l,a1
 		bsr.w	AnimateSprite				; animate and goto next routine if specified
-		bsr.w	DisplaySprite
-		rts	
+		;bsr.w	DisplaySprite
+		;rts
+		bra.w	Geyser_ChkDel
 ; ===========================================================================
 
 GMake_Delete:	; Routine $A
@@ -97,4 +102,5 @@ GMake_Delete:	; Routine $A
 		move.b	#id_GMake_Wait,ost_routine(a0)
 		tst.b	ost_subtype(a0)
 		beq.w	DeleteObject
-		rts	
+		;rts
+		bra.w	Geyser_ChkDel

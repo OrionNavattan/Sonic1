@@ -9,7 +9,10 @@ Prison:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	Pri_Index(pc,d0.w),d1
-		jsr	Pri_Index(pc,d1.w)
+		;jsr	Pri_Index(pc,d1.w)
+		jmp	Pri_Index(pc,d1.w)
+		
+Prison_Display:	
 		out_of_range.s	@delete
 		jmp	(DisplaySprite).l
 
@@ -55,7 +58,8 @@ Pri_Main:	; Routine 0
 		move.b	#8,ost_col_property(a0)
 
 	@not02:
-		rts	
+		;rts
+		bra.w 	Prison_Display	
 ; ===========================================================================
 
 Pri_Body:	; Routine 2
@@ -76,8 +80,9 @@ Pri_Body:	; Routine 2
 		bset	#status_air_bit,(v_ost_player+ost_status).w
 
 	@not_on_top:
-		move.b	#id_frame_prison_broken,ost_frame(a0)	; use use borken prison frame (2)
-		rts	
+		move.b	#id_frame_prison_broken,ost_frame(a0)	; use use broken prison frame (2)
+		;rts	
+		bra.w 	Prison_Display			
 ; ===========================================================================
 
 Pri_Switch:	; Routine 4
@@ -104,7 +109,8 @@ Pri_Switch:	; Routine 4
 		bset	#status_air_bit,(v_ost_player+ost_status).w
 
 	@not_on_top:
-		rts	
+		;rts
+		bra.w 	Prison_Display		
 ; ===========================================================================
 
 Pri_Switch2:
@@ -132,7 +138,8 @@ Pri_Explosion:	; Routine 6, 8, $A
 	@noexplosion:
 		subq.w	#1,ost_anim_time(a0)			; decrement timer
 		beq.s	@makeanimal				; branch if 0
-		rts	
+		;rts
+		bra.w 	Prison_Display	
 ; ===========================================================================
 
 @makeanimal:
@@ -158,7 +165,8 @@ Pri_Explosion:	; Routine 6, 8, $A
 		dbf	d6,@loop				; repeat 7 more	times
 
 	@fail:
-		rts	
+		;rts
+		bra.w 	Prison_Display			
 ; ===========================================================================
 
 Pri_Animals:	; Routine $C
@@ -189,11 +197,13 @@ Pri_Animals:	; Routine $C
 		move.w	#180,ost_anim_time(a0)			; this does nothing
 
 	@wait:
-		rts	
+		;rts
+		bra.w 	Prison_Display	
 ; ===========================================================================
 
 Pri_EndAct:	; Routine $E
-		moveq	#$40-2,d0
+		;moveq	#sizeof_ost-2,d0
+		moveq	#sizeof_ost,d0
 		moveq	#id_Animals,d1
 		moveq	#sizeof_ost,d2				; d2 = $40
 		lea	(v_ost_player+sizeof_ost).w,a1		; start at first OST slot after Sonic
@@ -208,7 +218,8 @@ Pri_EndAct:	; Routine $E
 		jmp	(DeleteObject).l
 
 	@found:
-		rts	
+		;rts
+		bra.w 	Prison_Display	
 
 ; ---------------------------------------------------------------------------
 ; Animation script

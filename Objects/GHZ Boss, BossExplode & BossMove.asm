@@ -22,6 +22,7 @@ BGHZ_ObjData:	dc.b id_BGHZ_ShipMain, id_ani_boss_ship		; routine number, animati
 		dc.b id_BGHZ_FaceMain, id_ani_boss_face1
 		dc.b id_BGHZ_FlameMain,	id_ani_boss_blank
 
+; The x_pos and y_pos constants are also used for all bosses in BossMove
 ost_bghz_parent_x_pos:	equ $30					; parent x position (2 bytes)
 ost_bghz_parent:	equ $34					; address of OST of parent object (4 bytes)
 ost_bghz_parent_y_pos:	equ $38					; parent y position (2 bytes)
@@ -70,8 +71,9 @@ BGHZ_ShipMain:	; Routine 2
 		
 		; This has been reworked so that the following is branched to at the end of the branches 
 		; of the subroutines that require it, instead of being executed after every branch 
-		; unconditionally. This eliminates the possibility of the object deleting itself before
-		; 
+		; unconditionally. This eliminates the possibility of the object queueing itself for display
+		; before immediately deleting itself. This doesn't cause problems in this game, but if ported
+		; to Sonic 2 or 3, this can cause a crash due to the lack of a valid sprite mappings pointer.
 BGHZ_ShipDisplay:
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
@@ -108,11 +110,13 @@ BGHZ_Update:
 		move.w	ost_bghz_parent_x_pos(a0),ost_x_pos(a0)	; update actual x pos
 		addq.b	#2,ost_bghz_wobble(a0)			; increment wobble (wraps to 0 after $FE)
 		cmpi.b	#id_BGHZ_Explode,ost_routine2(a0)
-		bcc.s	@exit
+		;bcc.s	@exit
+		bcc.s	BGHZ_ShipDisplay
 		tst.b	ost_status(a0)				; has boss been beaten?
 		bmi.s	@beaten					; if yes, branch
 		tst.b	ost_col_type(a0)			; is ship collision clear?
-		bne.s	@exit					; if not, branch
+		;bne.s	@exit					; if not, branch
+		bne.s	BGHZ_ShipDisplay
 		tst.b	ost_bghz_flash_num(a0)			; is ship flashing?
 		bne.s	@flash					; if yes, branch
 		move.b	#$20,ost_bghz_flash_num(a0)		; set ship to flash 32 times
@@ -128,10 +132,11 @@ BGHZ_Update:
 	@is_white:
 		move.w	d0,(a1)					; load colour stored in	d0
 		subq.b	#1,ost_bghz_flash_num(a0)		; decrement flash counter
-		bne.s	@exit					; branch if not 0
+		;bne.s	@exit					; branch if not 0
+		bne.w 	BGHZ_ShipDisplay
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
-	@exit:
+	;@exit:
 		;rts
 		bra.w BGHZ_ShipDisplay
 ; ===========================================================================
@@ -177,19 +182,32 @@ BossExplode:
 ; ---------------------------------------------------------------------------
 
 BossMove:
-		move.l	ost_bghz_parent_x_pos(a0),d2
-		move.l	ost_bghz_parent_y_pos(a0),d3
+;		move.l	ost_bghz_parent_x_pos(a0),d2
+;		move.l	ost_bghz_parent_y_pos(a0),d3
+;		move.w	ost_x_vel(a0),d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		add.l	d0,d2
+;		move.w	ost_y_vel(a0),d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		add.l	d0,d3
+;		move.l	d2,ost_bghz_parent_x_pos(a0)
+;		move.l	d3,ost_bghz_parent_y_pos(a0)
+;		rts	
+	
+	; Optimized with code backported from Sonic 3.
+
 		move.w	ost_x_vel(a0),d0
 		ext.l	d0
-		asl.l	#8,d0
-		add.l	d0,d2
+		lsl.l	#8,d0
+		add.l	d0,ost_bghz_parent_x_pos(a0)
 		move.w	ost_y_vel(a0),d0
 		ext.l	d0
-		asl.l	#8,d0
-		add.l	d0,d3
-		move.l	d2,ost_bghz_parent_x_pos(a0)
-		move.l	d3,ost_bghz_parent_y_pos(a0)
-		rts	
+		lsl.l	#8,d0
+		add.l	d0,ost_bghz_parent_y_pos(a0)
+		rts
+
 ; End of function BossMove
 
 ; ===========================================================================
@@ -200,7 +218,8 @@ BGHZ_MakeBall: ; Ship Routine 2
 		move.w	#-$40,ost_y_vel(a0)			; move ship upwards
 		bsr.w	BossMove				; update parent position
 		cmpi.w	#$2A00,ost_bghz_parent_x_pos(a0)	; has ship reached target position?
-		bne.s	@wait					; if not, branch
+		;bne.s	@wait					; if not, branch
+		bne.w	BGHZ_Update
 		move.w	#0,ost_x_vel(a0)			; stop ship
 		move.w	#0,ost_y_vel(a0)
 		addq.b	#2,ost_routine2(a0)			; goto BGHZ_ShipMove next
@@ -231,10 +250,11 @@ BGHZ_ShipMove: ; Ship Routine 4
 
 	@wait:
 		btst	#status_xflip_bit,ost_status(a0)	; is ship facing left?
-		bne.s	@face_right				; if not, branch
+		;bne.s	@face_right				; if not, branch
+		bne.w	BGHZ_Update
 		neg.w	ost_x_vel(a0)				; go left instead
 
-	@face_right:
+	;@face_right:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
@@ -242,7 +262,8 @@ BGHZ_ChgDir: ; Ship Routine 6
 		subq.w	#1,ost_bghz_wait_time(a0)		; decrement timer
 		bmi.s	@chg_dir				; branch if below 0
 		bsr.w	BossMove				; update parent position
-		bra.s	@update_pos
+		;bra.s	@update_pos
+		bra.w	BGHZ_Update ; update actual position, check for hits
 ; ===========================================================================
 
 @chg_dir:
@@ -251,7 +272,7 @@ BGHZ_ChgDir: ; Ship Routine 6
 		subq.b	#2,ost_routine2(a0)			; goto BGHZ_ShipMove next
 		move.w	#0,ost_x_vel(a0)			; stop moving
 
-@update_pos:
+;@update_pos:
 		bra.w	BGHZ_Update				; update actual position, check for hits
 ; ===========================================================================
 
@@ -269,10 +290,11 @@ BGHZ_Explode:	; Ship Routine 8
 		addq.b	#2,ost_routine2(a0)			; goto BGHZ_Recover next
 		move.w	#-38,ost_bghz_wait_time(a0)		; set timer (counts up)
 		tst.b	(v_boss_status).w
-		bne.s	@exit
+		;bne.s	@exit
+		bne.w	BGHZ_ShipDisplay
 		move.b	#1,(v_boss_status).w			; set boss beaten flag
 
-	@exit:
+	;@exit:
 		;rts
 		bra.w	BGHZ_ShipDisplay
 ; ===========================================================================

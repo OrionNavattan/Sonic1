@@ -70,7 +70,10 @@ BLZ_ShipMain:	; Routine 2
 		moveq	#0,d0
 		move.b	ost_routine2(a0),d0
 		move.w	BLZ_ShipIndex(pc,d0.w),d1
-		jsr	BLZ_ShipIndex(pc,d1.w)
+		;jsr	BLZ_ShipIndex(pc,d1.w)
+		jmp	BLZ_ShipIndex(pc,d1.w)
+		
+BLZ_ShipDisplay:	
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
 		moveq	#status_xflip+status_yflip,d0
@@ -109,7 +112,8 @@ BLZ_Update_SkipPos:
 		tst.b	ost_status(a0)				; has boss been beaten?
 		bmi.s	@beaten					; if yes, branch
 		tst.b	ost_col_type(a0)			; is ship collision clear?
-		bne.s	@exit					; if not, branch
+		;bne.s	@exit					; if not, branch
+		bne.s	BLZ_ShipDisplay
 		tst.b	ost_blz_flash_num(a0)			; is ship flashing?
 		bne.s	@flash					; if yes, branch
 		move.b	#$20,ost_blz_flash_num(a0)		; set ship to flash 32 times
@@ -125,22 +129,27 @@ BLZ_Update_SkipPos:
 	@is_white:
 		move.w	d0,(a1)					; load colour stored in	d0
 		subq.b	#1,ost_blz_flash_num(a0)		; decrement flash counter
-		bne.s	@exit					; branch if not 0
+		;bne.s	@exit					; branch if not 0
+		bne.w	BLZ_ShipDisplay
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
-	@exit:
-		rts	
+	;@exit:
+		;rts
+		bra.w	BLZ_ShipDisplay
 ; ===========================================================================
 
 @explode:
-		bra.w	BossExplode
+		;bra.w	BossExplode
+		bsr.w	BossExplode
+		bra.w	BLZ_ShipDisplay
 ; ===========================================================================
 
 @beaten:
 		moveq	#100,d0
 		bsr.w	AddPoints				; give Sonic 1000 points
 		move.b	#-1,ost_blz_beaten_flag(a0)		; set beaten flag
-		rts	
+		;rts	
+		bra.w	BLZ_ShipDisplay
 ; ===========================================================================
 
 BLZ_ShipMove1:
@@ -159,13 +168,14 @@ BLZ_ShipMove1:
 		addq.w	#1,d0
 
 	@continue_up:
-		bne.s	@continue				; branch if ship is still moving
+		;bne.s	@continue				; branch if ship is still moving
+		bne.w	BLZ_Update
 
 		move.w	#$140,ost_x_vel(a0)			; move ship right
 		move.w	#-$200,ost_y_vel(a0)			; move ship up
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_ShipMove2 next
 
-	@continue:
+	;@continue:
 		bra.w	BLZ_Update				; update position, check for hit
 ; ===========================================================================
 
@@ -185,7 +195,8 @@ BLZ_ShipMove2:
 		addq.w	#1,d0
 
 	@continue_up:
-		bne.s	@continue				; branch if ship is still moving
+		;bne.s	@continue				; branch if ship is still moving
+		bne.w	BLZ_Update
 
 		move.w	#-$180,ost_y_vel(a0)			; move ship up
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_ShipMove3 next
@@ -270,12 +281,13 @@ BLZ_ShipAtTop:
 		addq.w	#1,d0
 
 	@continue_up:
-		bne.s	@continue				; branch if ship is still moving
+		;bne.s	@continue				; branch if ship is still moving
+		bne.w	BLZ_Update
 
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_ShipWait next
 		bclr	#status_xflip_bit,ost_status(a0)	; ship face left
 
-	@continue:
+	;@continue:
 		bra.w	BLZ_Update				; update position, check for hit
 ; ===========================================================================
 
@@ -283,9 +295,11 @@ BLZ_ShipWait:
 		tst.b	ost_blz_beaten_flag(a0)			; has boss been beaten?
 		bne.s	@beaten					; if yes, branch
 		cmpi.w	#$1EC8,ost_x_pos(a1)			; has Sonic passed x pos?
-		blt.s	@wait_for_sonic				; if not, branch
+		;blt.s	@wait_for_sonic				; if not, branch
+		blt.w	BLZ_Update
 		cmpi.w	#$F0,ost_y_pos(a1)
-		bgt.s	@wait_for_sonic
+		;bgt.s	@wait_for_sonic
+		bgt.w	BLZ_Update
 		move.b	#50,ost_blz_wait_time(a0)		; set timer for 50 frames
 
 	@beaten:
@@ -296,7 +310,7 @@ BLZ_ShipWait:
 		bset	#status_xflip_bit,ost_status(a0)	; ship face right
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_Escape1 next
 
-	@wait_for_sonic:
+	;@wait_for_sonic:
 		bra.w	BLZ_Update				; update position, check for hit
 ; ===========================================================================
 
@@ -304,7 +318,8 @@ BLZ_Escape1:
 		tst.b	ost_blz_beaten_flag(a0)			; has boss been beaten?
 		bne.s	@beaten					; if yes, branch
 		subq.b	#1,ost_blz_wait_time(a0)		; decrement timer
-		bne.s	@wait					; branch if time remains
+		;bne.s	@wait					; branch if time remains
+		bne.w	BLZ_Update
 
 	@beaten:
 		clr.b	ost_blz_wait_time(a0)
@@ -313,7 +328,7 @@ BLZ_Escape1:
 		clr.b	ost_blz_beaten_flag(a0)
 		addq.b	#2,ost_routine2(a0)			; goto BLZ_Escape2 next
 
-	@wait:
+	;@wait:
 		bra.w	BLZ_Update				; update position
 ; ===========================================================================
 
@@ -321,14 +336,15 @@ BLZ_Escape2:
 		cmpi.w	#$2030,(v_boundary_right).w		; check for new boundary
 		bcc.s	@chkdel
 		addq.w	#2,(v_boundary_right).w			; expand right edge of level boundary
-		bra.s	@update
+		;bra.s	@update
+		bra.w	BLZ_Update
 ; ===========================================================================
 
 @chkdel:
 		tst.b	ost_render(a0)				; is ship on-screen?
 		bpl.s	@delete					; if not, branch
 
-@update:
+;@update:
 		bra.w	BLZ_Update				; update position
 ; ===========================================================================
 
@@ -365,7 +381,8 @@ BLZ_FaceMain:	; Routine 4
 @update:
 		move.b	d1,ost_anim(a0)				; set animation
 		cmpi.b	#id_BLZ_Escape2,d0			; is boss escaping?
-		bne.s	@display				; if not, branch
+		;bne.s	@display				; if not, branch
+		bne.s	BLZ_Display
 		move.b	#id_ani_boss_panic,ost_anim(a0)		; use sweating animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
@@ -385,17 +402,20 @@ BLZ_FlameMain:; Routine 6
 		cmp.b	(a0),d0
 		bne.s	@delete					; branch if parent has been deleted
 		cmpi.b	#id_BLZ_Escape2,ost_routine2(a1)	; is boss escaping?
-		bne.s	@display				; if not, branch
+		;bne.s	@display				; if not, branch
+		bne.s	BLZ_Display
 		move.b	#id_ani_boss_bigflame,ost_anim(a0)	; use big flame animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	@delete					; if not, branch
-		bra.s	@display
+		;bra.s	@display
+		bra.s	BLZ_Display
 ; ===========================================================================
 		tst.w	ost_x_vel(a1)
-		beq.s	@display
+		;beq.s	@display
+		beq.s	BLZ_Display
 		move.b	#id_ani_boss_flame1,ost_anim(a0)
 
-@display:
+;@display:
 		bra.s	BLZ_Display
 ; ===========================================================================
 

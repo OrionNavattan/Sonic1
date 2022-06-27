@@ -6,10 +6,6 @@
 ;	BossStarLight - routines 2/4/6
 ; ---------------------------------------------------------------------------
 
-BSLZ_Delete:
-		jmp	(DeleteObject).l
-
-
 BossStarLight:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
@@ -91,7 +87,10 @@ BSLZ_ShipMain:	; Routine 2
 		moveq	#0,d0
 		move.b	ost_routine2(a0),d0
 		move.w	BSLZ_ShipIndex(pc,d0.w),d0
-		jsr	BSLZ_ShipIndex(pc,d0.w)
+		;jsr	BSLZ_ShipIndex(pc,d0.w)
+		jmp	BSLZ_ShipIndex(pc,d0.w)
+		
+BSLZ_ShipDisplay:		
 		lea	(Ani_Bosses).l,a1
 		jsr	(AnimateSprite).l
 		moveq	#status_xflip+status_yflip,d0
@@ -134,11 +133,13 @@ BSLZ_Update_SkipWobble:
 
 BSLZ_Update_SkipPos:
 		cmpi.b	#id_BSLZ_Explode,ost_routine2(a0)
-		bcc.s	@exit
+		;bcc.s	@exit
+		bcc.s	BSLZ_ShipDisplay
 		tst.b	ost_status(a0)				; has boss been beaten?
 		bmi.s	@beaten					; if yes, branch
 		tst.b	ost_col_type(a0)			; is ship collision clear?
-		bne.s	@exit					; if not, branch
+		;bne.s	@exit					; if not, branch
+		bne.w	BSLZ_ShipDisplay
 		tst.b	ost_bslz_flash_num(a0)			; is ship flashing?
 		bne.s	@flash					; if yes, branch
 		move.b	#$20,ost_bslz_flash_num(a0)		; set ship to flash 32 times
@@ -154,11 +155,13 @@ BSLZ_Update_SkipPos:
 	@is_white:
 		move.w	d0,(a1)					; load colour stored in	d0
 		subq.b	#1,ost_bslz_flash_num(a0)		; decrement flash counter
-		bne.s	@exit					; branch if not 0
+		;bne.s	@exit					; branch if not 0
+		bne.w	BSLZ_ShipDisplay
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
-	@exit:
-		rts	
+	;@exit:
+		;rts
+		bra.w	BSLZ_ShipDisplay
 ; ===========================================================================
 
 @beaten:
@@ -272,7 +275,9 @@ BSLZ_MakeBall:
 BSLZ_Explode:
 		subq.b	#1,ost_bslz_wait_time(a0)		; decrement timer
 		bmi.s	@stop_exploding				; branch if below 0
-		bra.w	BossExplode				; load explosion object
+		;bra.w	BossExplode				; load explosion object
+		bsr.w	BossExplode
+		bra.w	BSLZ_ShipDisplay
 ; ===========================================================================
 
 @stop_exploding:
@@ -283,10 +288,11 @@ BSLZ_Explode:
 		clr.w	ost_x_vel(a0)
 		move.b	#-$18,ost_bslz_wait_time(a0)		; set timer (counts up)
 		tst.b	(v_boss_status).w
-		bne.s	@exit
+		;bne.s	@exit
+		bne.w	BSLZ_Update_SkipPos
 		move.b	#1,(v_boss_status).w			; set boss beaten flag
 
-	@exit:
+	;@exit:
 		bra.w	BSLZ_Update_SkipPos
 ; ===========================================================================
 
@@ -295,12 +301,14 @@ BSLZ_Recover:
 		beq.s	@stop_falling				; branch if 0
 		bpl.s	@ship_recovers				; branch if 1 or more
 		addi.w	#$18,ost_y_vel(a0)			; apply gravity (falls)
-		bra.s	@update
+		;bra.s	@update
+		bra.w	BSLZ_Update_SkipPos
 ; ===========================================================================
 
 @stop_falling:
 		clr.w	ost_y_vel(a0)				; stop falling
-		bra.s	@update
+		;bra.s	@update
+		bra.w	BSLZ_Update_SkipPos
 ; ===========================================================================
 
 @ship_recovers:
@@ -308,22 +316,25 @@ BSLZ_Recover:
 		bcs.s	@ship_rises				; if not, branch
 		beq.s	@ship_rising				; if exactly 32, branch
 		cmpi.b	#$2A,ost_bslz_wait_time(a0)		; have 42 frames passed since ship stopped rising?
-		bcs.s	@update					; if not, branch
+		;bcs.s	@update					; if not, branch
+		bcs.w	BSLZ_Update_SkipPos
 		addq.b	#2,ost_routine2(a0)			; goto BSLZ_Escape next
-		bra.s	@update
+		;bra.s	@update
+		bra.w	BSLZ_Update_SkipPos
 ; ===========================================================================
 
 @ship_rises:
 		subq.w	#8,ost_y_vel(a0)			; move ship upwards
-		bra.s	@update
+		;bra.s	@update
+		bra.w	BSLZ_Update_SkipPos
 ; ===========================================================================
 
 @ship_rising:
 		clr.w	ost_y_vel(a0)
 		play.w	0, jsr, mus_SLZ				; play SLZ music
 
-@update:
-		bra.w	BSLZ_Update_SkipWobble			; update position
+;@update:
+		bra.w	BSLZ_Update_SkipPos		; update position
 ; ===========================================================================
 
 BSLZ_Escape:
@@ -370,12 +381,13 @@ BSLZ_FaceMain:	; Routine 4
 @update:
 		move.b	d1,ost_anim(a0)				; set animation
 		cmpi.b	#id_BSLZ_Escape,d0			; is ship on BSLZ_Escape?
-		bne.s	@display				; if not, branch
+		;bne.s	@display				; if not, branch
+		bne.s	BSLZ_FaceFlame_Display
 		move.b	#id_ani_boss_panic,ost_anim(a0)		; use sweating animation
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.w	BSLZ_Delete				; if not, branch
 
-	@display:
+	;@display:
 		bra.s	BSLZ_FaceFlame_Display
 ; ===========================================================================
 
@@ -385,7 +397,7 @@ BSLZ_FlameMain:; Routine 6
 		cmpi.b	#id_BSLZ_Escape,ost_routine2(a1)	; is ship on BSLZ_Escape?
 		bne.s	@chk_flame				; if not, branch
 		tst.b	ost_render(a0)				; is object on-screen?
-		bpl.w	BSLZ_Delete				; if not, branch
+		bpl.s	BSLZ_Delete				; if not, branch
 		move.b	#id_ani_boss_bigflame,ost_anim(a0)	; use big flame animation
 		bra.s	BSLZ_FaceFlame_Display
 ; ===========================================================================
@@ -418,10 +430,16 @@ BSLZ_TubeMain:	; Routine 8
 		cmpi.b	#id_BSLZ_Escape,ost_routine2(a1)	; is ship on BSLZ_Escape?
 		bne.s	@display				; if not, branch
 		tst.b	ost_render(a0)				; is object on-screen?
-		bpl.w	BSLZ_Delete				; if not, branch
+		bpl.s	BSLZ_Delete				; if not, branch
 
 	@display:
 		move.l	#Map_BossItems,ost_mappings(a0)
 		move.w	#tile_Nem_Weapons+tile_pal2,ost_tile(a0)
 		move.b	#id_frame_boss_widepipe,ost_frame(a0)
 		bra.s	BSLZ_Tube_Display
+		
+		
+;=============================================================================
+
+BSLZ_Delete:
+		jmp	(DeleteObject).l		

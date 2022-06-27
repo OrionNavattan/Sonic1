@@ -40,9 +40,9 @@ GM_Sega:
 
 		;if Revision=0
 		;else
-			tst.b   (v_console_region).w		; is console Japanese?
-			bmi.s   @loadpal			; if not, branch
-			copyTilemap	$FF0A40,vram_fg,$1D,$A,3,2 ; hide "TM" with a white 3x2 rectangle
+		tst.b   (v_console_region).w		; is console Japanese?
+		bmi.s   @loadpal			; if not, branch
+		copyTilemap	$FF0A40,vram_fg,$1D,$A,3,2 ; hide "TM" with a white 3x2 rectangle
 		;endc
 
 	@loadpal:

@@ -10,8 +10,10 @@ SmashWall:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	Smash_Index(pc,d0.w),d1
-		jsr	Smash_Index(pc,d1.w)
-		bra.w	DespawnObject
+		;jsr	Smash_Index(pc,d1.w)
+		jmp		Smash_Index(pc,d1.w)
+		
+		;bra.w	DespawnObject
 ; ===========================================================================
 Smash_Index:	index *,,2
 		ptr Smash_Main
@@ -41,7 +43,8 @@ Smash_Solid:	; Routine 2
 		bne.s	@chkroll				; if yes, branch
 
 @donothing:
-		rts	
+		;rts
+		bra.w	DespawnObject
 ; ===========================================================================
 
 @chkroll:
@@ -74,10 +77,12 @@ Smash_Solid:	; Routine 2
 Smash_FragMove:	; Routine 4
 		bsr.w	SpeedToPos				; update position
 		addi.w	#$70,ost_y_vel(a0)			; make fragment fall faster
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		tst.b	ost_render(a0)				; is fragment on-screen?
 		bpl.w	DeleteObject				; if not, branch
-		rts	
+		;rts
+		bra.w	DespawnObject
+		;bra.w	DisplaySprite
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	smash a	block (GHZ walls and MZ	blocks)

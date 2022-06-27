@@ -10,7 +10,10 @@ BossFire:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	BFire_Index(pc,d0.w),d0
-		jsr	BFire_Index(pc,d0.w)
+		;jsr	BFire_Index(pc,d0.w)
+		jmp	BFire_Index(pc,d0.w)
+		
+	BossFire_Display:	
 		jmp	(DisplaySprite).l
 ; ===========================================================================
 BFire_Index:	index *,,2
@@ -52,12 +55,16 @@ BFire_Action:	; Routine 2
 		move.b	ost_routine2(a0),d0
 		move.w	BFire_Index2(pc,d0.w),d0
 		jsr	BFire_Index2(pc,d0.w)
+		
 		jsr	(SpeedToPos).l				; update position
+		cmpi.w	#$2E8,ost_y_po				s(a0)			; has fireball fallen into the lava in the middle?
+		bhi.s	BFire_Delete; if yes, branch
 		lea	(Ani_Fire).l,a1
 		jsr	(AnimateSprite).l
-		cmpi.w	#$2E8,ost_y_pos(a0)			; has fireball fallen into the lava in the middle?
-		bhi.s	BFire_Delete				; if yes, branch
-		rts	
+		;cmpi.w	#$2E8,ost_y_pos(a0)			; has fireball fallen into the lava in the middle?
+		;bhi.s	BFire_Delete				; if yes, branch
+		;rts
+		bra.w 	BossFire_Display	
 ; ===========================================================================
 
 BFire_Delete:
@@ -70,7 +77,7 @@ BFire_Index2:	index *,,2
 		ptr BFire_FallEdge
 ; ===========================================================================
 
-BFire_Drop:
+BFire_Drop: ; Fire Routine 0
 		bset	#status_yflip_bit,ost_status(a0)	; invert fireball so only tail is visible
 		subq.b	#1,ost_bfire_wait_time(a0)		; decrement timer
 		bpl.s	@exit					; branch if time remains
@@ -87,7 +94,7 @@ BFire_Drop:
 		rts	
 ; ===========================================================================
 
-BFire_Duplicate:
+BFire_Duplicate: ; Fire Routine 2
 		subq.w	#2,ost_y_pos(a0)
 		bset	#tile_hi_bit,ost_tile(a0)
 		move.w	#$A0,ost_x_vel(a0)			; move right
@@ -133,7 +140,7 @@ BFire_SpawnFire:
 
 ; ===========================================================================
 
-BFire_FireSpread:
+BFire_FireSpread: ; Fire Routine 4
 		bsr.w	FindFloorObj
 		tst.w	d1					; is fireball touching the floor?
 		bpl.s	@not_on_floor				; if not, branch
@@ -165,7 +172,7 @@ BFire_FireSpread:
 		rts	
 ; ===========================================================================
 
-BFire_FallEdge:
+BFire_FallEdge: ; Fire Routine 6
 		bclr	#status_yflip_bit,ost_status(a0)
 		addi.w	#$24,ost_y_vel(a0)			; make flame fall
 		move.w	ost_x_pos(a0),d0
@@ -208,7 +215,9 @@ BFire_TempFire:	; Routine 4
 
 	@wait:
 		lea	(Ani_Fire).l,a1
-		jmp	(AnimateSprite).l			; animate and goto BFire_TempFireDel if 2nd animation ran
+		;jmp	(AnimateSprite).l			; animate and goto BFire_TempFireDel if 2nd animation ran
+		jsr	(AnimateSprite).l			; animate and goto BFire_TempFireDel if 2nd animation ran
+		bra.w 	BossFire_Display
 ; ===========================================================================
 
 BFire_TempFireDel:

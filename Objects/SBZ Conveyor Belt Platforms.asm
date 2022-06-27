@@ -11,6 +11,7 @@ SpinConvey:
 		move.b	ost_routine(a0),d0
 		move.w	SpinC_Index(pc,d0.w),d1
 		jsr	SpinC_Index(pc,d1.w)
+		
 		out_of_range.s	SpinC_ChkDel,ost_spinc_x_pos_centre(a0)
 
 SpinC_Display:
@@ -144,7 +145,8 @@ SpinC_LoadPlatforms:
 		dbf	d1,@loop				; repeat for number of objects
 
 		addq.l	#4,sp
-		rts	
+		;rts
+		out_of_range.w	SpinC_ChkDel,ost_spinc_x_pos_centre(a0)
 ; ===========================================================================
 
 SpinC_Solid:	; Routine 2
@@ -159,19 +161,22 @@ SpinC_Solid:	; Routine 2
 		move.w	d2,d3
 		addq.w	#1,d3
 		move.w	(sp)+,d4
-		bra.w	SolidObject				; make platform solid on flat frame
+		;bra.w	SolidObject				; make platform solid on flat frame
+		bsr.w	SolidObject				; make platform solid on flat frame
+		out_of_range.w	SpinC_ChkDel,ost_spinc_x_pos_centre(a0)
 ; ===========================================================================
 
 @spinning:
 		btst	#status_platform_bit,ost_status(a0)	; is platform being stood on?
-		beq.s	@skip_clr				; if not, branch
+		;beq.s	@skip_clr				; if not, branch
+		beq.s	SpinC_Update				; if not, branch
 		lea	(v_ost_player).w,a1
 		bclr	#status_platform_bit,ost_status(a1)
 		bclr	#status_platform_bit,ost_status(a0)
 		clr.b	ost_solid(a0)
 
-	@skip_clr:
-		bra.w	SpinC_Update
+;	@skip_clr:
+;		bra.w	SpinC_Update
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to get next corner coordinates and update platform position
@@ -215,7 +220,9 @@ SpinC_Update:
 		bsr.w	LCon_Platform_Move			; set direction and speed
 
 	@not_at_corner:
-		jmp	(SpeedToPos).l				; update position
+		;jmp	(SpeedToPos).l				; update position
+		jsr	(SpeedToPos).l				; update position
+		out_of_range.w	SpinC_ChkDel,ost_spinc_x_pos_centre(a0)
 
 ; ---------------------------------------------------------------------------
 ; Animation script

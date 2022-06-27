@@ -336,7 +336,14 @@ LevSel_Credits:
 
 LevSel_Level_SS:
 		add.w	d0,d0
+	if FixBugs=0	
 		move.w	LevSel_Ptrs(pc,d0.w),d0			; load zone/act number
+	else
+		; Not a fix per se, but the below fix pushes the Level Select pointers out of reach 
+		; of the PC, so it has to be loaded into an address register.
+        lea (LevSel_Ptrs).l,a6
+        move.w  (a6,d0.w),d0		
+	endc	
 		bmi.w	LevelSelect				; branch if it's $8000+ (sound test)
 		cmpi.w	#id_SS*$100,d0				; check	if level is 0700 (Special Stage)
 		bne.s	LevSel_Level				; if not, branch
@@ -347,6 +354,17 @@ LevSel_Level_SS:
 		move.w	d0,(v_rings).w				; clear rings
 		move.l	d0,(v_time).w				; clear time
 		move.l	d0,(v_score).w				; clear score
+	if FixBugs=0
+	else
+		; These values are not cleared when entering the Special Stage from the level select after
+		; completing the game or getting a game over.
+        ;move.l d0,(v_startscore).w ; clear start score
+        move.b d0,(v_last_ss_levelid).w ; clear special stage number
+        move.b d0,(v_emeralds).w ; clear emeralds
+        move.l d0,(v_emerald_list).w ; clear emeralds
+        move.l d0,(v_emerald_list+4).w ; clear emeralds
+        move.b d0,(v_continues).w ; clear continues	
+	endc
 		;if Revision=0
 		;else
 		move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
@@ -365,6 +383,10 @@ PlayLevel:
 		move.w	d0,(v_rings).w				; clear rings
 		move.l	d0,(v_time).w				; clear time
 		move.l	d0,(v_score).w				; clear score
+	if FixBugs=0
+	else
+	
+	endc	
 		move.b	d0,(v_last_ss_levelid).w		; clear special stage number
 		move.b	d0,(v_emeralds).w			; clear emeralds
 		move.l	d0,(v_emerald_list).w			; clear emeralds

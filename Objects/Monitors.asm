@@ -165,9 +165,10 @@ Mon_Animate:	; Routine 6
 		bsr.w	AnimateSprite
 
 Mon_Display:	; Routine 8
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		out_of_range	DeleteObject
-		rts	
+		;rts
+		bra.w	DisplaySprite
 ; ===========================================================================
 
 Mon_BreakOpen:	; Routine 4

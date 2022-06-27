@@ -43,7 +43,11 @@ Msl_Main:	; Routine 0
 ; ===========================================================================
 
 Msl_Animate:	; Routine 2
-		bsr.s	Msl_ChkCancel
+		;bsr.s	Msl_ChkCancel
+		; Following lines duplicated from below to eliminate deleted object sprite bug
+		movea.l	ost_missile_parent(a0),a1
+		cmpi.b	#id_ExplosionItem,ost_id(a1)		; has Buzz Bomber been destroyed?
+		beq.s	Msl_Delete				; if yes, branch
 		lea	(Ani_Missile).l,a1
 		bsr.w	AnimateSprite				; goto Msl_FromBuzz after animation is finished
 		bra.w	DisplaySprite
@@ -67,14 +71,17 @@ Msl_FromBuzz:	; Routine 4
 		move.b	#id_col_6x6+id_col_hurt,ost_col_type(a0)
 		move.b	#id_ani_buzz_missile,ost_anim(a0)
 		bsr.w	SpeedToPos
-		lea	(Ani_Missile).l,a1
-		bsr.w	AnimateSprite
-		bsr.w	DisplaySprite
+		;lea	(Ani_Missile).l,a1
+		;bsr.w	AnimateSprite
+		;bsr.w	DisplaySprite
 		move.w	(v_boundary_bottom).w,d0
 		addi.w	#224,d0
 		cmp.w	ost_y_pos(a0),d0			; has object moved below the level boundary?
 		bcs.s	Msl_Delete				; if yes, branch
-		rts	
+		lea	(Ani_Missile).l,a1
+		bsr.w	AnimateSprite
+		bra.w	DisplaySprite
+		;rts	
 ; ===========================================================================
 
 	@explode:

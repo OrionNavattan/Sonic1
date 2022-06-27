@@ -66,7 +66,7 @@ LGrass_Action:	; Routine 2
 		btst	#status_platform_bit,ost_status(a1)	; is Sonic still on platform?
 		bne.w	LGrass_Slope				; if yes, branch
 		clr.b	ost_solid(a0)
-		bra.s	LGrass_Display
+		bra.w	LGrass_ChkDel
 ; ===========================================================================
 
 LGrass_Slope:
@@ -76,7 +76,8 @@ LGrass_Slope:
 		movea.l	ost_grass_coll_ptr(a0),a2
 		move.w	ost_x_pos(a0),d2
 		bsr.w	SlopeObject_NoChk
-		bra.s	LGrass_Display
+		;bra.s	LGrass_Display
+		bra.w	LGrass_ChkDel
 ; ===========================================================================
 
 LGrass_Solid:
@@ -92,8 +93,8 @@ LGrass_Solid:
 		movea.l	ost_grass_coll_ptr(a0),a2
 		bsr.w	SolidObject_Heightmap
 
-LGrass_Display:
-		bsr.w	DisplaySprite
+;LGrass_Display:
+		;bsr.w	DisplaySprite
 		bra.w	LGrass_ChkDel
 
 ; ---------------------------------------------------------------------------
@@ -258,7 +259,8 @@ LGrass_ChkDel:
 
 	@not_burning:
 		out_of_range	DeleteObject,ost_grass_x_start(a0)
-		rts	
+		;rts
+		bra.w	DisplaySprite
 ; ===========================================================================
 
 LGrass_DelFlames:

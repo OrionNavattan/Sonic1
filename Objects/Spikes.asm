@@ -92,11 +92,11 @@ Spike_Upright:
 Spike_Hurt:
 		tst.b	(v_invincibility).w			; is Sonic invincible?
 		bne.s	Spike_Display				; if yes, branch
-	if SpikeFix	
+	if SpikeFix=0	
+	else
 		; This changes spike behavior to match all subsequent games
 		tst.w	ost_sonic_flash_time(a1)	; is Sonic flashing after being hurt?
-		bne.s	Spike_Display			; if yes, branch
-	else
+		bne.s	Spike_Display			; if yes, branch	
 	endc	
 		move.l	a0,-(sp)				; save OST address for spikes to stack
 		movea.l	a0,a2					; a2 is OST for spikes now
@@ -115,9 +115,10 @@ Spike_Hurt:
 		movea.l	(sp)+,a0				; restore OST address for spikes from stack
 
 Spike_Display:
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		out_of_range	DeleteObject,ost_spike_x_start(a0)
-		rts	
+		;rts
+		bra.w	DisplaySprite	
 ; ===========================================================================
 
 Spike_Move:

@@ -91,7 +91,7 @@ Bri_Action:	; Routine 2
 		bsr.w	Bri_UpdateY
 
 	@display:
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		bra.w	Bri_ChkDel
 
 ; ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ include_Bridge_2:	macro
 
 Bri_Platform:	; Routine 4
 		bsr.s	Bri_ChkPosition
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		bra.w	Bri_ChkDel
 
 ; ---------------------------------------------------------------------------
@@ -309,7 +309,8 @@ Bri_Data_Align:
 
 Bri_ChkDel:
 		out_of_range	@deletebridge
-		rts
+		;rts
+		bra.w	DisplaySprite
 
 @deletebridge:
 		moveq	#0,d2

@@ -66,13 +66,16 @@ BBall_Still:
 
 ; Type 1
 BBall_Sideways:
-		move.w	#$60,d1
+		; It makes a little more sense to just add the $60 as an immediate below instead of loading
+		; it into d1, since it is only used once before being overwritten
+		;move.w	#$60,d1
 		moveq	#0,d0
 		move.b	(v_oscillating_0_to_60).w,d0		; get oscillating value
 		btst	#status_xflip_bit,ost_status(a0)
 		beq.s	@noflip
 		neg.w	d0					; invert if xflipped
-		add.w	d1,d0
+		;add.w	d1,d0
+		addi.w	#$60,d0
 
 	@noflip:
 		move.w	ost_bball_x_start(a0),d1		; get initial x pos
@@ -83,7 +86,8 @@ BBall_Sideways:
 
 ; Type 2
 BBall_UpDown:
-		move.w	#$60,d1
+		; This instruction is pointless, as d1 is later overwritten without the $60 being used
+		;move.w	#$60,d1 
 		moveq	#0,d0
 		move.b	(v_oscillating_0_to_60).w,d0		; get oscillating value
 		btst	#status_xflip_bit,ost_status(a0)

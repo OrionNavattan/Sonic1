@@ -162,11 +162,10 @@ Bat_ChkDist:
 		rts	
 ; ===========================================================================
 ; unused crap
-		bsr.w	SpeedToPos
-		bsr.w	DisplaySprite
-		tst.b	ost_render(a0)
-		bpl.w	DeleteObject
-		rts	
+;		bsr.w	SpeedToPos
+;		tst.b	ost_render(a0)
+;		bpl.w	DeleteObject
+;		bra.w	DisplaySprite
 
 ; ---------------------------------------------------------------------------
 ; Animation script

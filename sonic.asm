@@ -55,6 +55,8 @@ RingChanges: equ 1 ; Scattered rings will have underwater physics, will no longe
 ; will bounce at the bottom of levels, have individual timers so that they will not accumulate if you are hurt multiple times in rapid succession,
 ; and flash briefly before disappearing.
 
+SSVariableJump: equ 1
+
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
 		include "Nemesis File List.asm"
@@ -539,9 +541,9 @@ LGrass_Coll_Sloped:
 		include "Objects\MZ Green Glass Blocks [Mappings].asm" ; Map_Glass
 
 		include "Objects\MZ Chain Stompers.asm"		; ChainStomp
-		include "Objects\MZ Unused Sideways Stomper.asm" ; SideStomp
+		;include "Objects\MZ Unused Sideways Stomper.asm" ; SideStomp
 		include "Objects\MZ Chain Stompers [Mappings].asm" ; Map_CStom
-		include "Objects\MZ Unused Sideways Stomper [Mappings].asm" ; Map_SStom
+		;include "Objects\MZ Unused Sideways Stomper [Mappings].asm" ; Map_SStom
 
 		include "Objects\Button.asm"			; Button
 		include "Objects\Button [Mappings].asm"		; Map_But

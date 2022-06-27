@@ -27,6 +27,11 @@ ost_ss_updown_time:	equ $36					; time until UP/DOWN can be triggered again
 ost_ss_r_time:		equ $37					; time until R can be triggered again
 ost_ss_restart_time:	equ $38					; time until game mode changes after exiting SS (2 bytes; nonfunctional)
 ost_ss_ghost:		equ $3A					; status of ghost blocks - 0 = ghost; 1 = passed; 2 = solid
+
+
+
+sss_jump_bit:		equ 7
+
 ; ===========================================================================
 
 SSS_Main:	; Routine 0
@@ -64,6 +69,10 @@ SSS_Modes:	index *,,2
 ; ===========================================================================
 
 SSS_OnWall:
+	if SSVariableJump=0
+	else
+		bclr	#sss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
+	endc
 		bsr.w	SSS_Jump
 		bsr.w	SSS_Move
 		bsr.w	SSS_Fall
@@ -71,7 +80,11 @@ SSS_OnWall:
 ; ===========================================================================
 
 SSS_InAir:
-		bsr.w	nullsub_2
+	if SSVariableJump=0
+;		bsr.w	nullsub_2
+	else
+		bsr.w	SSS_JumpHeight
+	endc	
 		bsr.w	SSS_Move
 		bsr.w	SSS_Fall
 
@@ -214,7 +227,7 @@ SSS_Jump:
 		andi.b	#btnABC,d0				; is A,	B or C pressed?
 		beq.s	@exit					; if not, branch
 		move.b	(v_ss_angle).w,d0			; get SS angle
-		andi.b	#$FC,d0					; round down to nearest 4
+;		andi.b	#$FC,d0					; round down to nearest 4
 		neg.b	d0
 		subi.b	#$40,d0
 		jsr	(CalcSine).l				; convert to sine/cosine
@@ -225,6 +238,10 @@ SSS_Jump:
 		asr.l	#8,d0
 		move.w	d0,ost_y_vel(a0)
 		bset	#status_air_bit,ost_status(a0)		; goto SSS_InAir next
+	if SSVariableJump=0
+	else	
+		bset	#sss_jump_bit,ost_status(a0)  ; set "Sonic has jumped" flag
+	endc
 		play.w	1, jsr, sfx_Jump			; play jumping sound
 
 	@exit:
@@ -234,20 +251,57 @@ SSS_Jump:
 ; unused subroutine to limit Sonic's upward vertical speed
 ; ---------------------------------------------------------------------------
 
-nullsub_2:
-		rts						; subroutine disabled
-		
-		move.w	#-$400,d1
-		cmp.w	ost_y_vel(a0),d1
-		ble.s	@exit					; branch if Sonic isn't moving up faster than -$400
-		move.b	(v_joypad_hold).w,d0
+	if SSVariableJump=0
+;nullsub_2:
+;		rts						; subroutine disabled
+;		
+;		move.w	#-$400,d1
+;		cmp.w	ost_y_vel(a0),d1
+;		ble.s	@exit					; branch if Sonic isn't moving up faster than -$400
+;		move.b	(v_joypad_hold).w,d0
+;		andi.b	#btnABC,d0
+;		bne.s	@exit					; branch if A/B/C are pressed
+;		move.w	d1,ost_y_vel(a0)			; fix speed to -$400
+;
+;	@exit:
+;		rts
+	else
+SSS_JumpHeight:			; XREF: Obj09_InAir
+		move.b	(v_jpadhold2).w,d0	; is the jump button up?
 		andi.b	#btnABC,d0
-		bne.s	@exit					; branch if A/B/C are pressed
-		move.w	d1,ost_y_vel(a0)			; fix speed to -$400
+		bne.s	@exit		; if not, branch to return
+		btst	#7,ost_status(a0)		; did Sonic jump or is he just falling or hit by a bumper?
+		beq.s	@exit		; if not, branch to return
+		move.b	(v_ss_angle).w,d0	; get SS angle
+;		andi.b	#$FC,d0
+		neg.b	d0
+		subi.b	#$40,d0
+		jsr	(CalcSine).l			
+		move.w	ost_y_vel(a0),d2		; get Y speed
+		muls.w	d2,d0			; multiply Y speed by sin
+		asr.l	#8,d0			; find the new Y speed
+		move.w	ost_x_vel(a0),d2		; get X speed
+		muls.w	d2,d1			; multiply X speed by cos
+		asr.l	#8,d1			; find the new X speed
+		add.w	d0,d1			; combine the two speeds
+		cmpi.w	#$400,d1		; compare the combined speed with the jump release speed
+		ble.s	@exit		; if it's less, branch to return
+		move.b	(v_ssangle).w,d0
+;		andi.b	#$FC,d0
+		neg.b	d0
+		subi.b	#$40,d0
+		jsr	(CalcSine).l
+		muls.w	#$400,d1
+		asr.l	#8,d1
+		move.w	d1,ost_x_vel(a0)
+		muls.w	#$400,d0
+		asr.l	#8,d0
+		move.w	d0,ost_y_vel(a0)		; set the speed to the jump release speed
+		bclr	#7,ost_status(a0)		; clear "Sonic has jumped" flag
 
 	@exit:
-		rts
-
+		rts	
+	endc
 ; ---------------------------------------------------------------------------
 ; Subroutine to	fix the	camera on Sonic's position (special stage)
 ; ---------------------------------------------------------------------------
@@ -316,7 +370,7 @@ SSS_Fall:
 		move.l	ost_y_pos(a0),d2
 		move.l	ost_x_pos(a0),d3
 		move.b	(v_ss_angle).w,d0			; get special stage angle
-		andi.b	#$FC,d0					; round down to nearest 4
+;		andi.b	#$FC,d0					; round down to nearest 4
 		jsr	(CalcSine).l				; convert to sine/cosine
 		move.w	ost_x_vel(a0),d4
 		ext.l	d4
@@ -612,6 +666,10 @@ SSS_ChkBumper:
 		asr.l	#8,d0
 		move.w	d0,ost_y_vel(a0)
 		bset	#status_air_bit,ost_status(a0)		; set Sonic's air flag
+	if SSVariableJump=0
+	else
+		bclr	#sss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
+	endc		
 		bsr.w	SS_FindFreeUpdate			; find free item update slot
 		bne.s	@noslot					; branch if not found
 		move.b	#id_SS_UpdateBumper,(a2)		; set update type

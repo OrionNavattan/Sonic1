@@ -136,7 +136,12 @@ PLC_LZ:		plcheader
 		plcm	Nem_Bubbles				; bubbles and numbers ($6900)
 		plcm	Nem_LzHalfBlock				; block ($7780)
 		plcm	Nem_LzDoorV				; vertical door ($7880)
+	if FixBugs=0	
 		plcm	Nem_Harpoon				; harpoon ($7980)
+	else
+	; Button and harpoon have been swapped to eliminate an issue with a button at the start of SBZ3 being delayed.
+		plcm	Nem_Button, vram_button		; button ($A1E0)	
+	endc	
 		plcm	Nem_Burrobot, $94C0			; burrobot enemy
 	PLC_LZ_end:
 
@@ -151,7 +156,13 @@ PLC_LZ2:	plcheader
 		plcm	Nem_LzPlatform, $89E0			; rising platform
 		plcm	Nem_Orbinaut,,LZ			; orbinaut enemy ($8CE0)
 		plcm	Nem_Jaws				; jaws enemy ($90C0)
+	if FixBugs=0
 		plcm	Nem_Button, vram_button		; button ($A1E0)
+	else
+		; VRAM address for harpoon now hardcoded to ensure that it loads in the correct location, 
+		; otherwise it will overwrite part of the Burrowbot's graphics.
+		plcm	Nem_Harpoon, $7980				; harpoon ($7980)
+	endc	
 		plcm	Nem_Cork, $A000				; cork block
 		plcm	Nem_Spikes, vram_spikes			; spikes ($A360)
 		plcm	Nem_HSpring, vram_hspring		; horizontal spring ($A460)

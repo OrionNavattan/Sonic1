@@ -580,7 +580,7 @@ SS_ShowLayout:
 		move.w	d5,-(sp)				; save sprite count to stack
 		lea	(v_ss_sprite_grid_plot).w,a1		; address to write grid coords
 		move.b	(v_ss_angle).w,d0
-		andi.b	#$FC,d0					; round down angle to nearest 4 (disable this line for smoother rotation)
+;		andi.b	#$FC,d0					; round down angle to nearest 4 (disable this line for smoother rotation)
 		jsr	(CalcSine).l				; convert to sine/cosine
 		move.w	d0,d4
 		move.w	d1,d5

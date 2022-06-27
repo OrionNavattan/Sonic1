@@ -40,9 +40,10 @@ Edge_Solid:	; Routine 2
 		bsr.w	Edge_SolidWall
 
 Edge_Display:	; Routine 4
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		out_of_range	DeleteObject
-		rts	
+		;rts
+		bra.w	DisplaySprite	
 		
 		endm
 

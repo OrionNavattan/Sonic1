@@ -83,9 +83,10 @@ But_Flash:
 		bchg	#1,ost_frame(a0)			; use frame 2/3
 
 But_Display:
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		out_of_range	But_Delete
-		rts	
+		;rts
+		bra.w	DisplaySprite
 ; ===========================================================================
 
 But_Delete:

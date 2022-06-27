@@ -90,7 +90,7 @@ SStom_Solid:	; Routine 2
 		move.w	#$20,d3
 		move.w	(sp)+,d4
 		bsr.w	SolidObject
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		bra.w	SStom_ChkDel
 ; ===========================================================================
 
@@ -115,7 +115,8 @@ SStom_Display:	; Routine 6
 
 SStom_ChkDel:
 		out_of_range	DeleteObject,ost_mash_y_start(a0)
-		rts	
+		;rts	
+		bra.w	DisplaySprite
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to move the main metal block

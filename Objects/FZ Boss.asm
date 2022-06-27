@@ -119,8 +119,11 @@ BFZ_Eggman:	; Routine 2
 		moveq	#0,d0
 		move.b	ost_fz_mode(a0),d0
 		move.w	BFZ_Eggman_Index(pc,d0.w),d0
+		;jsr	BFZ_Eggman_Index(pc,d0.w)
 		jsr	BFZ_Eggman_Index(pc,d0.w)
-		jmp	(DisplaySprite).l
+		
+		
+		;jmp	(DisplaySprite).l
 ; ===========================================================================
 BFZ_Eggman_Index:
 		index *,,2
@@ -143,7 +146,8 @@ BFZ_Eggman_Wait:
 
 	@wait:
 		addq.l	#1,(v_random).w				; increment random number
-		rts	
+		;rts	
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 
 BFZ_Eggman_Crush:
@@ -236,7 +240,9 @@ BFZ_Eggman_Crush:
 
 @animate:
 		lea	Ani_SEgg(pc),a1
-		jmp	(AnimateSprite).l
+		;jmp	(AnimateSprite).l
+		jsr	(AnimateSprite).l
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 
 @crush_complete:
@@ -245,7 +251,7 @@ BFZ_Eggman_Crush:
 		addq.b	#2,ost_fz_mode(a0)			; goto BFZ_Eggman_Plasma next
 		move.w	#-1,ost_fz_cylinder_flag(a0)
 		clr.w	ost_fz_phase_state(a0)
-		rts	
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 
 @beaten:
@@ -258,7 +264,8 @@ BFZ_Eggman_Crush:
 		move.w	#$25C0,ost_x_pos(a0)			; move Eggman outside arena to the right
 		move.w	#$53C,ost_y_pos(a0)
 		move.b	#$14,ost_height(a0)
-		rts	
+		;rts
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 BFZ_CylPattern:	dc.w cyl_bottom_left, cyl_bottom_right
 		dc.w cyl_bottom_right, cyl_top_left
@@ -295,7 +302,7 @@ BFZ_Eggman_Plasma:
 		clr.w	ost_fz_phase_state(a0)
 
 	@wait:
-		rts	
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 
 @electric_sound:
@@ -418,11 +425,13 @@ BFZ_Eggman_Scroll:
 		move.w	#$70,d2
 		move.w	#$71,d3
 		move.w	ost_x_pos(a0),d4
-		jmp	(SolidObject).l				; Eggman is solid
+		;jmp	(SolidObject).l				; Eggman is solid
+		jsr	(SolidObject).l				; Eggman is solid
 ; ===========================================================================
 
 @not_solid:
-		rts	
+		;rts
+		jmp	(DisplaySprite).l
 ; ===========================================================================
 
 BFZ_Eggman_Ship:

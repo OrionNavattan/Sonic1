@@ -118,10 +118,11 @@ CFlo_WaitFall:	; Routine 6
 
 CFlo_FallNow:
 		bsr.w	ObjectFall				; apply gravity & update position
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.s	CFlo_Delete				; if not, branch
-		rts	
+		;rts
+		bra.w	DisplaySprite
 ; ===========================================================================
 
 CFlo_Delete:	; Routine 8

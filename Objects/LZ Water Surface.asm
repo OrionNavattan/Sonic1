@@ -31,6 +31,13 @@ Surf_Action:	; Routine 2
 		move.w	(v_camera_x_pos).w,d1			; get camera x position
 		andi.w	#$FFE0,d1				; round down to $20
 		add.w	ost_surf_x_start(a0),d1			; add initial position
+	if FixBugs=0
+	else
+	; This fixes the surf sprites being shifted and leaving a gap when pausing
+	; the game on certain frames.
+        btst    #bitStart,(v_joypad_press_actual).w ; is Start button pressed?
+        bne.s    @even    ; if yes, branch	
+	endc	
 		btst	#0,(v_frame_counter_low).w
 		beq.s	@even					; branch on even frames
 		addi.w	#$20,d1					; add $20 every other frame to create flicker

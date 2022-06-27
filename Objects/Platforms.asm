@@ -77,7 +77,7 @@ Plat_Solid:	; Routine 2
 Plat_Action:	; Routine 8
 		bsr.w	Plat_Move				; move platform
 		bsr.w	Plat_Nudge				; apply nudge
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		bra.w	Plat_ChkDel
 ; ===========================================================================
 
@@ -95,10 +95,10 @@ Plat_StoodOn:	; Routine 4
 		bsr.w	Plat_Nudge
 		move.w	(sp)+,d2
 		bsr.w	MoveWithPlatform2
-		bsr.w	DisplaySprite
+		;bsr.w	DisplaySprite
 		bra.w	Plat_ChkDel
 
-		rts
+		;rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	move platform slightly when you	stand on it
@@ -317,7 +317,8 @@ Plat_Type_Update_Angle:
 
 Plat_ChkDel:
 		out_of_range.s	Plat_Delete,ost_plat_x_start(a0)
-		rts	
+		;rts
+		bra.w	DisplaySprite	
 ; ===========================================================================
 
 Plat_Delete:	; Routine 6

@@ -11,7 +11,8 @@ FireMaker:
 		move.b	ost_routine(a0),d0
 		move.w	FireM_Index(pc,d0.w),d1
 		jsr	FireM_Index(pc,d1.w)
-		bra.w	FBall_ChkDel
+		;bra.w	FBall_ChkDel
+		out_of_range	DeleteObject
 ; ===========================================================================
 FireM_Index:	index *,,2
 		ptr FireM_Main

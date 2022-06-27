@@ -9,16 +9,19 @@ BossSpikeball:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	BSpike_Index(pc,d0.w),d0
-		jsr	BSpike_Index(pc,d0.w)
+		;jsr	BSpike_Index(pc,d0.w)
+		jmp		BSpike_Index(pc,d0.w)
+		
+	BSpike_Display:	
 		move.w	ost_bspike_x_start(a0),d0
 		andi.w	#$FF80,d0
 		move.w	(v_camera_x_pos).w,d1
 		subi.w	#$80,d1
 		andi.w	#$FF80,d1
 		sub.w	d1,d0
-		bmi.w	BSLZ_Delete
+		bmi.s	BSLZ_Delete
 		cmpi.w	#$280,d0
-		bhi.w	BSLZ_Delete
+		bhi.s	BSLZ_Delete
 		jmp	(DisplaySprite).l
 ; ===========================================================================
 BSpike_Index:	index *,,2
@@ -72,7 +75,8 @@ BSpike_Fall:	; Routine 2
 		move.w	ost_bspike_y_start(a0),d1
 		add.w	(a2,d0.w),d1				; d1 = expected y pos for spikeball
 		cmp.w	ost_y_pos(a0),d1
-		bgt.s	@exit					; branch if spikeball is above d1
+		;bgt.s	@exit					; branch if spikeball is above d1
+		bgt.w	BSpike_Display
 		movea.l	ost_bspike_seesaw(a0),a1		; get address of OST of seesaw
 		moveq	#2,d1
 		btst	#status_xflip_bit,ost_status(a0)
@@ -86,8 +90,8 @@ BSpike_Fall:	; Routine 2
 		bra.w	BSpike_Update
 ; ===========================================================================
 
-@exit:
-		rts	
+;@exit:
+		;rts
 ; ===========================================================================
 
 BSpike_Bounce:	; Routine 4
@@ -150,7 +154,8 @@ BSpike_Bounce:	; Routine 4
 		bne.s	BSpike_Animate				; branch if time remains
 		move.w	#$20,ost_subtype(a0)			; set subtype to allow spawning of shrapnel objects
 		move.b	#id_BSpike_Explode,ost_routine(a0)	; goto BSpike_Explode next
-		rts	
+		;rts
+		bra.w	BSpike_Display	
 ; ===========================================================================
 
 BSpike_Animate:
@@ -170,7 +175,8 @@ BSpike_Animate:
 		move.b	ost_anim_time_low(a0),ost_anim_time(a0)
 
 	@wait:
-		rts	
+		;rts	
+		bra.w	BSpike_Display
 ; ===========================================================================
 
 BSpike_HitBoss:	; Routine 6
@@ -332,7 +338,8 @@ BSpike_Explode:	; Routine 8
 		clr.b	ost_routine(a0)
 		cmpi.w	#$20,ost_subtype(a0)			; is shrapnel flag set?
 		beq.s	@make_frags				; if yes, branch
-		rts	
+		;rts
+		bra.w	BSpike_Display	
 ; ===========================================================================
 
 @make_frags:
@@ -360,7 +367,7 @@ BSpike_Explode:	; Routine 8
 	@fail:
 		dbf	d1,@loop				; repeat sequence 3 more times
 
-		rts	
+		bra.w	BSpike_Display	
 ; ===========================================================================
 BSpike_FragSpeed:
 		dc.w -$100, -$340				; horizontal, vertical
@@ -381,4 +388,5 @@ BSpike_MoveFrag:
 		move.b	d0,ost_frame(a0)			; set as frame
 		tst.b	ost_render(a0)				; is object on-screen?
 		bpl.w	BSLZ_Delete				; if not, branch
-		rts	
+		;rts	
+		bra.w	BSpike_Display	

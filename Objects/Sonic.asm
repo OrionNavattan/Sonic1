@@ -559,7 +559,8 @@ Sonic_MoveLeft:
 		neg.w	d1					; negative for left direction	
 		cmp.w	d1,d0
 		bgt.s	@below_max				; branch if Sonic is moving below max speed
-	If RemoveSpeedCaps = 1	
+	If RemoveSpeedCaps=0
+	else	
 	; This removes the speed cap for leftward motion.
 		add.w	d5,d0
 		cmp.w	d1,d0
@@ -609,7 +610,8 @@ Sonic_MoveRight:
 		add.w	d5,d0					; d0 = inertia plus acceleration
 		cmp.w	d6,d0
 		blt.s	@below_max				; branch if Sonic is moving below max speed
-	if RemoveSpeedCaps = 1
+	if RemoveSpeedCaps=0
+	else
 	; This removes the speed cap for rightward motion.
 		sub.w	d5,d0
 		cmp.w	d6,d0
@@ -816,7 +818,8 @@ Sonic_JumpDirection:
 		add.w	d5,d0					; d0 = speed plus acceleration
 		cmp.w	d6,d0					; does new speed exceed max?
 		blt.s	@update_speed				; if not, branch
-	if RemoveSpeedCaps = 1
+	if RemoveSpeedCaps=0
+	else
 	; This removes the speed cap for movement in the air.	
 		sub.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d6,d0		; compare speed with top speed
@@ -980,6 +983,11 @@ Sonic_ChkRoll:
 		move.b	#sonic_height_roll,ost_height(a0)
 		move.b	#sonic_width_roll,ost_width(a0)
 		move.b	#id_Roll,ost_anim(a0)			; use "rolling" animation
+	if FixBugs=0
+	else
+	; hard sets frame, fixing flickering when rolling in GHZ tunnels	
+		move.b	#id_frame_Roll1,ost_frame(a0)	
+	endc	
 		addq.w	#sonic_height-sonic_height_roll,ost_y_pos(a0)
 		play.w	1, jsr, sfx_Roll			; play rolling sound
 		tst.w	ost_inertia(a0)
