@@ -69,7 +69,17 @@ Drown_ChkWater:	; Routine 4
 		move.b	#id_Drown_Display,ost_routine(a0)	; goto Drown_Display next
 		addq.b	#7,ost_anim(a0)
 		cmpi.b	#id_ani_drown_blank,ost_anim(a0)
+	if FixBugs=0	
 		beq.s	Drown_Display
+	else
+		; The game checks if a blank frame for the large bubble animation is set,
+		; but said frame is never actually set anywhere, making it pointless. 
+		; The blank frame is not useless however; setting it fixes an issue where
+		; corrupted remnants of the large bubbles may appear above the water's surface
+		; immediately after drowning.
+		bcs.s	Drown_Display
+		move.b	#id_ani_drown_blank,ost_anim(a0)
+	endc	
 		bra.s	Drown_Display
 ; ===========================================================================
 

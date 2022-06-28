@@ -808,6 +808,13 @@ Sonic_JumpDirection:
 		neg.w	d1
 		cmp.w	d1,d0					; does new speed exceed max?
 		bgt.s	@not_left				; if not, branch
+	if RemoveSpeedCaps=0
+	else
+	; This removes the speed cap for movement in the air.
+		add.w	d5,d0		; remove this frame's acceleration change
+		cmp.w	d1,d0		; compare speed with top speed
+		ble.s	@not_left	; if speed was already greater than the maximum, branch
+	endc	
 		move.w	d1,d0					; set max speed
 
 	@not_left:

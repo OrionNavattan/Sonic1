@@ -136,6 +136,8 @@ Ledge_Fragment_2:
 ; ---------------------------------------------------------------------------
 
 FragmentObject:
+	; Reworked to avoid using FindFreeObj, dramatically speeding up
+	; creation of fragments.
 		moveq	#0,d0
 		move.b	ost_frame(a0),d0
 		add.w	d0,d0
@@ -145,16 +147,39 @@ FragmentObject:
 		bset	#render_rawmap_bit,ost_render(a0)	; use raw mappings
 		move.b	ost_id(a0),d4
 		move.b	ost_render(a0),d5
-		movea.l	a0,a1					; replace ledge object with fragment
-		bra.s	@skip_findost
+		movea.l	a0,a1					; replace ledge object with fragment 
+		;bra.s	@skip_findost
+		bsr.s	Make_Fragment
+		subq.w #1,d1
+		lea (v_ost_level_obj).w,a1
+		move.w #$5F,d0
 ; ===========================================================================
 
-@loop:
-		bsr.w	FindFreeObj				; find free OST slot
-		bne.s	@display				; branch if not found
+	@loop:
+		;bsr.w	FindFreeObj				; find free OST slot
+		tst.b	(a1)
+		beq.s	@cont
+		;bne.s	@display				; branch if not found
+		lea sizeof_ost(a1),a1
+		dbf d0,@loop
+		bne.s	@display
+	@cont:	
 		addq.w	#5,a3					; next sprite piece
 
 @skip_findost:
+		bsr.s	Make_Fragment
+		;cmpa.l	a0,a1					; is this fragment the first? (i.e. parent object)
+		;bhs.s	@firstfrag				; if yes, branch
+		bsr.w	DisplaySprite_a1
+
+	;@firstfrag:
+		dbf	d1,@loop				; repeat for all fragments
+
+	@display:
+		bsr.w	DisplaySprite
+		play.w	1, jmp, sfx_Collapse			; play collapsing sound
+		
+Make_Fragment:
 		move.b	#id_Ledge_WaitFall,ost_routine(a1)	; id_CFlo_WaitFall in CollapseFloor object
 		move.b	d4,ost_id(a1)
 		move.l	a3,ost_mappings(a1)
@@ -165,16 +190,7 @@ FragmentObject:
 		move.b	ost_priority(a0),ost_priority(a1)
 		move.b	ost_displaywidth(a0),ost_displaywidth(a1)
 		move.b	(a4)+,ost_ledge_wait_time(a1)		; each fragment has different timing
-		cmpa.l	a0,a1					; is this fragment the first? (i.e. parent object)
-		bhs.s	@firstfrag				; if yes, branch
-		bsr.w	DisplaySprite_a1
-
-	@firstfrag:
-		dbf	d1,@loop				; repeat for all fragments
-
-	@display:
-		bsr.w	DisplaySprite
-		play.w	1, jmp, sfx_Collapse			; play collapsing sound
+		rts
 
 Ledge_FragTiming:
 		dc.b $1C, $18, $14, $10, $1A, $16, $12,	$E, $A,	6, $18,	$14, $10, $C, 8, 4
