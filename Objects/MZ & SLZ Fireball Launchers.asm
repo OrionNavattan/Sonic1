@@ -13,6 +13,7 @@ FireMaker:
 		jsr	FireM_Index(pc,d1.w)
 		;bra.w	FBall_ChkDel
 		out_of_range	DeleteObject
+		rts
 ; ===========================================================================
 FireM_Index:	index *,,2
 		ptr FireM_Main

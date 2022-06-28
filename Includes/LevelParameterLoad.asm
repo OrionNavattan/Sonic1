@@ -322,7 +322,7 @@ LPL_InitBG_SLZ:
 		;else
 		clr.l	(v_bg1_x_pos).w
 		;endc
-		;rts	
+		rts	
 ; ===========================================================================
 
 LPL_InitBG_SYZ:
