@@ -19,13 +19,20 @@ ReactToItem:
 		move.b	ost_height(a0),d5
 		subq.b	#sonic_height-sonic_height_hitbox,d5	; d5 = Sonic's height minus 3
 		sub.w	d5,d3					; d3 = y pos of Sonic's top edge
+		
+	if FixBugs=0	
 		cmpi.b	#id_frame_Duck,ost_frame(a0)		; is Sonic ducking?
+	else
+		; Corrects Sonic's hitbox when ducking
+		cmpi.b	#id_Duck,ost_anim(a0)				; is Sonic ducking?
+	endc	
+		
 		bne.s	@notducking				; if not, branch
 		addi.w	#(sonic_height_hitbox-sonic_height_hitbox_duck)*2,d3 ; lower top edge when ducking (by 12px)
 		moveq	#sonic_height_hitbox_duck,d5		; use smaller height
-
+		
 	@notducking:
-		move.w	#sonic_width_hitbox*2,d4		; d4 = Sonic's total width (16px)
+		move.w	#sonic_width_hitbox*2,d4	; d4 = Sonic's total width (16px)
 		add.w	d5,d5					; d5 = Sonic's total height
 		lea	(v_ost_level_obj).w,a1			; first OST slot for interactable objects
 		move.w	#countof_ost_ert-1,d6			; number of interactable objects

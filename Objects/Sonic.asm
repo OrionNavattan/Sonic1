@@ -384,6 +384,8 @@ Sonic_LookUp:
 		beq.s	Sonic_Duck				; if not, branch
 		move.b	#id_LookUp,ost_anim(a0)			; use "looking up" animation
 	if FixBugs=0
+		cmpi.w	#camera_y_shift_up,(v_camera_y_shift).w	; $C8
+		beq.s	Sonic_ScrOk				; branch if screen is at max y scroll
 	else
 		; If Sonic looks up while near the top of a level, the camera's
 		; y-pos will continue to increase even after it visibly stops at the top boundary.
@@ -400,9 +402,6 @@ Sonic_LookUp:
 	@skip:
 		cmp.w	(v_lookshift).w,d0
 		ble.s	Sonic_ScrOk		
-	else	
-		cmpi.w	#camera_y_shift_up,(v_camera_y_shift).w	; $C8
-		beq.s	Sonic_ScrOk				; branch if screen is at max y scroll
 	endc	
 		addq.w	#2,(v_camera_y_shift).w			; scroll up 2px
 		bra.s	Sonic_ScrOk
@@ -413,6 +412,8 @@ Sonic_Duck:
 		beq.s	Sonic_ResetScr				; if not, branch
 		move.b	#id_Duck,ost_anim(a0)			; use "ducking" animation
 	if FixBugs=0
+		cmpi.w	#camera_y_shift_down,(v_camera_y_shift).w ; 8
+		beq.s	Sonic_ScrOk				; branch if screen is at min y scroll
 	else
 		; If Sonic ducks while near the bottom of a level, the camera's
 		; y-pos will continue to decrease even after it visibly stops at the bottom boundary.
@@ -432,10 +433,6 @@ Sonic_Duck:
 	@skip:
 		cmp.w	(v_camera_y_shift).w,d0
 		bge.s	Sonic_ScrOk			; branch if screen is at min y scroll	
-	
-	else	
-		cmpi.w	#camera_y_shift_down,(v_camera_y_shift).w ; 8
-		beq.s	Sonic_ScrOk				; branch if screen is at min y scroll
 	endc	
 		subq.w	#2,(v_camera_y_shift).w			; scroll down 2px
 		bra.s	Sonic_ScrOk
@@ -937,15 +934,20 @@ Sonic_LevelBound:
 		rts	
 ; ===========================================================================
 
-@bottom:
+@bottom: 
+		; Proxied branch added here to accomodate other fixes
+		; pushing direct branches out of reach.
 		cmpi.w	#id_SBZ_act2,(v_zone).w			; is level SBZ2 ?
-		bne.w	KillSonic				; if not, kill Sonic
+		bne.w	@killsonic				; if not, kill Sonic
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
-		bcs.w	KillSonic				; if not, kill Sonic
+		bcs.w	@killsonic				; if not, kill Sonic
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
 		rts	
+		
+	@killsonic:	
+		jmp 	KillSonic
 ; ===========================================================================
 
 @sides:
@@ -1484,10 +1486,14 @@ Sonic_Hurt:	; Routine 4
 ; ---------------------------------------------------------------------------
 
 Sonic_HurtStop:
+	if FixBugs=0
 		move.w	(v_boundary_bottom).w,d0
 		addi.w	#224,d0
 		cmp.w	ost_y_pos(a0),d0
 		bcs.w	KillSonic				; branch if Sonic falls below level boundary
+	else
+	; The above lines are rendered redundant by changes in GameOver.
+	endc	
 		bsr.w	Sonic_JumpCollision			; floor/wall collision
 		btst	#status_air_bit,ost_status(a0)
 		bne.s	@no_floor				; branch if Sonic is still in the air
@@ -1677,20 +1683,20 @@ Sonic_LoopPlane:
 	; not work all that well when Sonic is in his hurt state. If he drowns in his hurt state, 
 	; the gravity from that state will still apply, and he will still interact with floors and walls
 	; before a timer forces him off the bottom of the screen and restarts the level.
-	; Sonic 2 has the same broken system, S#&K fixes it by making drowning a distinct state.
-	; The fix below (and related changes in LZ Drowning Numbers,asm) is more or less backported from 
+	; Sonic 2 has the same broken system, S3&K fixes it by making drowning a distinct state.
+	; The fix below (and related changes in LZ Drowning Numbers.asm) is more or less backported from 
 	; S3&K, and eliminates this problem.
 ; ---------------------------------------------------------------------------
 ; Sonic when he's drowned
 ; ---------------------------------------------------------------------------	
 
 Sonic_Drowned: ; Routine A
-        bsr.w   SpeedToPos              ; Make Sonic able to move
-        addi.w  #$10,y_vel(a0)          ; Apply gravity
-        bsr.w   Sonic_RecordPosition    ; Record position
-        bsr.s   Sonic_Animate           ; Animate Sonic
-        bsr.w   Sonic_LoadGfx           ; Load Snally, display Soniconic's DPLCs
-        bra.w   DisplaySprite           ; And fi
+        bsr.w   SpeedToPos              
+        addi.w  #$10,y_vel(a0)          
+        bsr.w   Sonic_RecordPosition    
+        bsr.s   Sonic_Animate           
+        bsr.w   Sonic_LoadGfx           
+        bra.w   DisplaySprite           
 
 	endc
 
@@ -2018,7 +2024,21 @@ Sonic_AnglePos:
 ; ===========================================================================
 
 @above_floor:
+	if FixBugs=0
 		cmpi.w	#$E,d1
+	else
+	; This code is backported from Sonic 2 and improves quarterloop behavior.
+		move.b	ost_x_vel(a0),d0
+		bpl.s	@next1
+		neg.b	d0
+	@next1:
+		addq.b	#4,d0
+		cmpi.b	#$E,d0
+		bcs.s	@next2
+		move.b	#$E,d0
+	@next2:
+		cmp.b	d0,d1
+	endc	
 		bgt.s	@in_air					; branch if Sonic is > 14px above floor
 
 @on_disc:
@@ -2103,6 +2123,20 @@ Sonic_Angle:
 	@left_nearer:
 		btst	#0,d2
 		bne.s	@snap_angle				; branch if bit 0 of angle is set
+	if FixBugs=0
+	else
+		; This code is backported from Sonic 2 and improves quarterloop behavior.
+		tst.b	ost_sonic_sbz_disc(a0)
+		bne.s	@onwheel
+		move.b	d2,d0
+		sub.b	ost_angle(a0),d0
+		bpl.s	@next
+		neg.b	d0
+	@next:
+		cmpi.b	#$20,d0
+		bcc.s	@snap_angle
+	@onwheel:
+	endc	
 		move.b	d2,ost_angle(a0)			; update angle
 		rts	
 ; ===========================================================================
@@ -2166,7 +2200,6 @@ Sonic_WalkVertR:
 @outside_wall:
 	if FixBugs=0
 		cmpi.w	#$E,d1
-		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
 	else
 	; This code is backported from Sonic 2 and improves quarterloop behavior.
 		move.b	ost_y_vel(a0),d0
@@ -2179,9 +2212,8 @@ Sonic_WalkVertR:
 		move.b	#$E,d0
 	@next2:
 		cmp.b	d0,d1
-		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
 	endc	
-
+		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
 @on_disc:
 		add.w	d1,ost_x_pos(a0)			; align to wall
 		rts	
@@ -2246,7 +2278,20 @@ Sonic_WalkCeiling:
 ; ===========================================================================
 
 @below_ceiling:
+	if FixBugs=0
 		cmpi.w	#$E,d1
+	else
+		move.b	ost_x_vel(a0),d0
+		bpl.s	@next1
+		neg.b	d0
+	@next1:	
+		addq.b	#4,d0
+		cmpi.b	#$E,d0
+		bcs.s	@next2
+		move.b	#$E,d0
+	@next2:
+		cmp.b	d0,d1	
+	endc
 		bgt.s	@in_air					; branch if Sonic is > 14px below ceiling
 
 @on_disc:
@@ -2313,9 +2358,22 @@ Sonic_WalkVertL:
 ; ===========================================================================
 
 @outside_wall:
+	if FixBugs=0
 		cmpi.w	#$E,d1
+	else
+		; This code is backported from Sonic 2 and improves quarterloop behavior.
+		move.b	ost_y_vel(a0),d0
+		bpl.s	@next1
+		neg.b	d0
+	@next1:
+		addq.b	#4,d0
+		cmpi.b	#$E,d0
+		bcs.s	@next2
+		move.b	#$E,d0
+	@next2:
+		cmp.b	d0,d1
+	endc	
 		bgt.s	@in_air					; branch if Sonic is > 14px outside wall
-
 @on_disc:
 		sub.w	d1,ost_x_pos(a0)			; align to wall
 		rts	

@@ -69,7 +69,9 @@ Pri_Body:	; Routine 2
 		move.w	#$18,d2
 		move.w	#$18,d3
 		move.w	ost_x_pos(a0),d4
-		jmp	(SolidObject).l
+		;jmp	(SolidObject).l
+		jsr		(SolidObject).l
+		bra.w	Prison_Display
 ; ===========================================================================
 
 @is_open:
@@ -80,7 +82,7 @@ Pri_Body:	; Routine 2
 		bset	#status_air_bit,(v_ost_player+ost_status).w
 
 	@not_on_top:
-		move.b	#id_frame_prison_broken,ost_frame(a0)	; use use broken prison frame (2)
+		move.b	#id_frame_prison_broken,ost_frame(a0)	; use broken prison frame (2)
 		;rts	
 		bra.w 	Prison_Display			
 ; ===========================================================================
