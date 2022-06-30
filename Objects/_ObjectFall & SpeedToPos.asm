@@ -32,7 +32,11 @@ ObjectFall:
 		lsl.l	#8,d0
 		add.l	d0,ost_x_pos(a0)
 		move.w	ost_y_vel(a0),d0
-		addi.w	#$38,ost_y_vel(a0)	; increase vertical speed
+;<<<<<<< HEAD
+;		addi.w	#$38,ost_y_vel(a0)	; increase vertical speed
+;=======
+		addi.w	#$38,ost_y_vel(a0)			; apply gravity
+;>>>>>>> 5fb63516a8f1f7046d0ff464fd3d79dec8a8de76
 		ext.l	d0
 		lsl.l	#8,d0
 		add.l	d0,ost_y_pos(a0)

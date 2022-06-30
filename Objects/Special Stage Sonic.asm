@@ -21,17 +21,29 @@ SSS_Index:	index *,,2
 		ptr SSS_ExitStage
 		ptr SSS_ExitWait
 
-ost_ss_item:		equ $30					; item id Sonic is touching
-ost_ss_item_address:	equ $32					; RAM address of item in layout Sonic is touching (4 bytes)
-ost_ss_updown_time:	equ $36					; time until UP/DOWN can be triggered again
-ost_ss_r_time:		equ $37					; time until R can be triggered again
-ost_ss_restart_time:	equ $38					; time until game mode changes after exiting SS (2 bytes; nonfunctional)
-ost_ss_ghost:		equ $3A					; status of ghost blocks - 0 = ghost; 1 = passed; 2 = solid
+;<<<<<<< HEAD
+;ost_ss_item:		equ $30					; item id Sonic is touching
+;ost_ss_item_address:	equ $32					; RAM address of item in layout Sonic is touching (4 bytes)
+;ost_ss_updown_time:	equ $36					; time until UP/DOWN can be triggered again
+;ost_ss_r_time:		equ $37					; time until R can be triggered again
+;ost_ss_restart_time:	equ $38					; time until game mode changes after exiting SS (2 bytes; nonfunctional)
+;ost_ss_ghost:		equ $3A					; status of ghost blocks - 0 = ghost; 1 = passed; 2 = solid
 
 
 
-sss_jump_bit:		equ 7
+;ost_ss_jump_bit:		equ 7
 
+;=======
+		rsobj SonicSpecial,$30
+ost_ss_item:		rs.b 1					; $30 ; item id Sonic is touching
+ost_ss_item_address:	rs.l 1					; $32 ; RAM address of item in layout Sonic is touching
+ost_ss_updown_time:	rs.b 1					; $36 ; time until UP/DOWN can be triggered again
+ost_ss_r_time:		rs.b 1					; $37 ; time until R can be triggered again
+ost_ss_restart_time:	rs.w 1					; $38 ; time until game mode changes after exiting SS (nonfunctional)
+ost_ss_ghost:		rs.b 1					; $3A ; status of ghost blocks - 0 = ghost; 1 = passed; 2 = solid
+ost_ss_jump_bit:	rs.b 1					; $3B ; used by modification to enable variable jump height
+		rsobjend
+;>>>>>>> 5fb63516a8f1f7046d0ff464fd3d79dec8a8de76
 ; ===========================================================================
 
 SSS_Main:	; Routine 0
@@ -71,7 +83,7 @@ SSS_Modes:	index *,,2
 SSS_OnWall:
 	if SSVariableJump=0
 	else
-		bclr	#sss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
+		bclr	#ost_ss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
 	endc
 		bsr.w	SSS_Jump
 		bsr.w	SSS_Move
@@ -240,7 +252,7 @@ SSS_Jump:
 		bset	#status_air_bit,ost_status(a0)		; goto SSS_InAir next
 	if SSVariableJump=0
 	else	
-		bset	#sss_jump_bit,ost_status(a0)  ; set "Sonic has jumped" flag
+		bset	#ost_ss_jump_bit,ost_status(a0)  ; set "Sonic has jumped" flag
 	endc
 		play.w	1, jsr, sfx_Jump			; play jumping sound
 
@@ -668,7 +680,7 @@ SSS_ChkBumper:
 		bset	#status_air_bit,ost_status(a0)		; set Sonic's air flag
 	if SSVariableJump=0
 	else
-		bclr	#sss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
+		bclr	#ost_ss_jump_bit,ost_status(a0) ; clear "Sonic has jumped" flag 
 	endc		
 		bsr.w	SS_FindFreeUpdate			; find free item update slot
 		bne.s	@noslot					; branch if not found

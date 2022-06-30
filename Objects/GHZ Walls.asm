@@ -115,8 +115,8 @@ Edge_SolidWall:
 		move.w	#0,ost_y_vel(a1)			; stop Sonic moving
 
 	@exit2:
-		rts	
-; End of function Edge_SolidWall
+		rts
+; ===========================================================================
 
 Edge_ChkCollision:
 		lea	(v_ost_player).w,a1
@@ -189,8 +189,7 @@ Edge_TopBottom:
 
 Edge_Ignore:
 		moveq	#0,d4
-		rts	
-; End of function Edge_ChkCollision
+		rts
 
 		endm
 		

@@ -395,8 +395,12 @@ KillSonic:
 		move.w	#-$700,ost_y_vel(a0)			; move Sonic up
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
+;<<<<<<< HEAD
 	if BurntSprite=0	
-		move.w	ost_y_pos(a0),$38(a0)			; unused
+;		move.w	ost_y_pos(a0),$38(a0)			; unused
+;=======
+		move.w	ost_y_pos(a0),ost_sonic_sbz_disc(a0)	; unused
+;>>>>>>> 5fb63516a8f1f7046d0ff464fd3d79dec8a8de76
 		move.b	#id_Death,ost_anim(a0)
 		bset	#tile_hi_bit,ost_tile(a0)
 		move.w	#sfx_Death,d0				; play normal death sound
