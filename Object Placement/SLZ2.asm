@@ -2,7 +2,7 @@
 ; SLZ2 object placement
 ; ---------------------------------------------------------------------------
 ObjPos_SLZ2:
-		objpos $0000,$0000,Pylon,$00
+		;objpos $0000,$0000,Pylon,$00
 		objpos $0008,$0150,Springs,$10
 		objpos $0118,$0130,Rings,$12,rem
 		objpos $0210,$00D0,Fan,$02,xflip

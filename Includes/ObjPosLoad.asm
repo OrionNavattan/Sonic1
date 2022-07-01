@@ -54,6 +54,13 @@ OPL_Init:
 		clr.w	(a2)+ ; manually clear the last word of the respawn list
 	endc
 	
+	; SLZ pylons are now loaded here to allow them to appear after loading from a lamppost
+	; A crude hack (ported from Mercury's ReadySonic), but alas there is no other way to work around an oversight in the main object loading code
+ 		cmpi.b	#id_SLZ,(v_zone).w
+		bne.s	@notSLZ
+		move.b	#id_Pylon,(v_ost_level_obj).w
+	
+	@notSLZ:
 		lea	(v_respawn_list).w,a2
 		moveq	#0,d2
 		move.w	(v_camera_x_pos).w,d6

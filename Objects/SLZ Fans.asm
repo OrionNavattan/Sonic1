@@ -45,7 +45,7 @@ Fan_Delay:	; Routine 2
 	if FixBugs=0
 	else
 	; Without this check, fan physics are still applied in debug mode and can
-	; blow around whaever object you are trying to place.
+	; blow around whatever object you are trying to place.
 		tst.w	(v_debug_active).w		; is debug mode active?
 		bne.s	@animate				; if yes, branch so fan physics aren't applied 	
 	endc

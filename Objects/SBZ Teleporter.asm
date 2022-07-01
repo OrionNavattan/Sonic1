@@ -58,6 +58,13 @@ Tele_Action:	; Routine 2
 	@noflip:
 		cmpi.w	#$10,d0					; is Sonic within $10 pixels on x-axis?
 		bcc.s	@do_nothing				; if not, branch
+	if FixBugs=0
+	else
+	; Without this check, the teleporter will move
+	; whatever object you are trying to place.
+		tst.w	(v_debug_active).w		; is debug mode active?
+		bne.s	@do_nothing				; if yes, branch so debug placement isn't affected	
+	endc	
 		move.w	ost_y_pos(a1),d1
 		sub.w	ost_y_pos(a0),d1
 		addi.w	#$20,d1
