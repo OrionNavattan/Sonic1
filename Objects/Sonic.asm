@@ -935,19 +935,25 @@ Sonic_LevelBound:
 ; ===========================================================================
 
 @bottom: 
-		; Proxied branch added here to accomodate other fixes
-		; pushing direct branches out of reach.
+		; Not bugfixes, but branches that have to be extended due to other fixes
+		; pushing them out of range.
 		cmpi.w	#id_SBZ_act2,(v_zone).w			; is level SBZ2 ?
-		bne.w	@killsonic				; if not, kill Sonic
+	if FixBugs=0	
+		bne.w	KillSonic				; if not, kill Sonic
+	else	
+		jne		KillSonic
+	endc	
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
-		bcs.w	@killsonic				; if not, kill Sonic
+	if FixBugs=0	
+		bcs.w	KillSonic
+	else	
+		jcs		KillSonic				; if not, kill Sonic
+	endc	
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
 		rts	
 		
-	@killsonic:	
-		jmp 	KillSonic
 ; ===========================================================================
 
 @sides:

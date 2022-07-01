@@ -383,10 +383,10 @@ PlayLevel:
 		move.w	d0,(v_rings).w				; clear rings
 		move.l	d0,(v_time).w				; clear time
 		move.l	d0,(v_score).w				; clear score
-	if FixBugs=0
-	else
+;	if FixBugs=0
+;	else
 	
-	endc	
+;	endc	
 		move.b	d0,(v_last_ss_levelid).w		; clear special stage number
 		move.b	d0,(v_emeralds).w			; clear emeralds
 		move.l	d0,(v_emerald_list).w			; clear emeralds
@@ -394,7 +394,7 @@ PlayLevel:
 		move.b	d0,(v_continues).w			; clear continues
 		;if Revision=0
 		;else
-			move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
+		move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
 		;endc
 		play.b	1, bsr.w, cmd_Fade			; fade out music
 		rts	
