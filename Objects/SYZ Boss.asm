@@ -225,7 +225,7 @@ BSYZ_Descend: ; Attack Routine 0
 		cmpi.w	#$556,d0				; has ship reached block?
 		;bcs.s	@update					; if not, branch
 		bcs.w	BSYZ_Update_SkipWobble
-		move.w	#$556,ost_bsyz_parent_y_pos(a0)		; align to block
+		move.w	#$556,ost_boss_parent_y_pos(a0)		; align to block
 		clr.w	ost_boss_wait_time(a0)
 		moveq	#-1,d0
 		move.w	ost_boss_block(a0),d0			; get address of OST of block
