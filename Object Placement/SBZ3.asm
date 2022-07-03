@@ -47,7 +47,7 @@ ObjPos_SBZ3:
 		objpos $0430,$05E8,Jaws,$06,rem
 		objpos $0440,$0390,Spikes,$30,yflip
 		objpos $0440,$0406,LabyrinthBlock,$13
-		objpos $0450,$0554,Rings,$14,rem
+		objpos $0450,$0550,Rings,$14,rem
 		objpos $0490,$05B8,Button,$0A
 		objpos $04D0,$0290,LabyrinthBlock,$01
 		objpos $04D0,$0348,Button,$01
@@ -67,20 +67,20 @@ ObjPos_SBZ3:
 		objpos $0570,$0170,LabyrinthBlock,$30
 		objpos $0570,$0290,LabyrinthBlock,$01
 		objpos $0588,$06EC,Lamppost,$01,rem
-		objpos $058C,$01F4,Rings,$11,rem
+		objpos $058C,$01F0,Rings,$11,rem
 		objpos $05E0,$0698,Jaws,$06,rem
 		objpos $05F0,$0130,LabyrinthBlock,$30
-		objpos $0608,$00D4,Rings,$12,rem
+		objpos $0608,$00D0,Rings,$12,rem
 		objpos $0650,$00D0,Burrobot,$00,xflip,rem
 		objpos $0670,$06A8,SpikeBall,$D5
-		objpos $0688,$0094,Rings,$12,rem
+		objpos $0688,$0090,Rings,$12,rem
 		objpos $0700,$06F8,Bubble,$81
 		objpos $0710,$01F8,Button,$08
 		objpos $0740,$0250,FloatingBlock,$F8,rem
 		objpos $0770,$06A8,SpikeBall,$D5
 		objpos $0780,$0230,Rings,$14,rem
 		objpos $0798,$0270,Harpoon,$00,rem
-		objpos $07F0,$006C,Gargoyle,$03,rem
+		objpos $07F0,$0070,Gargoyle,$03,rem
 		objpos $0800,$06F8,Bubble,$81
 		objpos $0818,$0190,Rings,$12,rem
 		objpos $0818,$0290,Harpoon,$00,xflip,rem
@@ -120,11 +120,11 @@ ObjPos_SBZ3:
 		objpos $0AE0,$0448,Jaws,$0A,rem
 		objpos $0B20,$01A0,SpikeBall,$C5
 		objpos $0B30,$0078,Button,$0B
-		objpos $0B50,$05E0,Rings,$41,rem
-		objpos $0B70,$05C0,Rings,$41,rem
-		objpos $0BB0,$05C0,Rings,$41,rem
-		objpos $0BB8,$01F4,Rings,$12,rem
-		objpos $0BD0,$05E0,Rings,$41,rem
+		objpos $0B50,$05DC,Rings,$41,rem
+		objpos $0B70,$05BC,Rings,$41,rem
+		objpos $0BB0,$05BC,Rings,$41,rem
+		objpos $0BB8,$01F0,Rings,$12,rem
+		objpos $0BD0,$05DC,Rings,$41,rem
 		objpos $0C10,$0208,MovingBlock,$04
 		objpos $0C10,$030D,Gargoyle,$03,xflip,rem
 		objpos $0C10,$03F1,Monitor,$06,rem

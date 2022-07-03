@@ -12,7 +12,7 @@ ObjPos_SBZ1:
 		objpos $0340,$04AC,SpinPlatform,$01
 		objpos $0390,$04D0,Invisibarrier,$15
 		objpos $0415,$0486,Flamethrower,$43
-		objpos $0480,$0468,Caterkiller,$00,rem
+		objpos $0480,$0478,Caterkiller,$00,rem
 		objpos $050B,$0450,Flamethrower,$43,xflip
 		objpos $0530,$0458,Button,$00
 		objpos $0570,$0391,Monitor,$04,rem
@@ -39,10 +39,10 @@ ObjPos_SBZ1:
 		objpos $0700,$06D8,Invisibarrier,$17
 		objpos $0708,$04AC,AutoDoor,$00
 		objpos $0738,$04AC,Rings,$16,rem
-		objpos $0790,$034C,Caterkiller,$00,rem
+		objpos $0790,$0358,Caterkiller,$00,rem
 		objpos $07BA,$0787,Flamethrower,$43,yflip
 		objpos $0838,$07AC,Rings,$16,rem
-		objpos $0850,$034C,Caterkiller,$00,rem
+		objpos $0850,$0358,Caterkiller,$00,rem
 		objpos $0860,$04F8,Invisibarrier,$70
 		objpos $0860,$0578,Invisibarrier,$70
 		objpos $0860,$05F8,Invisibarrier,$70
@@ -62,17 +62,17 @@ ObjPos_SBZ1:
 		objpos $09A0,$0290,Bomb,$00,xflip,rem
 		objpos $09A0,$0760,ScrapStomp,$34
 		objpos $09C0,$0678,Electro,$08,yflip
-		objpos $09C0,$06A8,Caterkiller,$00,rem
+		objpos $09C0,$06B8,Caterkiller,$00,rem
 		objpos $09E0,$0730,Invisibarrier,$E1
 		objpos $09F0,$0290,Bomb,$00,rem
 		objpos $0A15,$0288,Flamethrower,$43
 		objpos $0A20,$0760,ScrapStomp,$24
-		objpos $0A30,$06A8,Caterkiller,$00,rem
+		objpos $0A30,$06B8,Caterkiller,$00,rem
 		objpos $0A40,$0290,Bomb,$00,rem
 		objpos $0A40,$0678,Electro,$08,yflip
 		objpos $0A54,$0790,Rings,$11,rem
 		objpos $0AA0,$0760,ScrapStomp,$34
-		objpos $0AD0,$0688,Caterkiller,$00,rem
+		objpos $0AD0,$0698,Caterkiller,$00,rem
 		objpos $0AE0,$0730,Invisibarrier,$E1
 		objpos $0B10,$0268,VanishPlatform,$00
 		objpos $0B10,$04F1,Monitor,$04,rem
@@ -104,7 +104,7 @@ ObjPos_SBZ1:
 		objpos $0CA0,$04EC,Lamppost,$01,rem
 		objpos $0CB0,$02E8,VanishPlatform,$00
 		objpos $0CD0,$02E8,VanishPlatform,$00
-		objpos $0CD0,$0792,Rings,$14,rem
+		objpos $0CD0,$0790,Rings,$14,rem
 		objpos $0D00,$04E8,Electro,$08
 		objpos $0D00,$07C0,Saws,$03
 		objpos $0D54,$0510,Rings,$11,rem
@@ -112,7 +112,7 @@ ObjPos_SBZ1:
 		objpos $0D80,$02C7,VanishPlatform,$40
 		objpos $0D94,$0530,Rings,$11,rem
 		objpos $0DBB,$0787,Flamethrower,$43,yflip
-		objpos $0DD0,$07B2,Rings,$14,rem
+		objpos $0DD0,$07B0,Rings,$14,rem
 		objpos $0DD4,$0550,Rings,$11,rem
 		objpos $0DE0,$07C0,Saws,$03
 		objpos $0DF0,$03C0,Invisibarrier,$13
@@ -122,8 +122,8 @@ ObjPos_SBZ1:
 		objpos $0E3B,$0548,Flamethrower,$43,xflip
 		objpos $0E80,$0380,SpinConvey,$80
 		objpos $0EA5,$0548,Flamethrower,$43
-		objpos $0ED0,$0792,Rings,$14,rem
-		objpos $0EF0,$05F0,Invisibarrier,$17
+		objpos $0ED0,$0790,Rings,$14,rem
+		objpos $0EF0,$05A0,Invisibarrier,$17
 		objpos $0F40,$060C,ScrapStomp,$81,xflip
 		objpos $0F40,$06E8,Electro,$08
 		objpos $0F70,$0648,VanishPlatform,$00
@@ -132,7 +132,7 @@ ObjPos_SBZ1:
 		objpos $0F80,$0500,SpinConvey,$83
 		objpos $0FA0,$07C0,Saws,$03
 		objpos $0FBB,$0787,Flamethrower,$43,yflip
-		objpos $0FD0,$07B2,Rings,$14,rem
+		objpos $0FD0,$07B0,Rings,$14,rem
 		objpos $1000,$05F8,Button,$01
 		objpos $1030,$0508,VanishPlatform,$40
 		objpos $1038,$04F0,Rings,$12,rem
@@ -143,7 +143,7 @@ ObjPos_SBZ1:
 		objpos $10B0,$04D8,VanishPlatform,$80
 		objpos $10B8,$04C0,Rings,$12,rem
 		objpos $10D0,$04D8,VanishPlatform,$80
-		objpos $10D0,$0792,Rings,$14,rem
+		objpos $10D0,$0790,Rings,$14,rem
 		objpos $10F0,$04D8,VanishPlatform,$80
 		objpos $1110,$0220,Invisibarrier,$17
 		objpos $1120,$05E8,Electro,$08
@@ -153,7 +153,7 @@ ObjPos_SBZ1:
 		objpos $1150,$04A8,VanishPlatform,$C0
 		objpos $1170,$04A8,VanishPlatform,$C0
 		objpos $1190,$0710,Bomb,$00,yflip,rem
-		objpos $1190,$0760,Caterkiller,$00,rem
+		objpos $1190,$0778,Caterkiller,$00,rem
 		objpos $11C0,$0710,Bomb,$00,yflip,rem
 		objpos $11F0,$0300,Invisibarrier,$13
 		objpos $11F0,$0710,Bomb,$00,yflip,rem
@@ -169,16 +169,16 @@ ObjPos_SBZ1:
 		objpos $1258,$03B0,Rings,$44,rem
 		objpos $1260,$01A7,SpinPlatform,$80
 		objpos $1270,$05F1,Monitor,$06,rem
-		objpos $1290,$06F2,Rings,$14,rem
+		objpos $1290,$06F0,Rings,$14,rem
 		objpos $1290,$0760,Invisibarrier,$17
 		objpos $12A0,$01A7,SpinPlatform,$80
 		objpos $12C0,$0308,MovingBlock,$39
 		objpos $12E0,$01A7,SpinPlatform,$80
 		objpos $1310,$0300,Invisibarrier,$13
-		objpos $1318,$0194,Rings,$12,rem
+		objpos $1318,$0190,Rings,$12,rem
 		objpos $1340,$0708,MovingBlock,$39
-		objpos $1378,$0174,Rings,$12,rem
-		objpos $1390,$04A0,Caterkiller,$00,rem
+		objpos $1378,$0170,Rings,$12,rem
+		objpos $1390,$04AC,Caterkiller,$00,rem
 		objpos $1390,$0700,Invisibarrier,$17
 		objpos $1410,$0158,Button,$02
 		objpos $1470,$0091,Monitor,$04,rem
@@ -187,11 +187,11 @@ ObjPos_SBZ1:
 		objpos $1494,$01C0,Rings,$46,rem
 		objpos $1494,$0268,Rings,$46,rem
 		objpos $1494,$0310,Rings,$43,rem
-		objpos $14A0,$06A4,Caterkiller,$00,rem
+		objpos $14A0,$06B0,Caterkiller,$00,rem
 		objpos $14B0,$0091,Monitor,$06,rem
 		objpos $14F0,$03AC,Rings,$16,rem
 		objpos $14F5,$06A6,Flamethrower,$43
-		objpos $1510,$00E8,VanishPlatform,$80
+		objpos $1510,$00E8,VanishPlatform,$00
 		objpos $1510,$0138,VanishPlatform,$C0
 		objpos $1518,$05AC,Rings,$14,rem
 		objpos $151B,$06A6,Flamethrower,$43,xflip
@@ -223,7 +223,7 @@ ObjPos_SBZ1:
 		objpos $1770,$0108,VanishPlatform,$40
 		objpos $1770,$0168,VanishPlatform,$00
 		objpos $1770,$01C8,VanishPlatform,$C0
-		objpos $1798,$0094,Rings,$16,rem
+		objpos $1798,$0090,Rings,$16,rem
 		objpos $17A0,$0318,Girder,$00
 		objpos $17A0,$0398,Girder,$00
 		objpos $17A0,$0418,Girder,$00
@@ -237,25 +237,25 @@ ObjPos_SBZ1:
 		objpos $1840,$05AC,SpinPlatform,$01
 		objpos $18BA,$0490,Flamethrower,$43,yflip
 		objpos $18C0,$0618,Electro,$08,yflip
-		objpos $18DC,$060D,Rings,$13,rem
-		objpos $1930,$0510,Invisibarrier,$17
+		objpos $18DC,$0610,Rings,$13,rem
+		objpos $1930,$0510,Invisibarrier,$19
 		objpos $1938,$0580,AutoDoor,$00
 		objpos $193B,$0646,Flamethrower,$43,xflip
 		objpos $1940,$0618,Electro,$08,yflip
-		objpos $195C,$060D,Rings,$13,rem
+		objpos $195C,$0610,Rings,$13,rem
 		objpos $1980,$04CC,ScrapStomp,$80
 		objpos $1980,$050D,MovingBlock,$39
 		objpos $1980,$0550,MovingBlock,$39
-		objpos $1994,$00F1,Rings,$44,rem
+		objpos $1994,$00F0,Rings,$44,rem
 		objpos $19A5,$0646,Flamethrower,$43
-		objpos $19B0,$059B,Button,$00
+		objpos $19B0,$0598,Button,$00
 		objpos $19C0,$0618,Electro,$08,yflip
 		objpos $19D0,$04F0,Invisibarrier,$15
 		objpos $19D0,$0560,Invisibarrier,$17
-		objpos $19DC,$060D,Rings,$13,rem
+		objpos $19DC,$0610,Rings,$13,rem
 		objpos $1A3B,$0646,Flamethrower,$43,xflip
 		objpos $1A40,$0618,Electro,$08,yflip
-		objpos $1A5C,$060D,Rings,$13,rem
+		objpos $1A5C,$0610,Rings,$13,rem
 		objpos $1A60,$01F8,Invisibarrier,$70
 		objpos $1A60,$0278,Invisibarrier,$70
 		objpos $1A60,$02F8,Invisibarrier,$70
@@ -278,7 +278,7 @@ ObjPos_SBZ1:
 		objpos $1B90,$04C0,Invisibarrier,$13
 		objpos $1B9C,$0490,Rings,$13,rem
 		objpos $1BC0,$0378,Electro,$08,yflip
-		objpos $1BD0,$03B4,Rings,$14,rem
+		objpos $1BD0,$03B0,Rings,$14,rem
 		objpos $1BF0,$04C0,Invisibarrier,$13
 		objpos $1C10,$04A7,SpinPlatform,$80
 		objpos $1C30,$04A7,SpinPlatform,$81
@@ -310,5 +310,4 @@ ObjPos_SBZ1:
 		objpos $226C,$0300,HiddenBonus,$03,rem
 		objpos $2280,$02EC,HiddenBonus,$03,rem
 		objpos $2298,$02E0,HiddenBonus,$02,rem
-		objpos $22C0,$0310,GiantRing,$00
 		endobj

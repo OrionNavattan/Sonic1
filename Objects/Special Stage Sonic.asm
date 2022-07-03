@@ -477,7 +477,7 @@ SSS_FindWall:
 		bsr.s	SSS_FindWall_Chk
 		move.b	(a1)+,d4				; get id of adjacent wall/item
 		bsr.s	SSS_FindWall_Chk
-		;tst.b	d5					; test for collision (assumes next instruction will be a conditional branch)
+		tst.b	d5					; test for collision (assumes next instruction will be a conditional branch)
 		rts
 ; ===========================================================================
 

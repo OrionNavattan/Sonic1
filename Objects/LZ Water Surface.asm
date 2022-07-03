@@ -35,10 +35,13 @@ Surf_Action:	; Routine 2
 		add.w	ost_surf_x_start(a0),d1			; add initial position
 	if FixBugs=0
 	else
-	; This fixes the surf sprites being shifted and leaving a gap when pausing
-	; the game on certain frames.
+	; This function can cause the water surface's to be cut off at the
+	; left when the game is paused. This is because this function pushes
+	; the water surface sprite to the right every frame. To fix this,
+	; just avoid pushing the sprite to the right when the game is about
+	; to be paused.
         btst    #bitStart,(v_joypad_press_actual).w ; is Start button pressed?
-        bne.s    @even    ; if yes, branch	
+        bne.s   @even    ; if yes, branch	
 	endc	
 		btst	#0,(v_frame_counter_low).w
 		beq.s	@even					; branch on even frames

@@ -2,7 +2,6 @@
 ; SLZ1 object placement
 ; ---------------------------------------------------------------------------
 ObjPos_SLZ1:
-		;objpos $0000,$0000,Pylon,$00
 		objpos $00A8,$02B0,Rings,$12,rem
 		objpos $01A8,$02B0,Rings,$12,rem
 		objpos $0210,$02C0,SmashWall,$01,rem
@@ -20,7 +19,7 @@ ObjPos_SLZ1:
 		objpos $02F0,$03F1,Monitor,$05,rem
 		objpos $02F0,$03F8,Springs,$00
 		objpos $0368,$01B0,Rings,$12,rem
-		objpos $03E8,$01D0,Bomb,$00,rem
+		objpos $03F0,$01D0,Bomb,$00,rem
 		objpos $0410,$01F0,Staircase,$00,xflip
 		objpos $0410,$0271,Monitor,$02,rem
 		objpos $082B,$02A7,Rings,$10,rem
@@ -31,8 +30,8 @@ ObjPos_SLZ1:
 		objpos $0848,$0268,Rings,$10,rem
 		objpos $0864,$0255,Rings,$10,rem
 		objpos $0885,$024C,Rings,$10,rem
-		objpos $08A8,$05D4,Rings,$14,rem
-		objpos $0A08,$0250,Fan,$02,xflip
+		objpos $08A8,$05D0,Rings,$14,rem
+		objpos $0A10,$0250,Fan,$02,xflip
 		objpos $0B08,$0350,Scenery,$00
 		objpos $0B08,$03D0,Scenery,$00
 		objpos $0B08,$0450,Scenery,$00
@@ -50,8 +49,8 @@ ObjPos_SLZ1:
 		objpos $0B90,$03F0,Staircase,$00
 		objpos $0B90,$04F0,Staircase,$00,xflip
 		objpos $0BB8,$0270,Rings,$16,rem
+		objpos $0C28,$0530,Rings,$12,rem
 		objpos $0C3A,$066F,Rings,$10,rem
-		objpos $0C40,$0530,Rings,$12,rem
 		objpos $0C43,$064E,Rings,$10,rem
 		objpos $0C5D,$0635,Rings,$10,rem
 		objpos $0C70,$0100,Rings,$44,rem
@@ -81,13 +80,13 @@ ObjPos_SLZ1:
 		objpos $0E90,$03D0,Bomb,$00,rem
 		objpos $0E90,$04F0,Staircase,$02
 		objpos $0EA0,$0668,CollapseFloor,$81
-		objpos $0EC0,$02C8,Orbinaut,$02,rem
+		objpos $0EC0,$02C0,Orbinaut,$02,rem
 		objpos $0EE0,$0668,CollapseFloor,$81
 		objpos $0EF0,$02D1,Monitor,$05,rem
 		objpos $0EF0,$03D0,Bomb,$00,rem
 		objpos $0F60,$0570,FireMaker,$36
 		objpos $0F78,$0570,Scenery,$00,xflip
-		objpos $0F80,$04C8,Orbinaut,$02,rem
+		objpos $0F80,$04C0,Orbinaut,$02,rem
 		objpos $0FA8,$0670,Rings,$12,rem
 		objpos $1000,$0628,Orbinaut,$02,rem
 		objpos $1008,$0150,Scenery,$00
@@ -149,7 +148,7 @@ ObjPos_SLZ1:
 		objpos $1580,$0670,CirclingPlatform,$03
 		objpos $15E0,$0358,Springs,$02
 		objpos $1620,$0568,CollapseFloor,$81
-		objpos $1630,$0030,Orbinaut,$02,rem
+		objpos $1630,$0040,Orbinaut,$02,rem
 		objpos $1638,$0250,Rings,$16,rem
 		objpos $1660,$0568,CollapseFloor,$81
 		objpos $16A8,$0520,Rings,$12,rem
@@ -164,7 +163,7 @@ ObjPos_SLZ1:
 		objpos $1780,$05A0,CirclingPlatform,$03
 		objpos $17B0,$00D0,Rings,$12,rem
 		objpos $17E8,$0640,Rings,$12,rem
-		objpos $17F8,$03D0,Fan,$02
+		objpos $17F0,$03D0,Fan,$02
 		objpos $1800,$0640,CirclingPlatform,$04
 		objpos $1800,$0640,CirclingPlatform,$05
 		objpos $1800,$0640,CirclingPlatform,$06
@@ -212,7 +211,7 @@ ObjPos_SLZ1:
 		objpos $1DC8,$0250,Fan,$02,xflip
 		objpos $1E10,$0270,Staircase,$02
 		objpos $1E28,$05E8,Elevator,$00
-		objpos $1E48,$02E8,Elevator,$03
+		objpos $1E40,$02E8,Elevator,$03
 		objpos $1E68,$04A0,Rings,$12,rem
 		objpos $1E80,$04A0,CirclingPlatform,$00
 		objpos $1E80,$04A0,CirclingPlatform,$01

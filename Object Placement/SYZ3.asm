@@ -7,34 +7,34 @@ ObjPos_SYZ3:
 		objpos $0380,$0118,BuzzBomber,$00,rem
 		objpos $0400,$0138,BuzzBomber,$00,rem
 		objpos $0710,$0460,Bumper,$00,rem
-		objpos $0710,$055A,Springs,$00
-		objpos $0730,$055A,Springs,$00
-		objpos $0750,$055A,Springs,$00
+		objpos $0710,$0559,Springs,$00
+		objpos $0730,$0559,Springs,$00
+		objpos $0750,$0559,Springs,$00
 		objpos $0780,$0408,Bumper,$00,rem
 		objpos $0780,$0480,Bumper,$00,rem
-		objpos $0780,$0553,Monitor,$04,rem
-		objpos $07B0,$055A,Springs,$00
-		objpos $07D0,$055A,Springs,$00
+		objpos $0780,$0552,Monitor,$04,rem
+		objpos $07B0,$0559,Springs,$00
+		objpos $07D0,$0559,Springs,$00
 		objpos $07F0,$0460,Bumper,$00,rem
-		objpos $07F0,$055A,Springs,$00
-		objpos $0868,$03C3,Monitor,$06,rem
-		objpos $08E0,$032A,BasicPlatform,$0B
+		objpos $07F0,$0559,Springs,$00
+		objpos $0868,$03C2,Monitor,$06,rem
+		objpos $08E0,$0320,BasicPlatform,$0B
 		objpos $0950,$0400,BigSpikeBall,$02,xflip
 		objpos $09B0,$02C0,Rings,$26,rem
 		objpos $0A30,$0450,BigSpikeBall,$02
-		objpos $0A90,$02C3,Monitor,$05,rem
+		objpos $0A90,$02C2,Monitor,$05,rem
 		objpos $0B58,$0468,Rings,$04,rem
 		objpos $0B78,$04A8,SpikeBall,$54,xflip
 		objpos $0B78,$04A9,FloatingBlock,$00
 		objpos $0C00,$04E0,Invisibarrier,$13
-		objpos $0C10,$035A,Springs,$02
+		objpos $0C10,$0359,Springs,$02
 		objpos $0C28,$04D2,Rings,$14,rem
 		objpos $0C28,$04EE,Rings,$14,rem
-		objpos $0C38,$0352,Crabmeat,$00,xflip,rem
+		objpos $0C38,$0351,Crabmeat,$00,xflip,rem
 		objpos $0C70,$0490,SpinningLight,$00
 		objpos $0C80,$02DA,BasicPlatform,$01
-		objpos $0CC0,$0352,Crabmeat,$00,rem
-		objpos $0CE0,$0490,Crabmeat,$00,rem
+		objpos $0CC0,$0351,Crabmeat,$00,rem
+		objpos $0CE0,$0491,Crabmeat,$00,rem
 		objpos $0D20,$02E0,Invisibarrier,$31
 		objpos $0D20,$0341,FloatingBlock,$13
 		objpos $0D20,$03FE,FloatingBlock,$13
@@ -47,20 +47,19 @@ ObjPos_SYZ3:
 		objpos $0DA0,$02E0,Invisibarrier,$31
 		objpos $0DA0,$0341,FloatingBlock,$13
 		objpos $0DA0,$03FE,FloatingBlock,$13
-		objpos $0DA0,$055A,Springs,$02
+		objpos $0DA0,$0559,Springs,$02
 		objpos $0DC0,$019A,BasicPlatform,$0C
 		objpos $0DC0,$02C0,SpinningLight,$00
 		objpos $0E08,$0150,Rings,$22,rem
 		objpos $0E10,$0542,Invisibarrier,$13
-		objpos $0E70,$029A,Button,$00
+		objpos $0E70,$0299,Button,$00
 		objpos $0EF0,$0243,FloatingBlock,$A0,rem
 		objpos $0F80,$0290,SpinningLight,$00
 		objpos $0FF0,$00B8,Rings,$52,rem
-		objpos $0FF0,$0292,Crabmeat,$00,rem
+		objpos $0FF0,$0291,Crabmeat,$00,rem
 		objpos $1010,$00C2,FloatingBlock,$00
-		objpos $1010,$05C0,SpinningLight,$00
 		objpos $1028,$00C1,Springs,$12
-		objpos $1040,$0292,Crabmeat,$00,rem
+		objpos $1040,$0291,Crabmeat,$00,rem
 		objpos $1058,$00C0,Rings,$23,rem
 		objpos $1070,$0290,SpinningLight,$00
 		objpos $10F0,$0060,BuzzBomber,$00,rem
@@ -73,43 +72,43 @@ ObjPos_SYZ3:
 		objpos $1230,$00A1,FloatingBlock,$00
 		objpos $1250,$0081,FloatingBlock,$01
 		objpos $1250,$00C1,FloatingBlock,$01,xflip
-		objpos $1260,$02F0,Rings,$03,rem
+		objpos $1260,$02F4,Rings,$03,rem
 		objpos $1270,$0061,FloatingBlock,$02
 		objpos $1270,$00E1,FloatingBlock,$02,xflip
+		objpos $1278,$0308,BigSpikeBall,$F3,yflip
+		objpos $1278,$0308,BigSpikeBall,$F3
 		objpos $1278,$030A,BasicPlatform,$00
-		objpos $1278,$030A,BigSpikeBall,$F3
-		objpos $1278,$030A,BigSpikeBall,$F3,yflip
 		objpos $12D0,$0121,FloatingBlock,$00
 		objpos $12F0,$0101,FloatingBlock,$01
 		objpos $12F0,$0141,FloatingBlock,$01,xflip
-		objpos $12F0,$028A,Rings,$00,rem
+		objpos $12F0,$0288,Rings,$00,rem
 		objpos $12F8,$0298,Rings,$00,rem
-		objpos $1300,$028A,Rings,$00,rem
+		objpos $1300,$0288,Rings,$00,rem
 		objpos $1310,$00E0,FloatingBlock,$02
 		objpos $1310,$0161,FloatingBlock,$02,xflip
-		objpos $1360,$02F2,Rings,$03,rem
+		objpos $1360,$02F4,Rings,$03,rem
 		objpos $1370,$0081,FloatingBlock,$00
+		objpos $1378,$0308,BigSpikeBall,$F3,xflip,yflip
+		objpos $1378,$0308,BigSpikeBall,$F3,xflip
 		objpos $1378,$030A,BasicPlatform,$00
-		objpos $1378,$030A,BigSpikeBall,$F3,xflip
-		objpos $1378,$030A,BigSpikeBall,$F3,xflip,yflip
 		objpos $1390,$0061,FloatingBlock,$01
 		objpos $1390,$00A1,FloatingBlock,$01,xflip
 		objpos $13B0,$0041,FloatingBlock,$02
 		objpos $13B0,$00C1,FloatingBlock,$02,xflip
 		objpos $13E0,$00AA,BasicPlatform,$0B
-		objpos $1430,$0152,Crabmeat,$00,xflip,rem
-		objpos $1430,$02C2,Crabmeat,$00,xflip,rem
+		objpos $1430,$0150,Crabmeat,$00,xflip,rem
+		objpos $1430,$02C1,Crabmeat,$00,xflip,rem
 		objpos $1450,$00DA,BasicPlatform,$0C
 		objpos $14C0,$00EA,BasicPlatform,$0B
-		objpos $14D0,$0152,Crabmeat,$00,rem
-		objpos $14D0,$02C2,Crabmeat,$00,rem
+		objpos $14D0,$0150,Crabmeat,$00,rem
+		objpos $14D0,$02C1,Crabmeat,$00,rem
 		objpos $1520,$00E0,Invisibarrier,$31
 		objpos $1520,$0141,FloatingBlock,$13
 		objpos $1520,$01BF,FloatingBlock,$13
 		objpos $1520,$027C,FloatingBlock,$13
 		objpos $1520,$0339,FloatingBlock,$13
 		objpos $1520,$03A2,BasicPlatform,$00
-		objpos $1548,$03C4,Rings,$12,rem
+		objpos $1548,$03C0,Rings,$12,rem
 		objpos $1560,$00E0,Invisibarrier,$31
 		objpos $1560,$0181,FloatingBlock,$13,xflip
 		objpos $1560,$01FF,FloatingBlock,$13,xflip
@@ -122,7 +121,7 @@ ObjPos_SYZ3:
 		objpos $15A0,$0339,FloatingBlock,$13
 		objpos $15A0,$03A2,BasicPlatform,$00
 		objpos $15C0,$00C0,SpinningLight,$00
-		objpos $15D0,$0340,FloatingBlock,$20
+		objpos $15D0,$0340,Invisibarrier,$13
 		objpos $15F0,$00C0,Yadrin,$00,rem
 		objpos $169B,$00C0,Yadrin,$00,rem
 		objpos $16C0,$00C0,SpinningLight,$00
@@ -130,7 +129,7 @@ ObjPos_SYZ3:
 		objpos $1810,$00D8,Rings,$56,rem
 		objpos $1810,$0298,Rings,$55,rem
 		objpos $1810,$0438,Rings,$56,rem
-		objpos $1830,$00C2,Bumper,$00,rem
+		objpos $1830,$00C0,Bumper,$00,rem
 		objpos $1830,$0590,Bumper,$00,rem
 		objpos $1830,$0600,Bumper,$00,rem
 		objpos $1850,$0590,Bumper,$00,rem
@@ -151,48 +150,48 @@ ObjPos_SYZ3:
 		objpos $18F0,$0370,Rings,$55,rem
 		objpos $18F0,$05B8,Rings,$53,rem
 		objpos $1950,$0500,BigSpikeBall,$02,xflip
-		objpos $19A0,$03B2,Monitor,$05,rem
-		objpos $19C8,$03B2,Monitor,$03,rem
+		objpos $19B0,$03B8,Monitor,$05,rem
+		objpos $19D0,$03B8,Monitor,$03,rem
 		objpos $1A30,$0550,BigSpikeBall,$02
-		objpos $1B78,$055A,Button,$0F
+		objpos $1B78,$0559,Button,$0F
 		objpos $1BB8,$0549,FloatingBlock,$37
 		objpos $1C38,$05D0,Rings,$16,rem
 		objpos $1CB0,$05C0,BigSpikeBall,$01
-		objpos $1D30,$0152,Crabmeat,$00,xflip,rem
+		objpos $1D30,$0451,Crabmeat,$00,xflip,rem
 		objpos $1D38,$05D0,Rings,$16,rem
 		objpos $1D60,$03EA,BasicPlatform,$0B
-		objpos $1D90,$0152,Crabmeat,$00,xflip,rem
+		objpos $1D90,$0451,Crabmeat,$00,xflip,rem
 		objpos $1DB0,$05C0,BigSpikeBall,$01,xflip
-		objpos $1DF0,$0152,Crabmeat,$00,xflip,rem
+		objpos $1DF0,$0451,Crabmeat,$00,xflip,rem
 		objpos $1E20,$038A,BasicPlatform,$01
 		objpos $1EA0,$0380,Rings,$46,rem
-		objpos $1EA0,$05DA,Springs,$00
-		objpos $1EC7,$04FD,Invisibarrier,$13
-		objpos $1EE0,$0339,BasicPlatform,$0C
-		objpos $1F30,$02F1,Crabmeat,$00,xflip,rem
+		objpos $1EA0,$05D9,Springs,$00
+		objpos $1EC5,$0500,Invisibarrier,$13
+		objpos $1EE0,$0338,BasicPlatform,$0C
+		objpos $1F30,$02F0,Crabmeat,$00,xflip,rem
 		objpos $1F38,$0549,FloatingBlock,$37
-		objpos $1FD0,$02F1,Crabmeat,$00,rem
+		objpos $1FD0,$02F0,Crabmeat,$00,rem
 		objpos $2010,$0308,Rings,$41,rem
-		objpos $2011,$0593,Monitor,$06,rem
-		objpos $2035,$0593,Monitor,$04,rem
-		objpos $2058,$0593,Monitor,$06,rem
+		objpos $201C,$0592,Monitor,$06,rem
+		objpos $203C,$0592,Monitor,$04,rem
+		objpos $205C,$0592,Monitor,$06,rem
 		objpos $2060,$0360,Rings,$12,rem
-		objpos $2078,$0308,BasicPlatform,$00
 		objpos $2078,$0308,BigSpikeBall,$B3
+		objpos $2078,$030A,BasicPlatform,$00
 		objpos $2080,$0590,SpinningLight,$00
 		objpos $20E0,$0308,Rings,$41,rem
 		objpos $2158,$0568,Rings,$04,rem
-		objpos $2160,$02F0,Rings,$03,rem
-		objpos $2178,$0308,BasicPlatform,$00
+		objpos $2160,$02F4,Rings,$03,rem
 		objpos $2178,$0308,BigSpikeBall,$E3
 		objpos $2178,$0308,BigSpikeBall,$E3,yflip
+		objpos $2178,$030A,BasicPlatform,$00
 		objpos $2178,$05A8,SpikeBall,$54,xflip
 		objpos $2178,$05A9,FloatingBlock,$00
 		objpos $2210,$0308,Rings,$41,rem
 		objpos $2260,$0360,Rings,$12,rem
 		objpos $2270,$0590,SpinningLight,$00
-		objpos $2278,$0308,BasicPlatform,$00
 		objpos $2278,$0308,BigSpikeBall,$B3,yflip
+		objpos $2278,$030A,BasicPlatform,$00
 		objpos $22E0,$0308,Rings,$41,rem
 		objpos $2320,$035F,FloatingBlock,$13
 		objpos $2320,$041C,FloatingBlock,$13
@@ -210,19 +209,19 @@ ObjPos_SYZ3:
 		objpos $2564,$0390,Rings,$00,rem
 		objpos $2585,$0390,Rings,$00,rem
 		objpos $25E0,$0410,Bumper,$00,rem
-		objpos $2610,$06CA,Springs,$00
+		objpos $2610,$06C9,Springs,$00
 		objpos $2620,$04D8,Rings,$22,rem
 		objpos $2630,$0410,Bumper,$00,rem
-		objpos $2630,$06CA,Springs,$00
+		objpos $2630,$06C9,Springs,$00
 		objpos $2650,$04C0,Rings,$23,rem
-		objpos $2650,$06CA,Springs,$00
+		objpos $2650,$06C9,Springs,$00
 		objpos $2680,$0410,Bumper,$00,rem
-		objpos $2680,$06C3,Monitor,$05,rem
+		objpos $2680,$06C2,Monitor,$05,rem
 		objpos $26A0,$04D8,Rings,$22,rem
-		objpos $26B0,$06CA,Springs,$00
-		objpos $26D0,$06CA,Springs,$00
+		objpos $26B0,$06C9,Springs,$00
+		objpos $26D0,$06C9,Springs,$00
 		objpos $26E0,$03DA,BasicPlatform,$0B
-		objpos $26F0,$06CA,Springs,$00
+		objpos $26F0,$06C9,Springs,$00
 		objpos $2760,$037A,BasicPlatform,$0C
 		objpos $2798,$04EC,Lamppost,$02,rem
 		objpos $27E0,$031A,BasicPlatform,$0B
@@ -232,7 +231,7 @@ ObjPos_SYZ3:
 		objpos $2870,$0532,FloatingBlock,$01,xflip
 		objpos $2890,$04D2,FloatingBlock,$02
 		objpos $2890,$0552,FloatingBlock,$02,xflip
-		objpos $28F0,$02D4,Rings,$26,rem
+		objpos $28F0,$02D0,Rings,$26,rem
 		objpos $28F0,$0512,FloatingBlock,$00
 		objpos $2910,$04F2,FloatingBlock,$01,xflip
 		objpos $2910,$0532,FloatingBlock,$01
@@ -241,7 +240,7 @@ ObjPos_SYZ3:
 		objpos $2990,$0512,FloatingBlock,$00
 		objpos $29B0,$04F2,FloatingBlock,$01
 		objpos $29B0,$0532,FloatingBlock,$01,xflip
-		objpos $29D0,$02D4,Rings,$21,rem
+		objpos $29D0,$02D0,Rings,$21,rem
 		objpos $29D0,$04D2,FloatingBlock,$02
 		objpos $29D0,$0552,FloatingBlock,$02,xflip
 		objpos $2A30,$0512,FloatingBlock,$00
@@ -249,8 +248,8 @@ ObjPos_SYZ3:
 		objpos $2A50,$0532,FloatingBlock,$01
 		objpos $2A70,$04D2,FloatingBlock,$02,xflip
 		objpos $2A70,$0552,FloatingBlock,$02
-		objpos $2AA0,$02B2,Monitor,$04,rem
-		objpos $2AC8,$02B2,Monitor,$02,rem
+		objpos $2AB0,$02B8,Monitor,$04,rem
+		objpos $2AD0,$02B8,Monitor,$02,rem
 		objpos $2AD0,$0512,FloatingBlock,$00
 		objpos $2AE0,$05D0,BasicPlatform,$02
 		objpos $2AF0,$04F2,FloatingBlock,$01

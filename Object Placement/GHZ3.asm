@@ -3,11 +3,13 @@
 ; ---------------------------------------------------------------------------
 ObjPos_GHZ3:
 		objpos $0084,$0340,Monitor,$05,rem
-		objpos $0128,$03B8,Springs,$02
-		objpos $0190,$03E0,Spikes,$40
+		objpos $0130,$03B8,Springs,$02
+		objpos $0184,$03E0,Spikes,$40
 		objpos $01C0,$03C8,BasicPlatform,$05
 		objpos $01E0,$0340,CollapseLedge,$00,rem
-		objpos $0208,$03E0,Spikes,$40
+		objpos $01F0,$03E0,Spikes,$30
+		objpos $0220,$03E0,Spikes,$20
+		objpos $0238,$03E0,Spikes,$20
 		objpos $0250,$0307,MotoBug,$00,rem
 		objpos $0260,$0298,BuzzBomber,$00,rem
 		objpos $0278,$030C,Springs,$02
@@ -23,7 +25,7 @@ ObjPos_GHZ3:
 		objpos $03E0,$033A,Rings,$10,rem
 		objpos $03F0,$0278,Scenery,$03,xflip
 		objpos $0408,$0334,Rings,$10,rem
-		objpos $0420,$0258,Rings,$15,rem
+		objpos $0424,$0258,Rings,$15,rem
 		objpos $0468,$0288,Bridge,$0C
 		objpos $04D0,$0278,Scenery,$03
 		objpos $0530,$0238,BuzzBomber,$00,rem
@@ -49,7 +51,7 @@ ObjPos_GHZ3:
 		objpos $0780,$0258,BasicPlatform,$02
 		objpos $07C0,$0358,Springs,$02
 		objpos $0820,$0340,Newtron,$01,rem
-		objpos $0828,$0201,Rings,$15,rem
+		objpos $0828,$0200,Rings,$15,rem
 		objpos $0848,$02D0,EdgeWalls,$00
 		objpos $0848,$0310,EdgeWalls,$01
 		objpos $0848,$0350,EdgeWalls,$01
@@ -63,12 +65,12 @@ ObjPos_GHZ3:
 		objpos $08F0,$0278,Scenery,$03,xflip
 		objpos $08F0,$03A0,SmashWall,$02,rem
 		objpos $0920,$01C0,BuzzBomber,$00,rem
-		objpos $0920,$0250,Rings,$15,rem
+		objpos $0926,$0250,Rings,$15,rem
 		objpos $0968,$0288,Bridge,$0C
 		objpos $09D0,$0278,Scenery,$03
-		objpos $0A08,$02C0,EdgeWalls,$01
+		objpos $0A08,$02B0,EdgeWalls,$00
 		objpos $0A08,$02F0,EdgeWalls,$01
-		objpos $0B00,$026B,Lamppost,$01,rem
+		objpos $0B00,$026C,Lamppost,$01,rem
 		objpos $0B24,$0220,Monitor,$03,rem
 		objpos $0B38,$0272,Rings,$10,rem
 		objpos $0B50,$01E8,BasicPlatform,$05
@@ -85,8 +87,8 @@ ObjPos_GHZ3:
 		objpos $0CD0,$0260,Newtron,$00,rem
 		objpos $0CE0,$0570,Rings,$12,rem
 		objpos $0CF0,$0178,Scenery,$03,xflip
-		objpos $0D20,$0140,Rings,$15,rem
 		objpos $0D20,$02B0,Rings,$10,rem
+		objpos $0D24,$0140,Rings,$15,rem
 		objpos $0D47,$02A7,Rings,$10,rem
 		objpos $0D58,$0570,Springs,$10,xflip
 		objpos $0D68,$0188,Bridge,$0C
@@ -103,7 +105,7 @@ ObjPos_GHZ3:
 		objpos $0E08,$01B0,EdgeWalls,$01
 		objpos $0E08,$01F0,EdgeWalls,$01
 		objpos $0E08,$0230,EdgeWalls,$01
-		objpos $0E20,$0520,Crabmeat,$00,rem
+		objpos $0E20,$0530,Crabmeat,$00,rem
 		objpos $0E84,$0040,Monitor,$06,rem
 		objpos $0EA0,$04C0,Newtron,$00,rem
 		objpos $0EB0,$00AC,Lamppost,$02,rem
@@ -116,7 +118,7 @@ ObjPos_GHZ3:
 		objpos $0F48,$0490,Rings,$42,rem
 		objpos $0F48,$0505,PurpleRock,$00
 		objpos $0F60,$04B0,Newtron,$00,rem
-		objpos $0F98,$0533,Spikes,$00
+		objpos $0F98,$0534,Spikes,$00
 		objpos $0FA0,$00C8,BasicPlatform,$01
 		objpos $0FB4,$0350,Monitor,$04,rem
 		objpos $1020,$0108,BasicPlatform,$02
@@ -127,8 +129,8 @@ ObjPos_GHZ3:
 		objpos $1060,$0188,BasicPlatform,$06
 		objpos $1064,$0320,Rings,$10,rem
 		objpos $107E,$031C,Rings,$10,rem
+		objpos $1080,$02F1,Monitor,$02,rem
 		objpos $1080,$04D0,BuzzBomber,$00,rem
-		objpos $1084,$02F0,Monitor,$02,rem
 		objpos $1098,$0320,Rings,$10,rem
 		objpos $10A0,$0570,CollapseLedge,$00,rem
 		objpos $10AF,$032F,Rings,$10,rem
@@ -146,7 +148,7 @@ ObjPos_GHZ3:
 		objpos $1225,$0205,MotoBug,$00,xflip,rem
 		objpos $1240,$0480,Newtron,$00,rem
 		objpos $1250,$0372,Rings,$10,rem
-		objpos $1270,$0288,MotoBug,$00,rem
+		objpos $1270,$028A,MotoBug,$00,rem
 		objpos $1274,$036A,Rings,$10,rem
 		objpos $1280,$0428,BuzzBomber,$00,rem
 		objpos $1290,$0202,MotoBug,$00,rem
@@ -159,16 +161,16 @@ ObjPos_GHZ3:
 		objpos $1308,$04B0,EdgeWalls,$00
 		objpos $1330,$02B0,CollapseLedge,$01,xflip,rem
 		objpos $1378,$0478,Spikes,$00
-		objpos $1404,$036E,Springs,$10,xflip
+		objpos $1408,$036D,Springs,$10,xflip
 		objpos $1408,$0470,EdgeWalls,$00
-		objpos $1420,$036F,PurpleRock,$00
-		objpos $1428,$0420,Crabmeat,$00,rem
+		objpos $1420,$0371,PurpleRock,$00
+		objpos $1428,$0430,Crabmeat,$00,rem
 		objpos $1470,$040D,Springs,$02
 		objpos $1484,$0248,Monitor,$04,rem
 		objpos $14A8,$0406,Spikes,$20
 		objpos $14B8,$02B0,PurpleRock,$00
-		objpos $14C0,$036C,Lamppost,$03,rem
-		objpos $14C0,$0404,Spikes,$20
+		objpos $14C0,$036D,Lamppost,$03,rem
+		objpos $14C0,$0405,Spikes,$20
 		objpos $14D8,$0403,Spikes,$20
 		objpos $14E8,$0420,BuzzBomber,$00,rem
 		objpos $14F0,$0401,Spikes,$20
@@ -184,30 +186,30 @@ ObjPos_GHZ3:
 		objpos $1588,$0388,Helix,$10
 		objpos $1588,$0388,WaterSound,$00
 		objpos $15B8,$02C8,SwingingPlatform,$08
-		objpos $1620,$04B0,Monitor,$06,rem
-		objpos $1648,$04B0,Monitor,$06,rem
-		objpos $1670,$04B0,Monitor,$06,rem
+		objpos $1620,$04B1,Monitor,$06,rem
+		objpos $1648,$04B1,Monitor,$06,rem
+		objpos $1670,$04B1,Monitor,$06,rem
 		objpos $1680,$02C8,BasicPlatform,$03
 		objpos $1688,$0388,Helix,$10
 		objpos $1688,$0388,WaterSound,$00
-		objpos $1698,$04B0,Monitor,$06,rem
-		objpos $16C0,$04B0,Monitor,$06,rem
-		objpos $16E8,$04B0,Monitor,$02,rem
+		objpos $1698,$04B1,Monitor,$06,rem
+		objpos $16C0,$04B1,Monitor,$06,rem
+		objpos $16E8,$04B1,Monitor,$02,rem
 		objpos $1708,$03B0,EdgeWalls,$10
 		objpos $1708,$03F0,EdgeWalls,$11
 		objpos $1708,$0430,EdgeWalls,$11
 		objpos $1708,$0460,EdgeWalls,$11
 		objpos $1708,$04B0,EdgeWalls,$00
 		objpos $1720,$02C8,BasicPlatform,$03
-		objpos $1730,$0479,Springs,$02
+		objpos $1730,$047A,Springs,$02
 		objpos $175C,$037F,Rings,$10,rem
-		objpos $1778,$0476,Spikes,$30
+		objpos $1778,$0477,Spikes,$30
 		objpos $177E,$038A,Rings,$10,rem
 		objpos $179F,$039B,Rings,$10,rem
 		objpos $17A8,$0475,Spikes,$20
 		objpos $17C0,$02C8,BasicPlatform,$03
 		objpos $17C0,$03A9,Rings,$10,rem
-		objpos $17D8,$0470,Spikes,$30
+		objpos $17D8,$0471,Spikes,$30
 		objpos $17E6,$03B3,Rings,$10,rem
 		objpos $17F8,$04B0,EdgeWalls,$02
 		objpos $17F8,$04F0,EdgeWalls,$02
@@ -256,12 +258,12 @@ ObjPos_GHZ3:
 		objpos $1FF8,$03E0,EdgeWalls,$02
 		objpos $2000,$02A0,BuzzBomber,$00,rem
 		objpos $2030,$03B0,CollapseLedge,$01,xflip,rem
-		objpos $2050,$03D0,Spikes,$40
+		objpos $2048,$03D0,Spikes,$40
 		objpos $2070,$0308,SwingingPlatform,$07
 		objpos $20B0,$02F0,BuzzBomber,$00,rem
-		objpos $20E0,$03D0,Spikes,$40
+		objpos $20D8,$03D0,Spikes,$40
 		objpos $2120,$03D0,CollapseLedge,$00,rem
-		objpos $2134,$03D0,Spikes,$20
+		objpos $212C,$03D0,Spikes,$20
 		objpos $2224,$0250,Rings,$44,rem
 		objpos $2224,$0314,Springs,$02
 		objpos $2268,$02B0,BuzzBomber,$00,rem
@@ -284,6 +286,6 @@ ObjPos_GHZ3:
 		objpos $26A8,$03AC,Lamppost,$04,rem
 		objpos $2980,$0380,BasicPlatform,$00
 		objpos $2A80,$0380,BasicPlatform,$00
-		objpos $2B60,$037D,Prison,$01
-		objpos $2B60,$03A2,Prison,$00
+		objpos $2B60,$037F,Prison,$01
+		objpos $2B60,$03A4,Prison,$00
 		endobj

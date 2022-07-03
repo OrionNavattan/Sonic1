@@ -20,7 +20,7 @@ ObjPos_LZ2:
 		objpos $0260,$0450,Rings,$13,rem
 		objpos $0260,$0468,Rings,$13,rem
 		objpos $0260,$0480,Rings,$13,rem
-		objpos $0280,$0104,Spikes,$01
+		objpos $0280,$0104,Spikes,$31
 		objpos $0290,$0070,Spikes,$30,yflip
 		objpos $02D0,$0110,Burrobot,$00,rem
 		objpos $02F0,$04C0,SpikeBall,$C4
@@ -46,8 +46,8 @@ ObjPos_LZ2:
 		objpos $0490,$04A8,Bubble,$81
 		objpos $0490,$04C0,Burrobot,$00,rem
 		objpos $04C8,$0420,FlapDoor,$02,rem
+		objpos $04E0,$0190,Spikes,$30,yflip
 		objpos $04E0,$0230,Spikes,$30,yflip
-		objpos $04E4,$0190,Spikes,$30,yflip
 		objpos $0504,$0274,Waterfall,$09
 		objpos $0508,$01F8,Waterfall,$06,xflip
 		objpos $0508,$0210,Waterfall,$00,xflip
@@ -95,7 +95,7 @@ ObjPos_LZ2:
 		objpos $09E0,$01EC,Lamppost,$01,rem
 		objpos $09E0,$05B0,Spikes,$30,yflip
 		objpos $09F0,$06C8,Harpoon,$02,yflip,rem
-		objpos $0A10,$03F8,Rings,$42,rem
+		objpos $0A10,$03F0,Rings,$42,rem
 		objpos $0A10,$0438,Bubble,$81
 		objpos $0A20,$0510,Spikes,$30,yflip
 		objpos $0A20,$05F8,Bubble,$81
@@ -118,25 +118,25 @@ ObjPos_LZ2:
 		objpos $0C68,$0588,Rings,$12,rem
 		objpos $0D20,$03F0,Spikes,$30
 		objpos $0D20,$0430,Spikes,$30,yflip
-		objpos $0D2C,$048D,LabyrinthConvey,$7F,xflip
-		objpos $0D2C,$05D2,LabyrinthConvey,$7F,xflip
+		objpos $0D2C,$048C,LabyrinthConvey,$7F,xflip
+		objpos $0D2C,$05D0,LabyrinthConvey,$7F,xflip
 		objpos $0D68,$0480,LabyrinthConvey,$82,xflip
-		objpos $0D6D,$03AB,LabyrinthConvey,$7F
-		objpos $0D6D,$04D4,LabyrinthConvey,$7F
+		objpos $0D6C,$03AA,LabyrinthConvey,$7F
+		objpos $0D6C,$04D4,LabyrinthConvey,$7F
 		objpos $0D78,$0384,Rings,$14,rem
 		objpos $0D80,$05F8,Bubble,$81
 		objpos $0DA0,$0380,LabyrinthConvey,$83
 		objpos $0DA0,$0430,Spikes,$30
 		objpos $0DA0,$0470,Spikes,$30,yflip
-		objpos $0DA5,$048D,LabyrinthConvey,$7F,xflip
-		objpos $0DA5,$05D3,LabyrinthConvey,$7F,xflip
-		objpos $0DE4,$03AD,LabyrinthConvey,$7F
-		objpos $0DE4,$04D3,LabyrinthConvey,$7F
+		objpos $0DA4,$048C,LabyrinthConvey,$7F,xflip
+		objpos $0DA4,$05D4,LabyrinthConvey,$7F,xflip
+		objpos $0DE4,$03AC,LabyrinthConvey,$7F
+		objpos $0DE4,$04D4,LabyrinthConvey,$7F
 		objpos $0DE8,$05F0,Spikes,$00
-		objpos $10EA,$03B6,HiddenBonus,$03
-		objpos $10F2,$039E,HiddenBonus,$03
-		objpos $1102,$0386,HiddenBonus,$03
+		objpos $1150,$03CC,HiddenBonus,$03
 		objpos $1150,$03E0,Signpost,$00
+		objpos $1158,$03B4,HiddenBonus,$03
+		objpos $1168,$039C,HiddenBonus,$03
 		objpos $1180,$0390,HiddenBonus,$02
 		objpos $1190,$0390,GiantRing,$00
 		objpos $11D8,$0390,HiddenBonus,$01

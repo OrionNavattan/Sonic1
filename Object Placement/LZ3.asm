@@ -57,7 +57,7 @@ ObjPos_LZ3:
 		objpos $08B0,$05F8,Harpoon,$02,rem
 		objpos $08D0,$0610,LabyrinthBlock,$30
 		objpos $08D0,$06F8,Bubble,$81
-		objpos $08E0,$03F4,Spikes,$01
+		objpos $08D7,$03F4,Spikes,$01
 		objpos $08F0,$05F8,Harpoon,$02,rem
 		objpos $08F0,$06A0,Jaws,$0C,rem
 		objpos $0910,$02F0,Spikes,$00
@@ -103,10 +103,10 @@ ObjPos_LZ3:
 		objpos $0CF0,$0510,Burrobot,$00,rem
 		objpos $0D00,$0280,LabyrinthConvey,$84
 		objpos $0D08,$04A0,FloatingBlock,$E1,rem
-		objpos $0D48,$03F0,Spikes,$40
+		objpos $0D44,$03F0,Spikes,$40
 		objpos $0D80,$0280,LabyrinthConvey,$84
 		objpos $0D90,$04D0,Burrobot,$00,rem
-		objpos $0DB4,$03F0,Spikes,$30
+		objpos $0DB0,$03F0,Spikes,$30
 		objpos $0DD4,$024C,LabyrinthConvey,$7F
 		objpos $0DD4,$03D4,LabyrinthConvey,$7F
 		objpos $0E20,$02D0,Spikes,$30
@@ -130,8 +130,8 @@ ObjPos_LZ3:
 		objpos $1218,$02F0,Spikes,$00
 		objpos $1240,$04F8,Bubble,$80
 		objpos $1250,$0668,Spikes,$10
-		objpos $125C,$02B3,LabyrinthConvey,$7F
-		objpos $125D,$0214,LabyrinthConvey,$7F
+		objpos $125C,$0214,LabyrinthConvey,$7F
+		objpos $125C,$02B4,LabyrinthConvey,$7F
 		objpos $1270,$0670,LabyrinthBlock,$30
 		objpos $1290,$04AC,Lamppost,$01,rem
 		objpos $12CC,$06D0,Spikes,$40
@@ -149,7 +149,7 @@ ObjPos_LZ3:
 		objpos $13A0,$0450,SpikeBall,$26
 		objpos $13B0,$05F8,Bubble,$81
 		objpos $13D4,$0214,LabyrinthConvey,$7F
-		objpos $13D4,$02B3,LabyrinthConvey,$7F
+		objpos $13D4,$02B4,LabyrinthConvey,$7F
 		objpos $1400,$04F8,Bubble,$80
 		objpos $1420,$0410,SpikeBall,$26
 		objpos $1420,$0660,Pole,$04

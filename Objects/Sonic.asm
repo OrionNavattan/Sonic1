@@ -941,19 +941,23 @@ Sonic_LevelBound:
 	if FixBugs=0	
 		bne.w	KillSonic				; if not, kill Sonic
 	else	
-		jne		KillSonic
+		bne.s	@killsonic
 	endc	
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
 	if FixBugs=0	
 		bcs.w	KillSonic
 	else	
-		jcs		KillSonic				; if not, kill Sonic
+		bcs.s	@killsonic				; if not, kill Sonic
 	endc	
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
 		rts	
-		
+	if FixBugs=0
+	else
+	@killsonic:
+		jmp 	KillSonic	
+	endc	
 ; ===========================================================================
 
 @sides:

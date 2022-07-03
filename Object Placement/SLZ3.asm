@@ -2,7 +2,6 @@
 ; SLZ3 object placement
 ; ---------------------------------------------------------------------------
 ObjPos_SLZ3:
-		;objpos $0000,$0000,Pylon,$00
 		objpos $00D0,$0120,Rings,$12,rem
 		objpos $01A0,$0120,Rings,$12,rem
 		objpos $01E0,$0140,Orbinaut,$02,rem
@@ -27,7 +26,7 @@ ObjPos_SLZ3:
 		objpos $0674,$02B0,Rings,$45,rem
 		objpos $0684,$02BC,Rings,$41,rem
 		objpos $0690,$0110,Bomb,$00,yflip,rem
-		objpos $0690,$0650,Fan,$02,xflip
+		objpos $0691,$0650,Fan,$02,xflip
 		objpos $0720,$04E8,CollapseFloor,$81
 		objpos $0728,$04D0,Rings,$12,rem
 		objpos $0728,$0548,Rings,$12,rem
@@ -36,7 +35,7 @@ ObjPos_SLZ3:
 		objpos $0770,$04B0,Orbinaut,$02,rem
 		objpos $0790,$0670,Bomb,$00,xflip,rem
 		objpos $07F0,$0670,Bomb,$00,rem
-		objpos $0810,$0450,Fan,$01,xflip
+		objpos $0810,$0450,Fan,$02,xflip
 		objpos $0810,$0670,Bomb,$00,xflip,rem
 		objpos $0818,$0050,Rings,$14,rem
 		objpos $0870,$0670,Bomb,$00,rem
@@ -45,12 +44,12 @@ ObjPos_SLZ3:
 		objpos $0894,$01C8,Rings,$45,rem
 		objpos $08E0,$02D0,FireMaker,$36
 		objpos $08F8,$02D0,Scenery,$00,xflip
-		objpos $08F8,$0658,Springs,$02
 		objpos $0910,$04D1,Monitor,$02,rem
-		objpos $0920,$0658,Springs,$02
+		objpos $0910,$0658,Springs,$02
 		objpos $0930,$04D1,Monitor,$05,rem
-		objpos $0948,$0658,Springs,$02
+		objpos $0930,$0658,Springs,$02
 		objpos $0950,$04D1,Monitor,$06,rem
+		objpos $0950,$0658,Springs,$02
 		objpos $0970,$0658,Springs,$02
 		objpos $0980,$0440,Orbinaut,$02,rem
 		objpos $09A8,$0670,Rings,$12,rem
@@ -96,8 +95,8 @@ ObjPos_SLZ3:
 		objpos $0F30,$0210,Rings,$44,rem
 		objpos $0F60,$0768,CollapseFloor,$01
 		objpos $0F68,$0130,Rings,$12,rem
-		objpos $1000,$0750,Fan,$02,xflip
 		objpos $1010,$05D1,Monitor,$05,rem
+		objpos $1010,$0750,Fan,$02,xflip
 		objpos $103C,$0270,Rings,$10,rem
 		objpos $1044,$024E,Rings,$10,rem
 		objpos $105E,$0233,Rings,$10,rem
@@ -123,8 +122,8 @@ ObjPos_SLZ3:
 		objpos $1180,$0420,FloatingBlock,$5A,yflip
 		objpos $1180,$0420,FloatingBlock,$5B
 		objpos $1180,$0420,FloatingBlock,$5B,yflip
-		objpos $1184,$0750,Fan,$00
 		objpos $1188,$0070,Rings,$10,rem
+		objpos $1190,$0750,Fan,$00
 		objpos $1200,$00C0,SwingingPlatform,$07
 		objpos $1220,$0768,CollapseFloor,$01
 		objpos $1228,$0750,Rings,$12,rem
@@ -156,7 +155,7 @@ ObjPos_SLZ3:
 		objpos $1510,$0550,Bomb,$00,xflip,rem
 		objpos $1520,$03E8,CollapseFloor,$81
 		objpos $1528,$03D0,Rings,$12,rem
-		objpos $1538,$05D8,Rings,$16,rem
+		objpos $1538,$05D4,Rings,$16,rem
 		objpos $1540,$0530,Seesaw,$00
 		objpos $1560,$03E8,CollapseFloor,$81
 		objpos $1560,$0550,Bomb,$00,rem
@@ -227,7 +226,7 @@ ObjPos_SLZ3:
 		objpos $1CD0,$05C0,Orbinaut,$02,rem
 		objpos $1CE0,$0450,Rings,$14,rem
 		objpos $1CF0,$0410,Bomb,$00,yflip,rem
-		objpos $1CF0,$05D0,Monitor,$06,rem
+		objpos $1CF0,$05D1,Monitor,$06,rem
 		objpos $1D10,$0410,Bomb,$00,yflip,rem
 		objpos $1D20,$0310,Bomb,$00,yflip,rem
 		objpos $1D30,$0210,Rings,$42,rem
@@ -240,7 +239,7 @@ ObjPos_SLZ3:
 		objpos $1D80,$0344,Orbinaut,$02,rem
 		objpos $1DA0,$0310,Bomb,$00,yflip,rem
 		objpos $1DC0,$0310,Bomb,$00,yflip,rem
-		objpos $1DE8,$02D0,Fan,$02,xflip
+		objpos $1DF0,$02D0,Fan,$02,xflip
 		objpos $1E10,$03F0,Staircase,$02,xflip
 		objpos $1E78,$0470,Springs,$10,xflip
 		objpos $1EB0,$0450,Rings,$12,rem
@@ -250,6 +249,6 @@ ObjPos_SLZ3:
 		objpos $203C,$02D4,Seesaw,$FF
 		objpos $20A0,$02D4,Seesaw,$FF
 		objpos $2104,$02D4,Seesaw,$FF
-		objpos $2200,$029A,Prison,$01
-		objpos $2200,$02BF,Prison,$00
+		objpos $2200,$029B,Prison,$01
+		objpos $2200,$02C0,Prison,$00
 		endobj
