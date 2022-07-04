@@ -166,6 +166,24 @@ Level_Skip_TtlCard:
 		bsr.w	PalLoad_Next				; load Sonic's palette
 		bsr.w	LevelParameterLoad			; load level boundaries and start positions
 		bsr.w	DeformLayers
+	if FixBugs=0
+	else
+	; The game renders the level while the title card is shown on the screen, including running
+	; the BG deformation routines to get the initial vertical and horizontal scroll values,
+	; but does not send those values to the VDP until the next vertical interrupt, which does not occur
+	; until it is time to fade in the palette. As Sonic's palette line does not fade in, 
+	; but rather is enabled immediately (before the scroll values are written), this assumes that no other objects 
+	; near the spawn point are using Sonic's palette line. That is not the case in SYZ Act 1, 
+	; where there is an object that uses Sonic's palette: the spinning light. As the line is enabled 
+	; before the scroll values are written, the light's sprite briefly renders as a flash of blue garbage 
+	; below the title card.
+	
+	; Instead of waiting for Palette_FadeIn to transfer the scroll values to the VDP, 
+	; we can do it right here by requesting a vertical interrupt and eliminate this visual defect.
+	
+	    move.b  #id_VBlank_TitleCard,(v_vblank_routine).w
+        bsr.w   WaitForVBlank
+	endc	
 		bset	#redraw_left_bit,(v_fg_redraw_direction).w
 		bsr.w	LevelDataLoad				; load block mappings and palettes
 		bsr.w	DrawTilesAtStart

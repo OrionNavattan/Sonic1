@@ -182,8 +182,8 @@ PaletteWhiteIn:
 	@fill:
 		move.w	d1,(a0)+
 		dbf	d0,@fill 	; fill palette with white
-        moveq	#$0E,d4 ; prepare maximum color check
-        moveq 	#$00,d6 ; clear d6
+        moveq	#$E,d4 ; prepare maximum color check
+        moveq 	#0,d6 ; clear d6
 
 	@mainloop:
 		bsr.w   RunPLC
@@ -265,8 +265,8 @@ WhiteIn_DecColor:
 
 PaletteWhiteOut:
 		move.w	#palfade_all,(v_palfade_start).w ; start position = 0; size = $40
-        moveq #$07,d4							 ; set repeat times
-        moveq #$00,d6 							 ; clear d6
+        moveq #7,d4							 ; set repeat times
+        moveq #0,d6 							 ; clear d6
 
 	@mainloop:
 		bsr.w	RunPLC
@@ -319,7 +319,7 @@ WhiteOut_AddColor:
         andi.w #cBlue,d1 	; get only blue
         cmpi.w #cBlue,d1
         beq @noblue 		; if blue is finished, branch
-        addi.w #$0200,d5 	; increase blue
+        addi.w #$200,d5 	; increase blue
 
 	@noblue:
         andi.w #cGreen,d2 	; get only green (needs to be word)
@@ -331,7 +331,7 @@ WhiteOut_AddColor:
         andi.b #cRed,d3 	; get only red
         cmpi.b #cRed,d3
         beq @nored 			; if red is finished, branch
-        addq.b #$02,d5 		; increase red
+        addq.b #2,d5 		; increase red
 
 	@nored:
         move.w d5,(a0)+ 	; save new color
