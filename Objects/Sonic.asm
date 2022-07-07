@@ -1058,8 +1058,12 @@ Sonic_Jump:
 		clr.w	ost_sonic_lock_time(a0)	;clear horiz control lock
 	endc	
 		play.w	1, jsr, sfx_Jump			; play jumping sound
+	if FixBugs=0
+	; These instructions are pointless, and give Sonic the wrong height and width 
+	; when roll-jumping.
 		move.b	#sonic_height,ost_height(a0)
 		move.b	#sonic_width,ost_width(a0)
+	endc	
 		btst	#status_jump_bit,ost_status(a0)		; is Sonic rolling?
 		bne.s	@is_rolling				; if yes, branch
 		move.b	#sonic_height_roll,ost_height(a0)

@@ -37,8 +37,11 @@ Mon_Main:	; Routine 0
 		moveq	#0,d0
 		move.b	ost_respawn(a0),d0
 	if FixBugs=0
-	; Monitors placed in debug mode do not interact with the respawn list properly, 
-	; causing them to always be broken after placing and breaking one.
+	; If you spawn a monitor in Debug Mode and destroy it, then every
+	; monitor that is spawned with Debug Mode afterwards will be broken.
+	; The cause of the bug is that the spawned monitor does not have a
+	; respawn entry, but this object fails to check for that before
+	; accessing the respawn table.
 	else
 		beq.s	@notbroken  ; Fixes issue where monitors placed in debug mode are always broken after placing and breaking one	
 	endc		
@@ -193,7 +196,12 @@ Mon_Explode:
 		lea	(v_respawn_list).w,a2
 		moveq	#0,d0
 		move.b	ost_respawn(a0),d0
+	if FixBugs=0
+		beq.s	@setbroken
+	else	
+	endc
 		bset	#0,2(a2,d0.w)
+	@setbroken:	
 		move.b	#id_ani_monitor_breaking,ost_anim(a0)	; set monitor type to broken
 		bra.w	DisplaySprite
 

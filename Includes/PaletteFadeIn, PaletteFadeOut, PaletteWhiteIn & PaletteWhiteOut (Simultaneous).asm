@@ -265,15 +265,15 @@ WhiteIn_DecColor:
 
 PaletteWhiteOut:
 		move.w	#palfade_all,(v_palfade_start).w ; start position = 0; size = $40
-        moveq #7,d4							 ; set repeat times
-        moveq #0,d6 							 ; clear d6
+        moveq 	#7,d4							 ; set repeat times
+        moveq 	#0,d6 							 ; clear d6
 
 	@mainloop:
 		bsr.w	RunPLC
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w
 		bsr.w	WaitForVBlank
 		bchg 	#$00,d6 ; MJ: change delay counter
-        beq 	@mainloop ; MJ: if null, delay a frame
+        beq.s 	@mainloop ; MJ: if null, delay a frame
         bsr.s 	WhiteOut_ToWhite
 		dbf		d4,@mainloop
 		rts	
@@ -318,19 +318,19 @@ WhiteOut_AddColor:
         move.b d1,d3 		; load red
         andi.w #cBlue,d1 	; get only blue
         cmpi.w #cBlue,d1
-        beq @noblue 		; if blue is finished, branch
+        beq.s @noblue 		; if blue is finished, branch
         addi.w #$200,d5 	; increase blue
 
 	@noblue:
         andi.w #cGreen,d2 	; get only green (needs to be word)
         cmpi.w #cGreen,d2
-        beq @nogreen 		; if green is finished, branch
+        beq.s @nogreen 		; if green is finished, branch
         addi.b #$20,d5 		; increase green
 
 	@nogreen:
         andi.b #cRed,d3 	; get only red
         cmpi.b #cRed,d3
-        beq @nored 			; if red is finished, branch
+        beq.s @nored 			; if red is finished, branch
         addq.b #2,d5 		; increase red
 
 	@nored:
