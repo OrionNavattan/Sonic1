@@ -576,7 +576,7 @@ LGrass_Coll_Sloped:
 		include "Includes\ExecuteObjects & Object Pointers.asm"
 
 NullObject:
-		;jmp	(DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
+		jmp	(DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
 
 		include "Objects\_ObjectFall & SpeedToPos.asm"
 

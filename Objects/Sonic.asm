@@ -322,9 +322,20 @@ Sonic_Move:
 		bsr.w	Sonic_MoveRight
 
 	@notright:
+	if FixBugs=0
+	; These three instructions partially overwrite the inertia value in
+	; 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.	
 		move.b	ost_angle(a0),d0
 		addi.b	#$20,d0
 		andi.b	#$C0,d0					; is Sonic on a	slope?
+	else
+		move.b	ost_angle(a0),d1
+		addi.b	#$20,d1
+		andi.b	#$C0,d1					; is Sonic on a	slope?	
+	endc	
 		bne.w	Sonic_ResetScr				; if yes, branch
 		tst.w	ost_inertia(a0)				; is Sonic moving?
 		bne.w	Sonic_ResetScr				; if yes, branch
@@ -578,9 +589,20 @@ Sonic_MoveLeft:
 
 	@inertia_pos_:
 		move.w	d0,ost_inertia(a0)
+	if FixBugs=0
+	; These three instructions partially overwrite the inertia value in
+	; 'd0'! This causes the character to trigger their skidding
+	; animation at different speeds depending on whether they're going
+	; right or left. To fix this, make these instructions use 'd1'
+	; instead.	
 		move.b	ost_angle(a0),d0
 		addi.b	#$20,d0
-		andi.b	#$C0,d0
+		andi.b	#$C0,d0					; is Sonic on a	slope?
+	else
+		move.b	ost_angle(a0),d1
+		addi.b	#$20,d1
+		andi.b	#$C0,d1					; is Sonic on a	slope?	
+	endc	
 		bne.s	@exit					; branch if Sonic is running on a wall or ceiling
 		cmpi.w	#$400,d0
 		blt.s	@exit
@@ -895,6 +917,10 @@ Sonic_JumpDirection:
 ; ---------------------------------------------------------------------------
 
 Sonic_LevelBound:
+	if fixBugs=0
+	; If the x-velocity is negative and has a larger absolute value than the current x-position, 
+	; the resulting underflow results in a large positive value that leads to unintended 
+	; x-wrapping. 
 		move.l	ost_x_pos(a0),d1			; get x pos including subpixel
 		move.w	ost_x_vel(a0),d0
 		ext.l	d0
@@ -904,6 +930,27 @@ Sonic_LevelBound:
 		move.w	(v_boundary_left).w,d0
 		addi.w	#16,d0
 		cmp.w	d1,d0					; has Sonic touched the	left boundary?
+	else
+		; Check for overflow to prevent unintended x-wrapping at the left boundary
+		moveq 	#0,d2
+		move.l 	ost_x_pos(a0),d1
+		smi.b 	d2 ; Set d2 if player on position > 32767
+		add.w 	d2,d2 ; Move bit up
+		move.w 	ost_x_vel(a0),d0
+		spl.b 	d2 ; Set if speed is positive
+		add.w 	d2,d2 ; Move bit up
+		ext.l 	d0
+		asl.l 	#8,d0
+		add.l 	d0,d1
+		spl.b	d2 ; Set if position+speed is < 32768
+		move.w 	(v_boundary_left).w,d0
+		addi.w 	#$10,d0
+		tst.w 	d2 ; If d2 is zero, we had an underflow of position
+		beq.s 	@sides
+		swap 	d1
+		cmp.w 	d1,d0 ; has Sonic touched the side boundary?	
+	endc	
+		
 		bhi.s	@sides					; if yes, branch
 		move.w	(v_boundary_right).w,d0
 		addi.w	#296,d0

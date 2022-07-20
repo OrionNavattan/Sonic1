@@ -80,7 +80,7 @@ GM_Title:
 		move.b	#0,(v_last_lamppost).w			; clear lamppost counter
 		move.w	#0,(v_debug_active).w			; disable debug item placement mode
 		move.w	#0,(v_demo_mode).w			; disable debug mode
-		move.w	#0,(v_title_unused).w			; unused variable
+;		move.w	#0,(v_title_unused).w			; unused variable
 		move.w	#id_GHZ_act1,(v_zone).w			; set level to GHZ act 1 (0000)
 		move.w	#0,(v_palcycle_time).w			; disable palette cycling
 		bsr.w	LevelParameterLoad			; set level boundaries and Sonic's start position
@@ -120,7 +120,8 @@ GM_Title:
 		bsr.w	PalLoad_Next
 		play.b	1, bsr.w, mus_TitleScreen		; play title screen music
 		move.b	#0,(f_debug_enable).w			; disable debug mode
-		move.w	#$178,(v_countdown).w			; run title screen for $178 frames
+		;move.w	#$178,(v_countdown).w			; run title screen for $178 frames
+		move.w	#$210,(v_countdown).w			; run title screen for $225 frames
 		lea	(v_ost_psb).w,a1
 		moveq	#0,d0
 	if FixBugs=0	

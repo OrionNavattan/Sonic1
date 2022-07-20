@@ -2139,6 +2139,12 @@ SongCom_Voice:
 		moveq	#0,d0
 		move.b	(a4)+,d0				; Get new voice
 		move.b	d0,ch_Voice(a5)				; Store it
+	if FixBugs=0
+	else
+		; Guard against tracks that misuse coord flags.
+	    tst.b   ch_Type(a5)  ; Is this a PSG track?
+        bmi.s   locret_72CAA        ; Return if yes	
+    endc 
 		btst	#chf_Mask,(a5)				; Is SFX overriding this track? (ch_Flags)
 		bne.w	locret_72CAA				; Return if yes
 		movea.l	v_music_voice_table(a6),a1		; Music voice pointer
@@ -2405,7 +2411,15 @@ SongCom_VibOff:
 ; ===========================================================================
 
 SongCom_Env:
+	if fixBugs=0
 		move.b	(a4)+,ch_Voice(a5)			; Set current envelope
+	else
+		; Guard against songs with misused coord flags.
+		move.b  (a4)+,d0    ; Set current PSG tone
+        tst.b   ch_Type(a5)      ; Is this a PSG track?
+        bpl.s   @exit              ; Return if not
+        move.b  d0,ch_Voice(a5) ; Set current PSG tone
+@exit
 		rts
 ; ===========================================================================
 

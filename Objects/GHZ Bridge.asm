@@ -102,6 +102,12 @@ Bri_Action:	; Routine 2
 ; ---------------------------------------------------------------------------
 
 Bri_Detect:
+	if FixBugs
+	; This object does not check for debug mode, causing the placable object to get 
+	; ensnared by the bridge if you get too close.
+		tst.w	(v_debug_active).w		; is debug mode active?
+		bne.w	Plat_Exit				; if so, skip platform detection
+	endc	
 		moveq	#0,d1
 		move.b	ost_subtype(a0),d1			; get bridge width (in logs)
 		lsl.w	#3,d1

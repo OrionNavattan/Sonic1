@@ -13,7 +13,8 @@ hudVRAM:	macro loc
 HUD_Update:
 	if FixBugs=0
 		tst.w	(f_debug_enable).w			; is debug mode	on?
-	else ; This enables the debug HUD only when placement move is active
+	else 
+	; This enables the debug HUD only when placement mode is active.
 		tst.w	(v_debug_active).w			; Is debug placement active?
 	endc	
 		bne.w	HudDebug				; if yes, branch

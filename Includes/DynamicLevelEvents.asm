@@ -228,9 +228,12 @@ DLE_LZ3:
 		tst.b	(v_dle_routine).w
 		bne.s	@skip_boss				; branch if boss is already loaded
 		cmpi.w	#$1CA0,(v_camera_x_pos).w
-		bcs.s	@skip_boss2				; branch if camera is left of $1CA0
+;		bcs.s	@skip_boss2				; branch if camera is left of $1CA0
+		bcs.s	@skip_boss				; branch if camera is left of $1CA0
 		cmpi.w	#$600,(v_camera_y_pos).w
-		bcc.s	@skip_boss2				; branch if camera is below $600
+;		bcc.s	@skip_boss2				; branch if camera is below $600
+		bcc.s	@skip_boss				; branch if camera is below $600
+
 
 		bsr.w	FindFreeObj				; find free OST slot
 		bne.s	@fail					; branch if not found
@@ -244,8 +247,8 @@ DLE_LZ3:
 		bra.w	AddPLC					; load boss gfx
 ; ===========================================================================
 
-@skip_boss2:
-		rts	
+;@skip_boss2:
+;		rts	
 ; ===========================================================================
 
 @skip_boss:

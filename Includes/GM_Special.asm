@@ -193,7 +193,9 @@ SS_NormalExit:
 ;		bsr.w	PaletteWhiteOut
 ;		rts
 ;	else	
-		bra.w	PaletteWhiteOut
+		;bra.w	PaletteWhiteOut
+		bsr.w	PaletteWhiteOut
+		bra.w   PaletteFadeOut
 ;	endc		
 ; ===========================================================================
 

@@ -194,7 +194,7 @@ RLoss_Bounce:	; Routine 2
         beq.w   DeleteObject            ; If 0, delete
         ; Following two lines prevent scattered rings from disappearing at vertical boundaries on y-wrapped stages.
 		cmpi.w	#$FF00,(v_boundary_top).w		; is vertical wrapping enabled?
-		beq.w	@flash			; if so, branch
+		beq.s	@flash			; if so, branch
 		move.w	(v_boundary_bottom).w,d0
 		addi.w	#224,d0
 
