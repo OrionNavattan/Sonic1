@@ -567,12 +567,16 @@ Sonic_MoveLeft:
 		neg.w	d1					; negative for left direction	
 		cmp.w	d1,d0
 		bgt.s	@below_max				; branch if Sonic is moving below max speed
-	If RemoveSpeedCaps=0
+	if RemoveSpeedCaps=0
 	else	
-	; This removes the speed cap for leftward motion.
+	; This removes the speed cap for leftward motion. With workaround
+	; to prevent this change from applying to the demos.
+		tst.w	(v_demo_mode).w				; is demo mode on?
+		bne.s	@notindemo 			; if yes, branch
 		add.w	d5,d0
 		cmp.w	d1,d0
-		ble.s	@below_max	
+		ble.s	@below_max		
+	@notindemo:
 	endc	
 		move.w	d1,d0					; apply speed limit
 
@@ -632,10 +636,13 @@ Sonic_MoveRight:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for rightward motion.
+		tst.w	(v_demo_mode).w				; is demo mode on?
+		bne.s	@notindemo 			; if yes, branch
 		sub.w	d5,d0
 		cmp.w	d6,d0
-		bge.s	@below_max		
-	endc	
+		bge.s	@below_max			
+	@notindemo:
+	endc
 		move.w	d6,d0					; apply speed limit
 
 	@below_max:
@@ -830,10 +837,13 @@ Sonic_JumpDirection:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for movement in the air.
+		tst.w	(v_demo_mode).w				; is demo mode on?
+		bne.s	@notindemo 			; if yes, branch
 		add.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d1,d0		; compare speed with top speed
 		ble.s	@not_left	; if speed was already greater than the maximum, branch
-	endc	
+	@notindemo:	
+		endc
 		move.w	d1,d0					; set max speed
 
 	@not_left:
@@ -846,10 +856,13 @@ Sonic_JumpDirection:
 		blt.s	@update_speed				; if not, branch
 	if RemoveSpeedCaps=0
 	else
-	; This removes the speed cap for movement in the air.	
+	; This removes the speed cap for movement in the air.
+		tst.w	(v_demo_mode).w				; is demo mode on?
+		bne.s	@notindemo 			; if yes, branch		
 		sub.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d6,d0		; compare speed with top speed
-		bge.s	@update_speed	; if speed was already greater than the maximum, branch				
+		bge.s	@update_speed	; if speed was already greater than the maximum, branch	
+	@notindemo:				
 	endc	
 		move.w	d6,d0					; set max speed
 

@@ -49,7 +49,7 @@ ObjPos_GHZ1:
 		objpos $0DD0,$0270,BuzzBomber,$00,rem
 		objpos $0DD8,$0370,Spikes,$00
 		objpos $0DDA,$0277,Rings,$10,rem
-		objpos $0E30,$0278,Springs,$02
+		objpos $0E2C,$0278,Springs,$02
 		objpos $0EB1,$0211,Rings,$10,rem
 		objpos $0ED0,$0240,CollapseLedge,$00,rem
 		objpos $0ED2,$020A,Rings,$10,rem

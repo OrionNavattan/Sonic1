@@ -43,7 +43,7 @@ FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs.
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games.
 
-RemoveSpeedCaps: equ 1 ; Self-explanatory.
+RemoveSpeedCaps: equ 0 ; Self-explanatory.
 
 SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential.
 
@@ -317,7 +317,7 @@ Angle_Data:	incbin	"Misc Data\Angle Table.bin"
 ; ---------------------------------------------------------------------------
 		include "Includes\MoveSonicInDemo & DemoRecorder.asm"
 		include_demo_pointers				; Includes\Demo Pointers.asm
-		incbin	"Demos\Unused.bin"			; unused demo data
+;		incbin	"Demos\Unused.bin"			; unused demo data
 		even
 
 		include_Level_colptrs				; Includes\GM_Level.asm
