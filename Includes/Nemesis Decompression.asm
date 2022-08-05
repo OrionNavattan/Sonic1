@@ -13,11 +13,11 @@ NemDec_RAM:
 ; ------------------------------------------------------------------------------
 NemDec:
 	movem.l	d0-a1/a3-a6,-(sp)
-	lea	$C00000,a4		; load VDP Data Port     
+	lea	(vdp_data_port).l,a4		; load VDP Data Port     
 	lea	NemPCD_WriteRowToVDP(pc),a3
 
 NemDec_Main:
-	lea	$FFFFAA00,a1		; load Nemesis decompression buffer
+	lea	(v_nem_gfx_buffer).l,a1		; load Nemesis decompression buffer
 	move.w	(a0)+,d2		; get number of patterns
 	bpl.s	@0			; are we in Mode 0?
 	lea	$A(a3),a3		; if not, use Mode 1

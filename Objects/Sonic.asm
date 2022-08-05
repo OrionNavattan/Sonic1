@@ -571,12 +571,12 @@ Sonic_MoveLeft:
 	else	
 	; This removes the speed cap for leftward motion. With workaround
 	; to prevent this change from applying to the demos.
-		tst.w	(v_demo_mode).w				; is demo mode on?
-		bne.s	@notindemo 			; if yes, branch
+;		tst.w	(v_demo_mode).w				; is demo mode on?
+;		bne.s	@notindemo 			; if yes, branch
 		add.w	d5,d0
 		cmp.w	d1,d0
 		ble.s	@below_max		
-	@notindemo:
+;	@notindemo:
 	endc	
 		move.w	d1,d0					; apply speed limit
 
@@ -636,12 +636,12 @@ Sonic_MoveRight:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for rightward motion.
-		tst.w	(v_demo_mode).w				; is demo mode on?
-		bne.s	@notindemo 			; if yes, branch
+;		tst.w	(v_demo_mode).w				; is demo mode on?
+;		bne.s	@notindemo 			; if yes, branch
 		sub.w	d5,d0
 		cmp.w	d6,d0
 		bge.s	@below_max			
-	@notindemo:
+;	@notindemo:
 	endc
 		move.w	d6,d0					; apply speed limit
 
@@ -837,12 +837,12 @@ Sonic_JumpDirection:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for movement in the air.
-		tst.w	(v_demo_mode).w				; is demo mode on?
-		bne.s	@notindemo 			; if yes, branch
+;		tst.w	(v_demo_mode).w				; is demo mode on?
+;		bne.s	@notindemo 			; if yes, branch
 		add.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d1,d0		; compare speed with top speed
 		ble.s	@not_left	; if speed was already greater than the maximum, branch
-	@notindemo:	
+;	@notindemo:	
 		endc
 		move.w	d1,d0					; set max speed
 
@@ -857,12 +857,12 @@ Sonic_JumpDirection:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for movement in the air.
-		tst.w	(v_demo_mode).w				; is demo mode on?
-		bne.s	@notindemo 			; if yes, branch		
+;		tst.w	(v_demo_mode).w				; is demo mode on?
+;		bne.s	@notdemo 			; if yes, branch		
 		sub.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d6,d0		; compare speed with top speed
 		bge.s	@update_speed	; if speed was already greater than the maximum, branch	
-	@notindemo:				
+;	@notdemo:				
 	endc	
 		move.w	d6,d0					; set max speed
 
@@ -1306,11 +1306,11 @@ Sonic_JumpCollision:
 		move.w	ost_x_vel(a0),d1
 		move.w	ost_y_vel(a0),d2
 		jsr	(CalcAngle).l				; convert x/y speed to angle of direction
-		move.b	d0,(v_sonic_angle1_unused).w
+;		move.b	d0,(v_sonic_angle1_unused).w
 		subi.b	#$20,d0
-		move.b	d0,(v_sonic_angle2_unused).w
+;		move.b	d0,(v_sonic_angle2_unused).w
 		andi.b	#$C0,d0
-		move.b	d0,(v_sonic_angle3_unused).w
+;		move.b	d0,(v_sonic_angle3_unused).w
 		cmpi.b	#$40,d0
 		beq.w	Sonic_JumpCollision_Left		; branch if Sonic is moving left +-45 degrees
 		cmpi.b	#$80,d0
@@ -1512,6 +1512,9 @@ Sonic_ResetOnFloor:
 		nop	
 		nop	
 		nop	
+;		btst    #bitDn,(v_joypad_hold).w            ; is down being pressed?;
+;  		bne.w   Sonic_ResetOnFloor_ContRolling        ; if yes, branch
+
 
 	@no_rolljump:
 		bclr	#status_pushing_bit,ost_status(a0)
@@ -1529,6 +1532,48 @@ Sonic_ResetOnFloor:
 		move.b	#0,ost_sonic_jump(a0)
 		move.w	#0,(v_enemy_combo).w			; reset counter for points for breaking multiple enemies
 		rts
+
+
+;=====================================================================================================================
+; (Hitaxas) Fix for awful uncurling frame when a character lands on the ground from a jump
+; or if they walked off an object or edge of a floor while holding down.
+; this "bug" is present in S1-S3K.
+;=====================================================================================================================
+;Sonic_ResetOnFloor_ContRolling:
+;  		move.b  #id_Roll,ost_anim(a0)      ; play rolling animation
+ 
+;---------------------------------------------------------------------------------------------------------------------
+; check if character was already rolling, used for instances where they roll off one floor to land on another
+;---------------------------------------------------------------------------------------------------------------------
+;    btst    #2,ost_status(a0)                   ; was status set to rolling?
+;    beq.s	Sonic_ResetOnFloor_Part3        ; if it was, branch
+ 
+;---------------------------------------------------------------------------------------------------------------------
+; force character into rolling status, and play sound.
+;---------------------------------------------------------------------------------------------------------------------
+;    bset    #2,ost_status(a0)                   ; otherwise, set roll status
+;    move.b  #$E,y_radius(a0)                ; adjust character's y_radius
+;    move.b  #7,x_radius(a0)                 ; same for x_radius
+;    addq.w  #5,$C(a0)                       ; move character 5 pixels down, so they aren't floating
+;    move.w  #SndID_Roll,d0
+;    jsr     (PlaySound).l                   ; play rolling sound - required because this is not part of the normal roll code                        
+ 
+;---------------------------------------------------------------------------------------------------------------------
+; clear status flags and act like a true reset on floor. This is nearly identical to part 3
+; but without forcing character into walking animation.
+;---------------------------------------------------------------------------------------------------------------------  
+ ;   bclr    #1,ost_status(a0)                   ; clear in air status
+ ;   bclr    #5,ost_status(a0)                   ; clear pushing status
+ ;   bclr    #4,ost_status(a0)                   ; clear rolljump status
+ ;   move.b  #0,jumping(a0)                  ; clear jumping flag
+ ;   move.w  #0,(Chain_Bonus_counter).w
+ ;   move.b  #0,flip_angle(a0)
+ ;   move.b  #0,flips_remaining(a0)
+ ;   move.w  #0,(Sonic_Look_delay_counter).w	
+;	endif
+;return_1B11E:
+;	rts
+
 
 ; ---------------------------------------------------------------------------
 ; Sonic	when he	gets hurt

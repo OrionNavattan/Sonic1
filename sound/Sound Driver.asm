@@ -187,8 +187,12 @@ DACUpdateTrack:
 ; Note: this only defines rates for samples $88-$8D, meaning $8E-$8F are invalid.
 ; Also, $8C-$8D are so slow you may want to skip them.
 
-DAC_sample_rate: dc.b 18, 21, 28, 29, $FF, $FF
-
+DAC_sample_rate: 
+	if RestoreProtoDrums=0
+		dc.b  18, 21, 28, 29, $FF, $FF
+	else
+		dc.b  23, 26, 33, 34, $FF, $FF
+	endc
 ; ---------------------------------------------------------------------------
 ; Subroutine to update FM
 ; ---------------------------------------------------------------------------

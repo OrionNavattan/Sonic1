@@ -13,6 +13,8 @@
 		opt	w+					; print warnings
 		opt	m+					; do not expand macros - if enabled, this can break assembling
 
+RestoreProtoDrums: equ 1
+
 		org	0					; z80 Align, handled by the build process
 		include	"Macros - More CPUs.asm"		; include language macros
 		cpu	z80					; also start a new z80 program
@@ -226,9 +228,16 @@ zsample:	macro	name, pitch
 		endm
 
 PCM_Table:
+	if RestoreProtoDrums=0
 		zsample	dKick, 17h				; Kick sample
 		zsample	dSnare, 1h				; Snare sample
 		zsample	dTimpani, 1Bh				; Kick sample
+	else
+	; increase the pitch of the samples
+		zsample	dKick, 19h				; Kick sample
+		zsample	dSnare, 6h				; Snare sample
+		zsample	dTimpani, 20h				; Kick sample
+	endc	
 Sample3_Pitch:	= *-4						; this is the location of timpani pitch
 
 ; ---------------------------------------------------------------------------

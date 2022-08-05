@@ -75,11 +75,11 @@ Drown_ChkWater:	; Routine 4
 	if FixBugs=0	
 		beq.s	Drown_Display
 	else
-		; The game checks if a blank frame for the large bubble animation is set,
-		; but said frame is never actually set anywhere, making it pointless. 
-		; The blank frame is not useless however; setting it fixes an issue where
-		; corrupted remnants of the large bubbles may appear above the water's surface
-		; immediately after drowning.
+		; The large bubble animation has a blank frame that is meant to be set at this 
+		; location when the bubble reaches the surface, but it is never actually set, 
+		; leaving the frame unused and making the preceding cmpi.b completely pointless. 
+		; Setting this frame fixes an issue where corrupted remnants of a large bubble may 
+		; appear above the surface of the water if Sonic drowns just as it reaches the surface.
 		bcs.s	Drown_Display
 		move.b	#id_ani_drown_blank,ost_anim(a0)
 	endc	
@@ -327,7 +327,7 @@ Drown_Countdown:; Routine $A
 		tst.w	ost_drown_restart_time(a0)		; has Sonic drowned?
 		beq.w	@not_dead				; if not, branch
 		andi.w	#7,ost_drown_delay_time(a0)		; cut time between bubbles to 7 frames or less
-		addi.w	#0,ost_drown_delay_time(a0)
+;		addi.w	#0,ost_drown_delay_time(a0) 	; Pointless
 		move.w	(v_ost_player+ost_y_pos).w,d0
 		subi.w	#$C,d0
 		move.w	d0,ost_y_pos(a1)

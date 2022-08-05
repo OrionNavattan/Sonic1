@@ -50,10 +50,14 @@ GM_Sega:
 		bsr.w	PalLoad_Now				; load Sega logo palette
 		move.w	#-((countof_stripe-1)*2),(v_palcycle_num).w ; -$A
 		move.w	#0,(v_palcycle_time).w
+	if FixBugs=0
+	; Redundant, and clears more ram than necessary.
 		move.w	#0,(v_palcycle_buffer+$12).w
 		move.w	#0,(v_palcycle_buffer+$10).w
+	else
+		move.w	#0,(v_palcycle_buffer).w	
 		enable_display
-
+	endc
 Sega_PaletteLoop:
 		move.b	#id_VBlank_Sega,(v_vblank_routine).w
 		bsr.w	WaitForVBlank

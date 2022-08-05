@@ -29,8 +29,8 @@
 		cpu	68000
 
 EnableSRAM:	equ 0						; change to 1 to enable SRAM
-BackupSRAM:	equ 1
-AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
+BackupSRAM:	equ 0
+AddressSRAM:	equ 0						; 0 = odd+even; 2 = even only; 3 = odd only
 
 
 ;	if ~def(Revision)					; bit-perfect check will automatically set this variable
@@ -43,7 +43,7 @@ FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs.
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games.
 
-RemoveSpeedCaps: equ 0 ; Self-explanatory.
+RemoveSpeedCaps: equ 1 ; Self-explanatory.
 
 SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential.
 
@@ -57,13 +57,16 @@ RingChanges: equ 1 ; Scattered rings will have underwater physics, will no longe
 
 SSVariableJump: equ 1
 
+RestoreProtoDrums: equ 1
+
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
 		include "Nemesis File List.asm"
 ; ===========================================================================
 
 ROM_Start:
-Vectors:	dc.l v_stack_pointer&$FFFFFF			; Initial stack pointer value
+Vectors:	
+		dc.l v_stack_pointer&$FFFFFF			; Initial stack pointer value
 		dc.l EntryPoint					; Start of program
 		dc.l BusError					; Bus error
 		dc.l AddressError				; Address error
@@ -80,15 +83,15 @@ Vectors:	dc.l v_stack_pointer&$FFFFFF			; Initial stack pointer value
 		dc.l ErrorExcept				; Uninitialized interrupt
 		dcb.l 8,ErrorExcept				; Unused (reserved)
 		dc.l ErrorExcept				; Spurious exception
-		dc.l ErrorTrap					; IRQ level 1
-		dc.l ErrorTrap					; IRQ level 2
-		dc.l ErrorTrap					; IRQ level 3
+		dc.l ErrorExcept					; IRQ level 1
+		dc.l ErrorExcept					; IRQ level 2
+		dc.l ErrorExcept					; IRQ level 3
 		dc.l HBlank					; IRQ level 4 (horizontal retrace interrupt)
-		dc.l ErrorTrap					; IRQ level 5
+		dc.l ErrorExcept					; IRQ level 5
 		dc.l VBlank					; IRQ level 6 (vertical retrace interrupt)
-		dc.l ErrorTrap					; IRQ level 7
-		dcb.l 16,ErrorTrap				; TRAP #00..#15 exceptions
-		dcb.l 16,ErrorTrap				; Unused (reserved)
+		dc.l ErrorExcept					; IRQ level 7
+		dcb.l 16,ErrorExcept				; TRAP #00..#15 exceptions
+		dcb.l 16,ErrorExcept				; Unused (reserved)
 
 		dc.b "SEGA MEGA DRIVE "				; Hardware system ID (Console name)
 		dc.b "(C)SEGA 1991.APR"				; Copyright holder and release date (generally year)
@@ -110,7 +113,7 @@ ROM_End_Ptr:	dc.l ROM_End-1					; End address of ROM
 
 	if EnableSRAM=1
 		dc.b "RA", $A0+(BackupSRAM<<6)+(AddressSRAM<<3), $20
-		dc.l $200001					; SRAM start
+		dc.l $200000					; SRAM start
 		dc.l $200FFF					; SRAM end
 	else
 		dc.l $20202020					; dummy values (SRAM disabled)
@@ -125,10 +128,10 @@ EndOfHeader:
 ; ===========================================================================
 ; Crash/Freeze the 68000. Unlike Sonic 2, Sonic 1 uses the 68000 for playing music, so it stops too
 
-ErrorTrap:
-		nop
-		nop
-		bra.s	ErrorTrap
+;ErrorTrap:
+;		nop
+;		nop
+;		bra.s	ErrorTrap
 ; ===========================================================================
 
 		include	"Includes\Mega Drive Setup.asm"		; EntryPoint

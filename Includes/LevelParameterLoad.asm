@@ -6,10 +6,13 @@
 
 LevelParameterLoad:
 		moveq	#0,d0
-		move.b	d0,(v_levelsizeload_unused_1).w		; clear unused variables
-		move.b	d0,(v_levelsizeload_unused_2).w
-		move.b	d0,(v_levelsizeload_unused_3).w
-		move.b	d0,(v_levelsizeload_unused_4).w
+
+		;Pointless.
+;		move.b	d0,(v_levelsizeload_unused_1).w		; clear unused variables
+;		move.b	d0,(v_levelsizeload_unused_2).w
+;		move.b	d0,(v_levelsizeload_unused_3).w
+;		move.b	d0,(v_levelsizeload_unused_4).w
+
 		move.b	d0,(v_dle_routine).w			; clear DynamicLevelEvents routine counter
 		move.w	(v_zone).w,d0				; get zone/act number
 		lsl.b	#6,d0					; move act number next to zone number

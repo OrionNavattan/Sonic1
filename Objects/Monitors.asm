@@ -154,7 +154,7 @@ Mon_Solid_ChkPush:
 		cmpi.b	#id_Death,ost_anim(a1)	; is Sonic dead?
 		beq.s	Mon_Solid_ClearPush		; if so, branch
 		cmpi.b	#id_Burnt,ost_anim(a1)  ; is Sonic dead from being burnt?
-		beq.s	Mon_Solid_ClearPush		; if so, branch			; if not, branch
+		beq.s	Mon_Solid_ClearPush		; if so, branch			
 		move.w	#id_Run,ost_anim(a1)
 	endc	
 		move.w	#id_Run,ost_anim(a1)
@@ -197,6 +197,11 @@ Mon_Explode:
 		moveq	#0,d0
 		move.b	ost_respawn(a0),d0
 	if FixBugs=0
+	; If you spawn a monitor in Debug Mode and destroy it, then every
+	; monitor that is spawned with Debug Mode afterwards will be broken.
+	; The cause of the bug is that the spawned monitor does not have a
+	; respawn entry, but this object fails to check for that before
+	; accessing the respawn table.
 		beq.s	@setbroken
 	else	
 	endc

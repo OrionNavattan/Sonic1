@@ -40,6 +40,12 @@ Shi_Main:	; Routine 0
 ; ===========================================================================
 
 Shi_Shield:	; Routine 2
+	if FixBugs=0
+	else
+		; Hide the shield while in debug mode.
+		tst.w	(v_debug_active).w		; is debug mode active?
+		bne.s	@hide					; if yes, don't display shield
+	endc	
 		tst.b	(v_invincibility).w			; does Sonic have invincibility?
 		bne.s	@hide					; if yes, branch
 		tst.b	(v_shield).w				; does Sonic have shield?
@@ -79,6 +85,12 @@ Shi_Shield:	; Routine 2
 Shi_Stars:	; Routine 4
 		tst.b	(v_invincibility).w			; does Sonic have invincibility?
 		beq.s	@delete					; if not, branch
+	if FixBugs=0
+	else
+		; Hide the invincibility stars while in debug mode.
+		tst.w	(v_debug_active).w		; is debug mode active?
+		bne.s	@hide					; if yes, don't display stars
+	endc	
 		move.w	(v_sonic_pos_tracker_num).w,d0		; get current index value for position tracking data
 		move.b	ost_anim(a0),d1				; get animation id (1 to 4)
 		subq.b	#1,d1					; subtract 1 (0 to 3)
@@ -143,7 +155,12 @@ Shi_Stars:	; Routine 4
 
 @delete:	
 		jmp	(DeleteObject).l
-
+	
+	if FixBugs=0
+	else		
+@hide:
+		rts	
+	endc
 ; ---------------------------------------------------------------------------
 ; Animation script
 ; ---------------------------------------------------------------------------

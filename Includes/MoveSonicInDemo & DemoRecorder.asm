@@ -15,10 +15,13 @@ MoveSonicInDemo:
 ;	uses d0, a1
 ; ---------------------------------------------------------------------------
 
-;DemoRecorder:
-;		lea	($80000).l,a1				; memory address to record demo to
+DemoRecorder:
+;		lea	($200000).l,a1				; memory address to record demo to
+		
 ;		move.w	(v_demo_input_counter).w,d0		; get number of inputs so far
 ;		adda.w	d0,a1					; jump to last position in recorded data
+;		cmpa.l	$FFFFD000,a1			; has counter reached the end of the recording RAM?
+;		beq.s	@exit	
 ;		move.b	(v_joypad_hold_actual).w,d0		; get joypad input state
 ;		cmp.b	(a1),d0					; is joypad input same as last frame?
 ;		bne.s	@next					; if not, branch
@@ -26,12 +29,14 @@ MoveSonicInDemo:
 ;		cmpi.b	#$FF,1(a1)				; has input timer hit 255 (maximum)?
 ;		beq.s	@next					; if yes, branch
 ;		rts	
-
+;
 ;	@next:
 ;		move.b	d0,2(a1)				; write new input state
 ;		move.b	#0,3(a1)				; set time to 0
 ;		addq.w	#2,(v_demo_input_counter).w		; increment counter
 ;		andi.w	#$3FF,(v_demo_input_counter).w		; counter stops at $200 inputs
+;		
+;	@exit:	
 ;		rts	
 ; ===========================================================================
 

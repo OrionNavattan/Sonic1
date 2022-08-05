@@ -250,7 +250,7 @@ Title_PressedStart:
 	else
 	; If the level select is entered at very specific time, a strip of GHZ's background graphics
 	; will appear on the left edge of the screen due to the draw flags still being set. Clearing 
-	; the flags here eliminates this .
+	; the flags here eliminates this.
 		moveq	#0,d0				; clear d0
 		move.b	d0,(v_bg1_redraw_direction_copy).w		; clear background strip 1 draw flags
 		move.b	d0,(v_bg2_redraw_direction_copy).w		; clear background strip 2 draw flags
