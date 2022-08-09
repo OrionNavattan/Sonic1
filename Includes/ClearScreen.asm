@@ -49,7 +49,7 @@ ClearScreen:
 	if FixBugs=0	
 		move.w	#(sizeof_vram_hscroll_padded/4),d1	; this should be ($400/4)-1, leading to a slight bug (first 4 bytes of Sonic's object RAM are cleared)
 	else
-		move.w	#(sizeof_vram_hscroll/4)-1,d1	
+		move.w	#(sizeof_vram_hscroll_padded/4)-1,d1	
 	endc
 	@clearhscroll:
 		move.l	d0,(a1)+

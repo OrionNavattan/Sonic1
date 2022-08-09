@@ -342,7 +342,7 @@ DoModulation:
 		; This subroutine meddles with the stack in such a way that if an interrupt
 		; occurs at any time while it is running, it will end up returning oy itself
 		; resulting in an infinite loop. This was worked around with a hack in
-		; the VBLank and Hblank routines.
+		; the VBLank and HBlank routines.
 		addq.w	#4,sp					; Do not return to caller (but see below)
 		btst	#chf_Vib,(a5)				; Is modulation active? (ch_Flags)
 		beq.s	@locret					; Return if not
@@ -910,8 +910,8 @@ Sound_PlaySFX:
 		move.b	(a1)+,d5				; Dividing timing
 	if FixBugs=0
 	else
-		; Without this 'moveq #0,d7' here, special SFXes whose
-		; index entry is above $3F will cause a crash.	
+		; If d7 is not cleared here, special SFXes with index entries above $3F will cause 
+		; a crash. This instance of the bug was fixed in Ristar's driver.
 		moveq	#0,d7
 
 	endc	
@@ -1035,8 +1035,8 @@ Sound_PlaySpecial:
 		move.b	(a1)+,d5				; Dividing timing
 	if FixBugs=0
 	else	
-		; Without this 'moveq #0,d7' here, special SFXes whose
-		; index entry is above $3F will cause a crash.	
+		; If d7 is not cleared here, special SFXes with index entries above $3F will cause 
+		; a crash. This instance of the bug was NOT fixed in Ristar's driver.
 		moveq	#0,d7
 	endc	
 		move.b	(a1)+,d7				; Number of tracks (FM + PSG)
@@ -1145,7 +1145,7 @@ StopSFX:
 	
 	if FixBugs=0
 	else
-		; Without the above 'movea.l a5,a3' here, this code is broken. 
+		; Without this 'movea.l a5,a3', this code is broken. 
 		; It is dangerous to do a fade out when a GHZ waterfall is playing its sound!
 		movea.l	a5,a3
 	endc	
@@ -1351,8 +1351,7 @@ SoundCmd_Stop:
 		moveq	#0,d1					; FM3/FM6 normal mode, disable timers
 		jsr	WriteFMI(pc)
 		movea.l	a6,a0
-	if FixBugs=0
-		else	
+	if FixBugs=0	
 		;This should be clearing all variables and track data, but misses the last $10 bytes of v_Back_PSG3.
 		move.w	#((v_back_ram_end-v_backup_start-$10)/4)-1,d0 ; Clear $390 bytes: all variables and most track data
 	else
@@ -1380,7 +1379,8 @@ InitMusicPlayback:
 		move.b	v_fadein_counter(a6),d4
 		
 	if FixBugs=0
-		; As before, this should be a longword rather than a word.
+		; As before, v_soundqueue+2 is not backed up due to this instruction being a word
+		; rather than a longword. 
 		move.w	v_soundqueue(a6),d5	
 	else
 		move.l	v_soundqueue(a6),d5
@@ -1397,7 +1397,7 @@ InitMusicPlayback:
 		move.b	d3,f_speedup(a6)
 		move.b	d4,v_fadein_counter(a6)
 	if FixBugs=0
-		; As before, this should be a longword rather than a word.
+		; As above, this should be a longword rather than a word.
 		move.w	d5,v_soundqueue(a6)
 	else
 		move.l	d5,v_soundqueue(a6)	
@@ -1406,13 +1406,13 @@ InitMusicPlayback:
 		
 	if FixBugs=0
 		; This silences ALL channels, even the ones being used
-		; by SFX, and not music, and is redundant since sendfmnoteoff will 
+		; by SFX! Additionally, it is technically redundant since sendfmnoteoff will 
 		; also do it, although we will need to define all channels properly 
 		; for it to work.
 		jsr	FMSilenceAll(pc)
 		bra.w	PSGSilenceAll
 	else
-		; This more thoroughly sets up the music tracks,allowing @Sendfmnoteoff
+		; This more thoroughly sets up the music tracks, allowing @sendfmnoteoff
 		; to properly silence the hardware.
 		lea	v_music_ram+ch_Type(a6),a1
 		lea	FMDACInitBytes(pc),a2
@@ -1547,7 +1547,7 @@ DoFadeIn:
 	 ; during the fadein. The following restores those values after every fade-in,
 	 ; eliminating this issue.
 	 
-		tst.b	v_music_DAC+ch_Flags(a6)					; is the DAC channel running?
+		tst.b	v_music_DAC+ch_Flags(a6)	; is the DAC channel running?
 		bpl.s	@Resume_NoDAC				; if not, branch
 		move.b	#$B6,d0						; AMS/FMS/panning of FM6
 		move.b	v_music_DAC+ch_Pan(a6),d1	; load DAC channel's L/R/AMS/FMS value
@@ -1904,7 +1904,7 @@ SendPSGNoteOff:
 		; risk of music accidentally playing noise because it can't detect if
 		; the PSG4/noise channel needs muting on track initialisation.
 		; The follow code backported from S3&K addresses this issue.
-		cmpi.b	#tPSG3 | $1F,d0				; Are stopping PSG3?
+		cmpi.b	#tPSG3 | $1F,d0				; Are we stopping PSG3?
 		bne.s	locret_729B4
 		move.b	#tPSG4 | $1F,(psg_input).l		; If so, stop noise channel while we're at it
 	endc
@@ -2001,7 +2001,7 @@ SongCom_RestoreSong:
 		; This subroutine does not restore the mode of FM6 when fading in.
 		; If a track uses FM6 (Special Stage music), is interrupted by a track that uses the DAC (1-UP Jingle),
 		; and is then faded back in, FM6 will remain in DAC mode, causing the music 
-		; to be missing a channel. The following three lines always place FM6 back in FM mode when fading in.
+		; to be missing a channel. The following three lines force FM6 back to FM mode when fading in.
 		; This doesn't cause any issues, since the Z80 DAC driver will set FM6 back to DAC mode if required.
 		move.b  #$2B, d0    ; Register: DAC mode (bit 7 = enable)
         moveq   #$00, d1    ; Value: DAC mode disable
@@ -2145,7 +2145,10 @@ SongCom_Voice:
 		move.b	d0,ch_Voice(a5)				; Store it
 	if FixBugs=0
 	else
-		; Guard against tracks that misuse coord flags.
+		; Some SMPS tracks (most notable Volcano Valley Act 1 from Sonic 3D Blast)
+		; incorrectly use certain coordination flags, resulting in issues unless a check 
+		; is added to prevent them for having ill effects, such as this one backported from
+		; Sonic 3.
 	    tst.b   ch_Type(a5)  ; Is this a PSG track?
         bmi.s   locret_72CAA        ; Return if yes	
     endc 
