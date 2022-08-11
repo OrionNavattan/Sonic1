@@ -7,16 +7,16 @@
 ; ---------------------------------------------------------------------------
 
 _Kos_RunBitStream macro
-	dbf	d2,@skip\@
+	dbf	d2,.skip\@
 	moveq	#7,d2
 	move.b	d1,d0
 	swap	d3
-	bpl.s	@skip\@
+	bpl.s	.skip\@
 	move.b	(a0)+,d0			; get desc. bitfield
 	move.b	(a0)+,d1			;
 	move.b	(a4,d0.w),d0			; reload converted desc. bitfield from a LUT
 	move.b	(a4,d1.w),d1			;
-@skip\@
+.skip\@
 	endm
 ; ---------------------------------------------------------------------------
 

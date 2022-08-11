@@ -5,9 +5,9 @@
 ; ---------------------------------------------------------------------------
 
 zonewarning:	macro loc,elementsize
-	@end:
-		if (@end-loc)-(ZoneCount*elementsize)<>0
-		inform 1,"Size of \loc ($%h) does not match ZoneCount ($\#ZoneCount).",(@end-loc)/elementsize
+	.end:
+		if (.end-loc)-(ZoneCount*elementsize)<>0
+		inform 1,"Size of \loc ($%h) does not match ZoneCount ($\#ZoneCount).",(.end-loc)/elementsize
 		endc
 		endm
 
@@ -75,7 +75,7 @@ piece:		macro
 		dc.b ((sprite_width-1)<<2)+sprite_height-1
 		sprite_xpos: = \1
 		if \4<0						; is tile index negative?
-			sprite_tile: = $10000\4			; convert signed to unsigned
+			sprite_tile: = $10000+(\4)		; convert signed to unsigned
 		else
 			sprite_tile: = \4
 		endc

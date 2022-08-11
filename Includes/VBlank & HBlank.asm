@@ -10,13 +10,13 @@ VBlank:
 		move.l	#$40000010+(0<<16),(vdp_control_port).l	; set write destination to VSRAM address 0
 		move.l	(v_fg_y_pos_vsram).w,(vdp_data_port).l	; send screen y-axis pos. to VSRAM
 		btst	#6,(v_console_region).w			; is Mega Drive PAL?
-		beq.s	@notPAL					; if not, branch
+		beq.s	.notPAL					; if not, branch
 
 		move.w	#$700,d0
-	@waitPAL:
-		dbf	d0,@waitPAL				; wait here in a loop doing nothing for a while...
+	.waitPAL:
+		dbf	d0,.waitPAL				; wait here in a loop doing nothing for a while...
 
-	@notPAL:
+	.notPAL:
 		move.b	(v_vblank_routine).w,d0			; get routine number
 		move.b	#id_VBlank_Lag,(v_vblank_routine).w	; reset to 0
 		move.w	#1,(f_hblank_pal_change).w		; set flag to let HBlank know a frame has finished
@@ -64,23 +64,23 @@ VBlank_Index:	index *,,2
 ; 0 - runs when a frame ends before WaitForVBlank triggers (i.e. the game is lagging)
 VBlank_Lag:
 		cmpi.b	#$80+id_Level,(v_gamemode).w		; is game on level init sequence?
-		beq.s	@islevel				; if yes, branch
+		beq.s	.islevel				; if yes, branch
 		cmpi.b	#id_Level,(v_gamemode).w		; is game on a level proper?
 		bne.w	VBlank_Music				; if not, branch
 
-	@islevel:
+	.islevel:
 		cmpi.b	#id_LZ,(v_zone).w			; is level LZ ?
 		bne.w	VBlank_Music				; if not, branch
 
 		move.w	(vdp_control_port).l,d0
 		btst	#6,(v_console_region).w			; is Mega Drive PAL?
-		beq.s	@notPAL					; if not, branch
+		beq.s	.notPAL					; if not, branch
 
 		move.w	#$700,d0
-	@waitPAL:
-		dbf	d0,@waitPAL
+	.waitPAL:
+		dbf	d0,.waitPAL
 
-	@notPAL:
+	.notPAL:
 		move.w	#1,(f_hblank_pal_change).w		; set flag to let HBlank know a frame has finished
 	if FixBugs=0
 		; With the sound driver now able to run during interrupts, the various
@@ -93,15 +93,15 @@ VBlank_Lag:
 	else
 	endc	
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
-		bne.s	@allwater				; if yes, branch
+		bne.s	.allwater				; if yes, branch
 
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy normal palette to CRAM (water palette will be copied by HBlank later)
-		bra.s	@waterbelow
+		bra.s	.waterbelow
 
-	@allwater:
+	.allwater:
 		dma	v_pal_water,sizeof_pal_all,cram		; copy water palette to CRAM
 
-	@waterbelow:
+	.waterbelow:
 		move.w	(v_vdp_hint_counter).w,(a5)		; set water palette position by sending VDP register $8Axx to control port (vdp_control_port)
 	if FixBugs=0	
 		startZ80
@@ -117,10 +117,10 @@ VBlank_Sega:
 ; $14 - GM_Sega> Sega_WaitPal (once)
 VBlank_Sega_SkipLoad:
 		tst.w	(v_countdown).w
-		beq.w	@end
+		beq.w	.end
 		subq.w	#1,(v_countdown).w			; decrement timer
 
-	@end:
+	.end:
 		rts	
 ; ===========================================================================
 
@@ -130,10 +130,10 @@ VBlank_Title:
 		bsr.w	DrawTilesWhenMoving_BGOnly		; update background
 		bsr.w	ProcessPLC				; decompress up to 9 cells of Nemesis gfx if needed
 		tst.w	(v_countdown).w
-		beq.w	@end
+		beq.w	.end
 		subq.w	#1,(v_countdown).w			; decrement timer
 
-	@end:
+	.end:
 		rts	
 ; ===========================================================================
 
@@ -157,26 +157,26 @@ VBlank_Level:
 	endc	
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
-		bne.s	@allwater				; if yes, branch
+		bne.s	.allwater				; if yes, branch
 
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy normal palette to CRAM (water palette will be copied by HBlank later)
-		bra.s	@waterbelow
+		bra.s	.waterbelow
 
-	@allwater:
+	.allwater:
 		dma	v_pal_water,sizeof_pal_all,cram		; copy water palette to CRAM
 
-	@waterbelow:
+	.waterbelow:
 		move.w	(v_vdp_hint_counter).w,(a5)		; set water palette position by sending VDP register $8Axx to control port (vdp_control_port)
 
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
-		beq.s	@nochg					; if not, branch
+		beq.s	.nochg					; if not, branch
 
 		dma	v_sonic_gfx_buffer,sizeof_vram_sonic,vram_sonic ; copy new Sonic gfx to VRAM
 		move.b	#0,(f_sonic_dma_gfx).w
 
-	@nochg:
+	.nochg:
 	if FixBugs=0
 		startZ80
 	else	
@@ -208,10 +208,10 @@ DrawTiles_LevelGfx_HUD_PLC:
 		jsr	(HUD_Update).l				; update HUD graphics
 		bsr.w	ProcessPLC2				; decompress up to 3 cells of Nemesis gfx
 		tst.w	(v_countdown).w
-		beq.w	@end
+		beq.w	.end
 		subq.w	#1,(v_countdown).w			; decrement timer
 
-	@end:
+	.end:
 		rts
 
 ; ===========================================================================
@@ -233,17 +233,17 @@ VBlank_Special:
 	endc	
 		bsr.w	PalCycle_SS				; update cycling palette
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
-		beq.s	@nochg					; if not, branch
+		beq.s	.nochg					; if not, branch
 
 		dma	v_sonic_gfx_buffer,sizeof_vram_sonic,vram_sonic ; copy new Sonic gfx to VRAM
 		move.b	#0,(f_sonic_dma_gfx).w
 
-	@nochg:
+	.nochg:
 		tst.w	(v_countdown).w
-		beq.w	@end
+		beq.w	.end
 		subq.w	#1,(v_countdown).w			; decrement timer
 
-	@end:
+	.end:
 		rts	
 ; ===========================================================================
 
@@ -258,25 +258,25 @@ VBlank_Ending:
 	endc	
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
-		bne.s	@allwater				; if yes, branch
+		bne.s	.allwater				; if yes, branch
 
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy normal palette to CRAM (water palette will be copied by HBlank later)
-		bra.s	@waterbelow
+		bra.s	.waterbelow
 
-	@allwater:
+	.allwater:
 		dma	v_pal_water,sizeof_pal_all,cram		; copy water palette to CRAM
 
-	@waterbelow:
+	.waterbelow:
 		move.w	(v_vdp_hint_counter).w,(a5)		; set water palette position by sending VDP register $8Axx to control port (vdp_control_port)
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
-		beq.s	@nochg					; if not, branch
+		beq.s	.nochg					; if not, branch
 
 		dma	v_sonic_gfx_buffer,sizeof_vram_sonic,vram_sonic ; copy new Sonic gfx to VRAM
 		move.b	#0,(f_sonic_dma_gfx).w
 
-	@nochg:
+	.nochg:
 	if FixBugs=0	
 		startZ80
 	else	
@@ -323,17 +323,17 @@ VBlank_Continue:
 	else	
 	endc	
 		tst.b	(f_sonic_dma_gfx).w			; has Sonic's sprite changed?
-		beq.s	@nochg					; if not, branch
+		beq.s	.nochg					; if not, branch
 
 		dma	v_sonic_gfx_buffer,sizeof_vram_sonic,vram_sonic ; copy new Sonic gfx to VRAM
 		move.b	#0,(f_sonic_dma_gfx).w
 
-	@nochg:
+	.nochg:
 		tst.w	(v_countdown).w
-		beq.w	@end
+		beq.w	.end
 		subq.w	#1,(v_countdown).w			; decrement timer
 
-	@end:
+	.end:
 		rts	
 
 ; ---------------------------------------------------------------------------
@@ -349,14 +349,14 @@ ReadPad_Palette_Sprites_HScroll:
 	endc
 		bsr.w	ReadJoypads
 		tst.b	(f_water_pal_full).w			; is water covering the whole screen?
-		bne.s	@allwater				; if yes, branch
+		bne.s	.allwater				; if yes, branch
 		dma	v_pal_dry,sizeof_pal_all,cram		; copy normal palette to CRAM (water palette will be copied by HBlank later)
-		bra.s	@waterbelow
+		bra.s	.waterbelow
 
-	@allwater:
+	.allwater:
 		dma	v_pal_water,sizeof_pal_all,cram		; copy water palette to CRAM
 
-	@waterbelow:
+	.waterbelow:
 		dma	v_sprite_buffer,sizeof_vram_sprites,vram_sprites
 		dma	v_hscroll_buffer,sizeof_vram_hscroll,vram_hscroll
 	if FixBugs=0	
@@ -372,7 +372,7 @@ ReadPad_Palette_Sprites_HScroll:
 HBlank:
 		disable_ints
 		tst.w	(f_hblank_pal_change).w			; is palette set to change during HBlank?
-		beq.s	@nochg					; if not, branch
+		beq.s	.nochg					; if not, branch
 		move.w	#0,(f_hblank_pal_change).w
 		movem.l	a0-a1,-(sp)				; save a0-a1 to stack
 		lea	(vdp_data_port).l,a1
@@ -387,19 +387,18 @@ HBlank:
 		; Part of the same workaround described above in VBlank_Level. 
 		; Also no longer needed if the sound driver bug has been fixed. 	
 		tst.b	(f_hblank_run_snd).w			; is flag set to update sound & some graphics during HBlank?
-		bne.s	@update_hblank				; if yes, branch
+		bne.s	.update_hblank				; if yes, branch
 	else	
 	endc
-	@nochg:
+	.nochg:
 		rte						; end of HBlank
 ; ===========================================================================
 
 	if FixBugs=0
 		; Part of the same workaround described above in VBlank_Level. 
 		; Also no longer needed if the sound driver bug has been fixed. 	
-		
 		; The following only runs during a level and HBlank is set to run on line 96 or below
-@update_hblank:
+.update_hblank:
 		clr.b	(f_hblank_run_snd).w
 		movem.l	d0-a6,-(sp)				; save registers to stack
 		bsr.w	DrawTiles_LevelGfx_HUD_PLC		; display new tiles, update animated gfx, update HUD, decompress 3 cells of Nemesis gfx

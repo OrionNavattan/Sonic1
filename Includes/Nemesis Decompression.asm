@@ -19,9 +19,9 @@ NemDec:
 NemDec_Main:
 	lea	(v_nem_gfx_buffer).l,a1		; load Nemesis decompression buffer
 	move.w	(a0)+,d2		; get number of patterns
-	bpl.s	@0			; are we in Mode 0?
+	bpl.s	.0			; are we in Mode 0?
 	lea	$A(a3),a3		; if not, use Mode 1
-@0	lsl.w	#3,d2
+.0	lsl.w	#3,d2
 	movea.w	d2,a5
 	moveq	#7,d3
 	moveq	#0,d2
@@ -50,11 +50,11 @@ NemDec2:
 	add.w	d1,d1
 	sub.b	(a1,d1.w),d6		; ~~ subtract from shift value so that the next code is read next time around
 	cmpi.w	#9,d6			; does a new byte need to be read?
-	bcc.s	@0			; if not, branch
+	bcc.s	.0			; if not, branch
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5		; read next byte
-@0	move.b	1(a1,d1.w),d1
+.0	move.b	1(a1,d1.w),d1
 	move.w	d1,d0
 	andi.w	#$F,d1			; get palette index for pixel
 	andi.w	#$F0,d0
@@ -81,11 +81,11 @@ NemDec_WritePixelLoop:
 NemDec_InlineData:
 	subq.w	#6,d6			; 6 bits needed to signal inline data
 	cmpi.w	#9,d6
-	bcc.s	@0
+	bcc.s	.0
 	addq.w	#8,d6
 	asl.w	#8,d5
 	move.b	(a0)+,d5
-@0	subq.w	#7,d6			; and 7 bits needed for the inline data itself
+.0	subq.w	#7,d6			; and 7 bits needed for the inline data itself
 	move.w	d5,d1
 	lsr.w	d6,d1			; shift so that low bit of the code is in bit position 0
 	move.w	d1,d0
@@ -111,6 +111,7 @@ loc_1502:
 	bne.s	NemPCD_NewRow			; if not, branch
 	rts
 ; ---------------------------------------------------------------------------
+
 
 NemPCD_WriteRowToVDP_XOR:
 	eor.l	d4,d2			; XOR the previous row by the current row
@@ -144,18 +145,18 @@ NemDec_WriteRowToRAM_XOR:
 NemDec_BuildCodeTable:
 	move.b	(a0)+,d0		; read first byte
 
-@ChkEnd:
+.ChkEnd:
 	cmpi.b	#$FF,d0			; has the end of the code table description been reached?
-	bne.s	@NewPalIndex		; if not, branch
+	bne.s	.NewPalIndex		; if not, branch
 	rts
 ; ---------------------------------------------------------------------------
 
-@NewPalIndex:
+.NewPalIndex:
 	move.w	d0,d7
 
-@ItemLoop:
+.ItemLoop:
 	move.b	(a0)+,d0		; read next byte
-	bmi.s	@ChkEnd			; ~~
+	bmi.s	.ChkEnd			; ~~
 	move.b	d0,d1
 	andi.w	#$F,d7			; get palette index
 	andi.w	#$70,d1			; get repeat count for palette index
@@ -166,14 +167,14 @@ NemDec_BuildCodeTable:
 	or.w	d1,d7			; combine with palette index and repeat count to form code table entry
 	moveq	#8,d1
 	sub.w	d0,d1			; is the code 8 bits long?
-	bne.s	@ItemShortCode		; if not, a bit of extra processing is needed
+	bne.s	.ItemShortCode		; if not, a bit of extra processing is needed
 	move.b	(a0)+,d0		; get code
 	add.w	d0,d0			; each code gets a word-sized entry in the table
 	move.w	d7,(a1,d0.w)		; store the entry for the code
-	bra.s	@ItemLoop		; repeat
+	bra.s	.ItemLoop		; repeat
 ; ---------------------------------------------------------------------------
 
-@ItemShortCode:
+.ItemShortCode:
 	move.b	(a0)+,d0		; get code
 	lsl.w	d1,d0			; shift so that high bit is in bit position 7
 	add.w	d0,d0			; get index into code table
@@ -182,7 +183,7 @@ NemDec_BuildCodeTable:
 	subq.w	#1,d5			; d5 = 2^d1 - 1
 	lea	(a1,d0.w),a6		; ~~
 
-@ItemShortCodeLoop:
+.ItemShortCodeLoop:
 	move.w	d7,(a6)+		; ~~ store entry
-	dbf	d5,@ItemShortCodeLoop	; repeat for required number of entries
-	bra.s	@ItemLoop
+	dbf	d5,.ItemShortCodeLoop	; repeat for required number of entries
+	bra.s	.ItemLoop
