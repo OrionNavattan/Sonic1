@@ -159,11 +159,11 @@ Solid_SkipRenderChk:
 	else
 	; Part of ducking size fix.	
 		cmpi.b	#id_Duck,ost_anim(a1)
-		bne.s	@skip
+		bne.s	.skip
 		subi.w	#5,d2
 		addi.w	#5,d3
 		
-	@skip:		
+	.skip:		
 	endc	
 		sub.w	ost_y_pos(a0),d3			; d3 = y pos of Sonic on object (0 is centre)
 		addq.w	#4,d3

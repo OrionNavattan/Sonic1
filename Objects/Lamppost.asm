@@ -122,7 +122,7 @@ Lamp_Blue:	; Routine 2
 	; does not have a respawn entry, but this object fails to check for
 	; that before accessing the respawn table.
 	else
-		beq.s	@donothing		; Fixes issue with checkpoints placed in debug mode always being activated if another one was activated previously	
+		beq.s	.donothing		; Fixes issue with checkpoints placed in debug mode always being activated if another one was activated previously	
 	endc	
 		bset	#0,2(a2,d0.w)				; remember lamppost as red
 

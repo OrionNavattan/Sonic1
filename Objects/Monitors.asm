@@ -43,7 +43,7 @@ Mon_Main:	; Routine 0
 	; respawn entry, but this object fails to check for that before
 	; accessing the respawn table.
 	else
-		beq.s	@notbroken  ; Fixes issue where monitors placed in debug mode are always broken after placing and breaking one	
+		beq.s	.notbroken  ; Fixes issue where monitors placed in debug mode are always broken after placing and breaking one	
 	endc		
 		bclr	#7,2(a2,d0.w)
 		btst	#0,2(a2,d0.w)				; has monitor been broken?
@@ -202,11 +202,11 @@ Mon_Explode:
 	; The cause of the bug is that the spawned monitor does not have a
 	; respawn entry, but this object fails to check for that before
 	; accessing the respawn table.
-		beq.s	@setbroken
+		beq.s	.setbroken
 	else	
 	endc
 		bset	#0,2(a2,d0.w)
-	@setbroken:	
+	.setbroken:	
 		move.b	#id_ani_monitor_breaking,ost_anim(a0)	; set monitor type to broken
 		bra.w	DisplaySprite
 

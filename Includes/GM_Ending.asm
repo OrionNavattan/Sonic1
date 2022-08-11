@@ -75,7 +75,7 @@ GM_Ending:
 		; It is possible to enter debug mode in the ending sequence without having entered
 		; the debug cheat due to a missing check for the debug enable flag.
 		tst.b	(f_debug_enable).w  ; is debug cheat active
-		beq.s	@no_debug			; if not, branch
+		beq.s	.no_debug			; if not, branch
 	endc
 		btst	#bitA,(v_joypad_hold_actual).w		; is button A being held?
 		beq.s	.no_debug				; if not, branch

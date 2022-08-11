@@ -41,7 +41,7 @@ Surf_Action:	; Routine 2
 	; just avoid pushing the sprite to the right when the game is about
 	; to be paused.
         btst    #bitStart,(v_joypad_press_actual).w ; is Start button pressed?
-        bne.s   @even    ; if yes, branch	
+        bne.s   .even    ; if yes, branch	
 	endc	
 		btst	#0,(v_frame_counter_low).w
 		beq.s	.even					; branch on even frames

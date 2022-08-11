@@ -44,12 +44,12 @@ HUD_Flash:	; Routine 2
 	
 		moveq	#0,d0
 		btst	#3,(v_frame_counter_low).w
-		bne.s	@display
+		bne.s	.display
 		tst.w	(v_rings).w	; do you have any rings?
-		bne.s	@haverings	; if so, branch
+		bne.s	.haverings	; if so, branch
 		addq.w	#1,d0		; make ring counter flash red
 
-@haverings:
+.haverings:
 		endc
 		cmpi.b	#9,(v_time_min).w			; have 9 minutes elapsed?
 		bne.s	.display				; if not, branch
