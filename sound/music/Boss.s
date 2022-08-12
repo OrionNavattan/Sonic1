@@ -174,35 +174,35 @@ Boss_Voices:
 	sTotalLevel	$1A, $A7, $92, $80
 	sFinishVoice
 
-	sNewVoice	03					; voice number $03
-	sAlgorithm	$00
-	sFeedback	$06
-	sDetune		$03, $03, $03, $03
-	sMultiple	$00, $00, $00, $00
-	sRateScale	$02, $03, $03, $03
-	sAttackRate	$1E, $1C, $18, $1C
-	sAmpMod		$00, $00, $00, $00
-	sDecay1Rate	$0E, $04, $0A, $05
-	sDecay1Level	$0B, $0B, $0B, $0B
-	sDecay2Rate	$08, $08, $08, $08
-	sReleaseRate	$0F, $0F, $0F, $0F
-	sTotalLevel	$14, $14, $3C, $80
-	sFinishVoice
+;	sNewVoice	03					; voice number $03 [unused]
+;	sAlgorithm	$00
+;	sFeedback	$06
+;	sDetune		$03, $03, $03, $03
+;	sMultiple	$00, $00, $00, $00
+;	sRateScale	$02, $03, $03, $03
+;	sAttackRate	$1E, $1C, $18, $1C
+;	sAmpMod		$00, $00, $00, $00
+;	sDecay1Rate	$0E, $04, $0A, $05
+;	sDecay1Level	$0B, $0B, $0B, $0B
+;	sDecay2Rate	$08, $08, $08, $08
+;	sReleaseRate	$0F, $0F, $0F, $0F
+;	sTotalLevel	$14, $14, $3C, $80
+;	sFinishVoice
 
-	sNewVoice	04					; voice number $04
-	sAlgorithm	$01
-	sFeedback	$07
-	sDetune		$00, $00, $05, $00
-	sMultiple	$01, $00, $01, $00
-	sRateScale	$00, $01, $01, $01
-	sAttackRate	$1F, $1F, $1F, $1F
-	sAmpMod		$00, $00, $00, $00
-	sDecay1Rate	$10, $09, $11, $09
-	sDecay1Level	$02, $02, $02, $01
-	sDecay2Rate	$07, $00, $00, $00
-	sReleaseRate	$0F, $0F, $0F, $0F
-	sTotalLevel	$20, $20, $22, $80
-	sFinishVoice
+;	sNewVoice	04					; voice number $04 [unused]
+;	sAlgorithm	$01
+;	sFeedback	$07
+;	sDetune		$00, $00, $05, $00
+;	sMultiple	$01, $00, $01, $00
+;	sRateScale	$00, $01, $01, $01
+;	sAttackRate	$1F, $1F, $1F, $1F
+;	sAmpMod		$00, $00, $00, $00
+;	sDecay1Rate	$10, $09, $11, $09
+;	sDecay1Level	$02, $02, $02, $01
+;	sDecay2Rate	$07, $00, $00, $00
+;	sReleaseRate	$0F, $0F, $0F, $0F
+;	sTotalLevel	$20, $20, $22, $80
+;	sFinishVoice
 
 	sNewVoice	05					; voice number $05
 	sAlgorithm	$02

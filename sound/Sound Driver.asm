@@ -1715,8 +1715,9 @@ PSGUpdateTrack:
 		jsr	NoteTimeoutUpdate(pc)
 		jsr	PSGUpdateVolFX(pc)
 		jsr	DoModulation(pc)
-		jsr	PSGUpdateFreq(pc)			; It would be better if this were a jmp and the rts was removed
-		rts
+		jmp	PSGUpdateFreq(pc)	
+;		jsr	PSGUpdateFreq(pc)			; It would be better if this were a jmp and the rts was removed
+;		rts
 ; ===========================================================================
 
 PSGDoNext:

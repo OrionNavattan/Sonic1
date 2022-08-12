@@ -285,15 +285,15 @@ StarLight_Call10:
 	sNote		nDs4
 	sVolAddFM	$07
 	sRet
-
-StarLight_Jump8:
+	
+;StarLight_Jump8:
 
 	; Unused data
-	sJump		StarLight_Jump8
+;	sJump		StarLight_Jump8
 
-StarLight_Jump9:
-	sJump		StarLight_Jump9
-
+;StarLight_Jump9:
+;	sJump		StarLight_Jump9
+	
 StarLight_PSG3:
 	sNoiseSet	snWhitePSG3
 	sGate		$02

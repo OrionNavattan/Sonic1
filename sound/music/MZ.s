@@ -196,7 +196,8 @@ Marble_PSG2:
 Marble_PSG3:
 	sNoiseSet	snWhitePSG3
 	sVolAddPSG	-$01
-	sNote		nR, $06, nE5, $03, $03, $06, nR, nE4
+;	sNote		nR, $06, nE5, $03, $03, $06, nR, nE4
+	sNote		nR, $06, nE4, $03, $03, $06, nR, nE4
 	sNote		$24
 	sVolAddPSG	$01
 

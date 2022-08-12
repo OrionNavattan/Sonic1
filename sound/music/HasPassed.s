@@ -135,18 +135,18 @@ HasPassed_Voices:
 	sTotalLevel	$1B, $80, $80, $9B
 	sFinishVoice
 
-	sNewVoice	04					; voice number $04
-	sAlgorithm	$05
-	sFeedback	$07
-	sDetune		$00, $00, $00, $00
-	sMultiple	$01, $02, $02, $02
-	sRateScale	$00, $01, $01, $01
-	sAttackRate	$10, $10, $10, $10
-	sAmpMod		$00, $00, $00, $00
-	sDecay1Rate	$07, $08, $08, $08
-	sDecay1Level	$02, $01, $01, $01
-	sDecay2Rate	$01, $00, $00, $00
-	sReleaseRate	$0F, $0F, $0F, $0F
-	sTotalLevel	$1C, $82, $82, $82
-	sFinishVoice
+;	sNewVoice	04					; voice number $04 [unused]
+;	sAlgorithm	$05
+;	sFeedback	$07
+;	sDetune		$00, $00, $00, $00
+;	sMultiple	$01, $02, $02, $02
+;	sRateScale	$00, $01, $01, $01
+;	sAttackRate	$10, $10, $10, $10
+;	sAmpMod		$00, $00, $00, $00
+;	sDecay1Rate	$07, $08, $08, $08
+;	sDecay1Level	$02, $01, $01, $01
+;	sDecay2Rate	$01, $00, $00, $00
+;	sReleaseRate	$0F, $0F, $0F, $0F
+;	sTotalLevel	$1C, $82, $82, $82
+;	sFinishVoice
 	even

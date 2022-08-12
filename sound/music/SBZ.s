@@ -214,13 +214,14 @@ ScrabBrain_FM5:
 	sCall		ScrabBrain_Call7
 	sVolAddFM	$06
 
-ScrabBrain_Loop13:
-	sNote		nR, $60
-	sLoop		$00, $01, ScrabBrain_Loop13
-	sVoice		06
-	sVolAddFM	-$15
-	sTransAdd	$0C
-	sVibOff
+	; Unused/dead 
+;ScrabBrain_Loop13:
+;	sNote		nR, $60
+;	sLoop		$00, $01, ScrabBrain_Loop13
+;	sVoice		06
+;	sVolAddFM	-$15
+;	sTransAdd	$0C
+;	sVibOff
 
 ScrabBrain_Loop14:
 	sCall		ScrabBrain_Call9

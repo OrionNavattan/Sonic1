@@ -791,9 +791,15 @@ Credits_Loop27:
 	sNote		nA6, nA6, nE7, nA6, nD7, nA6, nC7, nA6
 	sLoop		$00, $04, Credits_Loop27
 	sLoop		$01, $02, Credits_Loop25
-	sNote		nR, $60, nR, nR, nR, nR, nR, nR
+	if fixBugs=0
+	; The three extra rests along with the sVolAddFM command cause the remaining notes,
+	; meant to harmonize with the closing coda to be inaudible. 
+	sNote		nR, $60, nR, nR, nR, nR, nR , nR
 	sNote		nR, nR
 	sVolAddFM	$0C
+	else
+	sNote		nR, $60, nR, nR, nR, nR, nR
+	endif
 	sDetuneSet	$02
 	sVolAddPSG	$02
 	sNote		nR, $0C, nE6, $06, nR, nB6, nE6, $06
