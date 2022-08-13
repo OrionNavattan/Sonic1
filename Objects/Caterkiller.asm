@@ -97,7 +97,7 @@ Cat_Loop:
 		addq.b	#4,d4
 		movea.l	a1,a2					; make adjacent segment the parent object instead of head
 
-	.fail:
+;	.fail:
 		dbf	d1,Cat_Loop				; repeat sequence 2 more times
 
 		move.b	#7,ost_cat_wait_time(a0)

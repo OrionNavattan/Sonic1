@@ -339,7 +339,7 @@ LevSel_Level_SS:
 		add.w	d0,d0
 	if FixBugs=0	
 		move.w	LevSel_Ptrs(pc,d0.w),d0			; load zone/act number
-	elseˀ
+	else
 		; Not a fix per se, but the below fix pushes the Level Select pointers out of reach 
 		; of the PC, so it has to be loaded into an address register.
         lea (LevSel_Ptrs).l,a6

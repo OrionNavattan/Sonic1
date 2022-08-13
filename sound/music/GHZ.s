@@ -12,6 +12,10 @@
 	sHeaderPSG	GreenHill_PSG3, $00, $03, $00, 04
 	sHeaderFinish
 
+; Adding intro from Masa Demo:
+; Make FM3-5, DAC, and all PSG play an additional loop at the start, adding rests to FM2 and FM1
+
+
 GreenHill_FM1:
 	sVoice		02
 	sPan		sPanRight
@@ -19,6 +23,7 @@ GreenHill_FM1:
 	sPan		sPanCenter
 
 GreenHill_Loop1:
+	; Rests inserted here
 	sPan		sPanLeft
 	sNote		nE7, $04
 	sPan		sPanRight
@@ -80,6 +85,7 @@ GreenHill_Call2:
 GreenHill_FM2:
 	sVoice		00
 	sTiming		$01
+	; Rests inserted here.
 	sNote		nR, $08, nA2, nA3, nA2, nAs2, nAs3, nB2
 	sNote		nB3
 	sGate		$04
@@ -162,6 +168,7 @@ GreenHill_FM3:
 	sPan		sPanLeft
 	sCall		GreenHill_Call1
 	sVoice		08
+	; Start of looped section
 	sPan		sPanCenter
 	sTransAdd	-$18
 	sVolAddFM	-$02
@@ -186,7 +193,7 @@ GreenHill_Loop5:
 	sNote		$01, sTie, nB5, $28, sTie, $3E
 	sVolAddFM	$02
 	sTransAdd	$18
-
+	; End of looped section
 GreenHill_Jump3:
 	sVoice		05
 	sTransAdd	-$18
@@ -238,6 +245,7 @@ GreenHill_Call6:
 	sRet
 
 GreenHill_FM4:
+	; Start of looped section.
 	sVoice		08
 	sNote		nR, $20, nR
 	sPan		sPanLeft
@@ -264,7 +272,7 @@ GreenHill_Loop7:
 	sVolAddFM	-$0A
 	sTransAdd	$18
 	sVibOff
-
+	; End of looped section
 GreenHill_Jump4:
 	sVoice		05
 	sTransAdd	-$18
@@ -312,6 +320,7 @@ GreenHill_Call7:
 GreenHill_FM5:
 	sVoice		03
 	sNote		nR, $20, nR
+	; Start of looped section
 	sVoice		08
 	sPan		sPanRight
 	sTransAdd	-$18
@@ -336,7 +345,7 @@ GreenHill_Loop9:
 	sNote		$01, sTie, nE5, $28, sTie, $3F
 	sTransAdd	$18
 	sVolAddFM	$0E
-
+	; End of looped section
 GreenHill_Jump5:
 	sVoice		05
 	sTransAdd	-$18
