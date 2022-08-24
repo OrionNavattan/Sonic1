@@ -9,8 +9,11 @@ Prison:
 		moveq	#0,d0
 		move.b	ost_routine(a0),d0
 		move.w	Pri_Index(pc,d0.w),d1
-		;jsr	Pri_Index(pc,d1.w)
+	if FixBugs=0	
+		jsr	Pri_Index(pc,d1.w)
+	else	
 		jmp	Pri_Index(pc,d1.w)
+	endc	
 		
 Prison_Display:	
 		out_of_range.s	.delete
@@ -60,7 +63,9 @@ Pri_Main:	; Routine 0
 		move.b	#8,ost_col_property(a0)
 
 	.not02:
-		;rts
+	if FixBugs=0
+		rts
+	else	
 		bra.w 	Prison_Display	
 ; ===========================================================================
 
@@ -71,9 +76,12 @@ Pri_Body:	; Routine 2
 		move.w	#$18,d2
 		move.w	#$18,d3
 		move.w	ost_x_pos(a0),d4
-		;jmp	(SolidObject).l
-		jsr		(SolidObject).l
+	if FixBugs=0	
+		jmp	(SolidObject).l
+	else	
+		jsr	(SolidObject).l
 		bra.w	Prison_Display
+	endc	
 ; ===========================================================================
 
 .is_open:
@@ -85,8 +93,11 @@ Pri_Body:	; Routine 2
 
 	.not_on_top:
 		move.b	#id_frame_prison_broken,ost_frame(a0)	; use broken prison frame (2)
-		;rts	
-		bra.w 	Prison_Display			
+	if FixBugs=0	
+		rts
+	else		
+		bra.w 	Prison_Display
+	endc				
 ; ===========================================================================
 
 Pri_Switch:	; Routine 4
@@ -105,16 +116,19 @@ Pri_Switch:	; Routine 4
 		move.b	#id_Pri_Explosion,ost_routine(a0)	; goto Pri_Explosion next
 		move.w	#60,ost_anim_time(a0)			; set time for explosions to 1 sec
 		clr.b	(f_hud_time_update).w			; stop time counter
-		clr.b	(f_boss_boundary).w			; lock screen position
-		move.b	#1,(f_lock_controls).w			; lock controls
-		move.w	#(btnR<<8),(v_joypad_hold).w		; make Sonic run to the right
+;		clr.b	(f_boss_boundary).w			; lock screen position
+;		move.b	#1,(f_lock_controls).w			; lock controls
+;		move.w	#(btnR<<8),(v_joypad_hold).w		; make Sonic run to the right
 		clr.b	ost_solid(a0)
 		bclr	#status_platform_bit,(v_ost_player+ost_status).w
 		bset	#status_air_bit,(v_ost_player+ost_status).w
 
 	.not_on_top:
-		;rts
-		bra.w 	Prison_Display		
+	if FixBugs=0
+		rts
+	else	
+		bra.w 	Prison_Display	
+	endc		
 ; ===========================================================================
 
 Pri_Switch2:
@@ -142,8 +156,11 @@ Pri_Explosion:	; Routine 6, 8, $A
 	.noexplosion:
 		subq.w	#1,ost_anim_time(a0)			; decrement timer
 		beq.s	.makeanimal				; branch if 0
-		;rts
-		bra.w 	Prison_Display	
+	if FixBugs=0		
+		rts
+	else	
+		bra.w 	Prison_Display
+	endc		
 ; ===========================================================================
 
 .makeanimal:
@@ -169,8 +186,11 @@ Pri_Explosion:	; Routine 6, 8, $A
 		dbf	d6,.loop				; repeat 7 more	times
 
 	.fail:
-		;rts
-		bra.w 	Prison_Display			
+	if FixBugs=0	
+		rts
+	else	
+		bra.w 	Prison_Display	
+	endc			
 ; ===========================================================================
 
 Pri_Animals:	; Routine $C
@@ -201,13 +221,20 @@ Pri_Animals:	; Routine $C
 		move.w	#180,ost_anim_time(a0)			; this does nothing
 
 	.wait:
-		;rts
+	if FixBugs=0
+		rts
+	else	
 		bra.w 	Prison_Display	
+	endc	
 ; ===========================================================================
 
 Pri_EndAct:	; Routine $E
-		;moveq	#sizeof_ost-2,d0
+	if FixBugs=0
+	; This is too small; this causes the check to skip the last $40 OST slots.
+		moveq	#sizeof_ost-2,d0
+	else	
 		moveq	#sizeof_ost,d0
+	endc	
 		moveq	#id_Animals,d1
 		moveq	#sizeof_ost,d2				; d2 = $40
 		lea	(v_ost_player+sizeof_ost).w,a1		; start at first OST slot after Sonic
@@ -222,8 +249,11 @@ Pri_EndAct:	; Routine $E
 		jmp	(DeleteObject).l
 
 	.found:
-		;rts
-		bra.w 	Prison_Display	
+	if FixBugs=0
+		rts
+	else	
+		bra.w 	Prison_Display
+	endc
 
 ; ---------------------------------------------------------------------------
 ; Animation script

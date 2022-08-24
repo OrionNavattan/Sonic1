@@ -196,8 +196,21 @@ Marble_PSG2:
 Marble_PSG3:
 	sNoiseSet	snWhitePSG3
 	sVolAddPSG	-$01
-;	sNote		nR, $06, nE5, $03, $03, $06, nR, nE4
+	if FixBugs=0
+	; The first three notes are too high when combined with this track's
+	; transposition value, causing them to overflow the PSG frequency table
+	; and play invalid notes. In the Sonic 1 prototype, this problem was
+	; even worse as there were smpsChangeTransposition commands around the
+	; following line that raised the notes yet another octave higher,
+	; causing the fourth note to break too.
+	; Since the commands are gone now, we can assume that this was the
+	; developers' intended solution, though it unfortunately only fixed the
+	; fourth note. So, in order to fix the bug for good, the notes on the
+	; following line have to be lowered by yet another octave.	
+	sNote		nR, $06, nE5, $03, $03, $06, nR, nE4
+	else
 	sNote		nR, $06, nE4, $03, $03, $06, nR, nE4
+	endc
 	sNote		$24
 	sVolAddPSG	$01
 

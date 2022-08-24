@@ -92,6 +92,10 @@ GM_Level:
 		move.w	#$8720,(a6)				; set background colour (line 3; colour 0)
 		move.w	#$8A00+223,(v_vdp_hint_counter).w	; set palette change position (for water)
 		move.w	(v_vdp_hint_counter).w,(a6)
+		
+		clr.b (v_victory_animation_flag) ; clear victory animation flag
+		clr.b (f_boss_boundary)			; unlock screen
+
 		cmpi.b	#id_LZ,(v_zone).w			; is level LZ?
 		bne.s	.skip_water				; if not, branch
 

@@ -48,6 +48,8 @@ Sign_Touch:	; Routine 2
 		cmpi.w	#$20,d0					; is Sonic within 32px of right?
 		bcc.s	.exit					; if not, branch
 
+		move.b	#1,(f_boss_boundary).w			; lock screen position
+
 		play.w	0, jsr, sfx_Signpost			; play signpost sound
 		clr.b	(f_hud_time_update).w			; stop time counter
 		move.w	(v_boundary_right).w,(v_boundary_left).w ; lock screen position
@@ -110,21 +112,21 @@ Sign_SparkPos:	; x pos, y pos
 Sign_SonicRun:	; Routine 6
 		tst.w	(v_debug_active).w			; is debug mode	on?
 		bne.w	Sign_SonicRun_Exit			; if yes, branch
-		btst	#status_air_bit,(v_ost_player+ost_status).w ; is Sonic in the air?
-		bne.s	.wait_to_land				; if yes, branch
-		move.b	#1,(f_lock_controls).w			; lock controls
-		move.w	#btnR<<8,(v_joypad_hold).w		; make Sonic run to the right
+;		btst	#status_air_bit,(v_ost_player+ost_status).w ; is Sonic in the air?
+;		bne.s	.wait_to_land				; if yes, branch
+;		move.b	#1,(f_lock_controls).w			; lock controls
+;		move.w	#btnR<<8,(v_joypad_hold).w		; make Sonic run to the right
 
-	.wait_to_land:
-		tst.b	(v_ost_player).w			; is Sonic object still loaded?
-		beq.s	.skip_boundary_chk			; if not, branch
-		move.w	(v_ost_player+ost_x_pos).w,d0
-		move.w	(v_boundary_right).w,d1
-		addi.w	#$128,d1
-		cmp.w	d1,d0					; has Sonic passed 296px outside right level boundary?
-		bcs.s	Sign_SonicRun_Exit			; if not, branch
+;	.wait_to_land:
+;		tst.b	(v_ost_player).w			; is Sonic object still loaded?
+;		beq.s	.skip_boundary_chk			; if not, branch
+;		move.w	(v_ost_player+ost_x_pos).w,d0
+;		move.w	(v_boundary_right).w,d1
+;		addi.w	#$128,d1
+;		cmp.w	d1,d0					; has Sonic passed 296px outside right level boundary?
+;		bcs.s	Sign_SonicRun_Exit			; if not, branch
 
-	.skip_boundary_chk:
+;	.skip_boundary_chk:
 		addq.b	#2,ost_routine(a0)			; goto Sign_Exit next
 
 ; ---------------------------------------------------------------------------
@@ -132,6 +134,12 @@ Sign_SonicRun:	; Routine 6
 ; ---------------------------------------------------------------------------
 
 HasPassedAct:
+
+;		cmpi.b  #2,(v_act) ; is it act 3?
+;		bne.s	.notact3	; if not, branch
+		move.b	#1,(v_victory_animation_flag) ; set victory animation flag flag
+	
+;	.notact3:
 		tst.b	(v_ost_haspassed1).w			; has "Sonic Has Passed" title card loaded?
 		bne.s	Sign_SonicRun_Exit			; if yes, branch
 

@@ -90,10 +90,10 @@ Labyrinth_FM3:
 Labyrinth_Jump1:
 	sNote		nR, $60, nR, nR, nR, nR, nE6, $48
 ;	sNote		nF6, $0C, nG6, nC6, $30, nR, nE6, $48
-	; In Nakamura Masato's demo of this track, the two sections of this track
-	; were linked by a C#6, but for some reason the final track has a rest instead.
-	; Mastered Realm's take on the track restores this note, and this does too
-	; by changing the following line's nR to nCs6.
+	; In Nakamura Masato's demo, the two sections of FM3 & 4 were linked by a C#6, 
+	; but for some reason the final version has a rest instead. Mastered Realm's take 
+	; on this track restores this note, and this does too by changing the following line's 
+	; nR to nCs6.
 	sNote		nF6, $0C, nG6, nC6, $30, nCs6, nE6, $48 
 	sNote		nF6, $0C, nG6, nC6, $18, nD6, nE6, nG6
 	sJump		Labyrinth_Jump1

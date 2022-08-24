@@ -436,7 +436,9 @@ v_levelselect_sound:		rs.w 1 ; $FFFFFF84 ; level select - sound selected
 unused_ff86:			rs.b $3A
 v_highscore:			rs.l 1 ; $FFFFFFC0 ; highest score so far (REV00 only)
 v_score_next_life:		equ v_highscore	; points required for next extra life (REV01 only)
-unused_ffc4:			rs.b $1C
+;unused_ffc4:			rs.b $1C
+v_victory_animation_flag:	rs.b 1
+unused_FFc5:				rs.b $1B
 f_levelselect_cheat:		rs.l 1 ; $FFFFFFE0 ; flag set when level select cheat has been entered
 f_slowmotion_cheat:		equ __rs-3 ; $FFFFFFE1 ; flag set when slow motion & frame advance cheat has been entered
 f_debug_cheat:			equ __rs-2 ; $FFFFFFE2 ; flag set when debug mode cheat has been entered

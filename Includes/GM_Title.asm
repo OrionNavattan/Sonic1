@@ -75,7 +75,7 @@ GM_Title:
 	else
 	; This flag is set by the drowning routine, but if it is followed by a Game Over,
 	; it results in the title screen background not scrolling.
-		move.b	#0,(f_disable_scrolling).w ;Clear no background scroll flag 
+		move.b	#0,(f_disable_scrolling).w ; Clear no background scroll flag 
 	endc
 		move.b	#0,(v_last_lamppost).w			; clear lamppost counter
 		move.w	#0,(v_debug_active).w			; disable debug item placement mode

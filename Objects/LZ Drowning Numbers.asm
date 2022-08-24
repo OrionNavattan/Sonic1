@@ -248,7 +248,11 @@ Drown_Countdown:; Routine $A
 		move.w	#120,ost_drown_restart_time(a0)		; restart after 2 seconds
 		move.l	a0,-(sp)				; save OST address to stack
 		lea	(v_ost_player).w,a0			; use Sonic's OST temporarily
+;	if FixBugs=0	
 		bsr.w	Sonic_ResetOnFloor			; clear Sonic's status flags
+;	else
+;		bsr.w	Sonic_ResetOnFloor_Part2	; clear Sonic's flags, slightly optimized
+;	endc	
 		move.b	#id_Drown,ost_anim(a0)			; use Sonic's drowning animation
 		bset	#status_air_bit,ost_status(a0)
 		bset	#tile_hi_bit,ost_tile(a0)
@@ -285,7 +289,7 @@ Drown_Countdown:; Routine $A
 	if FixBugs=0
 	; This code is no longer needed with the drowning fixes applied.
 	; See Sonic_Drowned for more information.
-	@delay_death:
+	.delay_death:
 		move.l	a0,-(sp)				; save OST address to stack
 		lea	(v_ost_player).w,a0			; use Sonic's OST temporarily
 		jsr	(SpeedToPos).l				; update Sonic's position

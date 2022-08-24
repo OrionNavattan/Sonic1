@@ -132,7 +132,6 @@ BGHZ_Update:
 
 		;bne.s	.exit					; branch if not 0
 		bne.w 	BGHZ_ShipDisplay
-		subq.b	#1,ost_boss_flash_num(a0)		; decrement flash counter
 		move.b	#id_col_24x24,ost_col_type(a0)		; enable boss collision again
 
 	;.exit:

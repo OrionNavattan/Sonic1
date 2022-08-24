@@ -126,7 +126,7 @@ Invincible_Loop7:
 	sJump		Invincible_Loop7
 
 	; Unused data
-;	sEnd
+	;sEnd
 
 Invincible_Voices:
 

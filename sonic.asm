@@ -39,7 +39,9 @@ AddressSRAM:	equ 0						; 0 = odd+even; 2 = even only; 3 = odd only
 	
 FixBugs:	equ 1	; Set to 1 to fix various engine and gameplay bugs.
 
-;Optimize:	equ 1	; Apply a number of optimizations.
+Optimize:	equ 1	; Apply a number of optimizations, including removing unnecessary branches and replacing jsr/rts and bsr/rts pairs with jmp and bra.
+
+;RemoveGarbage equ 1 ; Removes many bits and pieces of unused and dead code
 
 SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games.
 
@@ -55,9 +57,13 @@ RingChanges: equ 1 ; Scattered rings will have underwater physics, will no longe
 ; will bounce at the bottom of levels, have individual timers so that they will not accumulate if you are hurt multiple times in rapid succession,
 ; and flash briefly before disappearing.
 
-SSVariableJump: equ 1
+SSVariableJump: equ 1 ; Enable variable jump height in the special stages
 
-RestoreProtoDrums: equ 1
+;SmoothSpecialStageRotation: equ 1 ; Enable smooth special stage rotation
+
+RestoreProtoDrums: equ 1 ; Restores the higher pitched, gated-reverb sound of the drums as heard in the Sonic 1 prototype (you must also set this in the DAC driver).
+
+LZMusic: equ 1 ; Adds an extra note to Labyrinth Zone's music that is in the demo version, but not in the final.
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 

@@ -214,14 +214,14 @@ ScrabBrain_FM5:
 	sCall		ScrabBrain_Call7
 	sVolAddFM	$06
 
-	; Unused/dead 
-;ScrabBrain_Loop13:
-;	sNote		nR, $60
-;	sLoop		$00, $01, ScrabBrain_Loop13
-;	sVoice		06
-;	sVolAddFM	-$15
-;	sTransAdd	$0C
-;	sVibOff
+	; Unused/dead [possibly not]
+ScrabBrain_Loop13:
+	sNote		nR, $60
+	sLoop		$00, $01, ScrabBrain_Loop13
+	sVoice		06
+	sVolAddFM	-$15
+	sTransAdd	$0C
+	sVibOff
 
 ScrabBrain_Loop14:
 	sCall		ScrabBrain_Call9
@@ -339,16 +339,56 @@ ScrabBrain_DAC:
 	sNote		$0C, nR, $0C, dKick, dKick, $06, dSnare, dSnare
 	sNote		dSnare, $03, $03
 
+;ScrabBrain_Loop23:
+;	sNote		dKick, $0C, dSnare, dKick, dSnare, dKick, dSnare, $01
+;	sNote		dTimpaniMid, $05, dTimpaniHi, $06, dKick, $01, dTimpaniMid, $05
+;	sNote		dTimpaniHi, $06, dSnare, $01, dTimpaniMid, $05, dTimpaniHi, $06
+;	sLoop		$00, $02, ScrabBrain_Loop23
+;	sNote		dKick, $0C, dSnare, dKick, dSnare, dKick, dSnare, dKick
+;	sNote		dSnare, $06, dTimpaniHi, $03, dTimpaniHi, dKick, $0C, dSnare
+;	sNote		dKick, dSnare, dKick, $06, dTimpaniHi, dSnare, $01, dTimpaniMid
+;	sNote		$05, dTimpaniHi, $06, dKick, $01, dTimpaniMid, $05, dSnare
+;	sNote		$01, dTimpaniHi, $05, dSnare, $01, dTimpaniMid, $05, dSnare
+;	sNote		$03, $03
+;	sLoop		$01, $02, ScrabBrain_Loop23
+
+;ScrabBrain_Loop24:
+;	sNote		dSnare, $03, dSnare, dKick, dKick, dKick, dKick, dSnare
+;	sNote		dSnare, dKick, dKick, dKick, dKick, dSnare, dSnare, dSnare
+;	sNote		dSnare
+;	sLoop		$00, $02, ScrabBrain_Loop24
+
+;ScrabBrain_Loop25:
+;	sCall		ScrabBrain_Call12
+;	sNote		dTimpaniHi, $02, dKick, $01, dTimpaniMid, $05, dSnare, $01
+;	sNote		dTimpaniHi, $05, dTimpaniMid, $06
+;	sCall		ScrabBrain_Call12
+;	sNote		dTimpaniMid, $02, dSnare, $01, dTimpaniHi, $05, dSnare, $01
+;	sNote		dTimpaniMid, $05, dSnare, $01, dTimpaniHi, $02, dSnare, $03
+;	sLoop		$01, $02, ScrabBrain_Loop25
+;	sJump		ScrabBrain_DAC
+
+;ScrabBrain_Call12:
+;	sNote		dKick, $0C, dSnare, $09, dKick, $06, $03, dKick
+;	sNote		$01, dTimpaniHi, $02, dTimpaniMid, $03, dSnare, $01, dTimpaniHi
+;	sNote		$0B
+;	sLoop		$00, $03, ScrabBrain_Call12
+;	sNote		dKick, $0C, dSnare, $09, dKick, $06, dSnare, $01
+;	sRet
+
+	; In the original game, all of the timpani hits were inverted compared to Masa's demo: 
+	; highs were mids and vice versa. This swaps all of them to match the demo.
+
 ScrabBrain_Loop23:
 	sNote		dKick, $0C, dSnare, dKick, dSnare, dKick, dSnare, $01
-	sNote		dTimpaniMid, $05, dTimpaniHi, $06, dKick, $01, dTimpaniMid, $05
-	sNote		dTimpaniHi, $06, dSnare, $01, dTimpaniMid, $05, dTimpaniHi, $06
+	sNote		dtimpaniHi, $05, dtimpaniMid, $06, dKick, $01, dtimpaniHi, $05
+	sNote		dtimpaniMid, $06, dSnare, $01, dtimpaniHi, $05, dtimpaniMid, $06
 	sLoop		$00, $02, ScrabBrain_Loop23
 	sNote		dKick, $0C, dSnare, dKick, dSnare, dKick, dSnare, dKick
-	sNote		dSnare, $06, dTimpaniHi, $03, dTimpaniHi, dKick, $0C, dSnare
-	sNote		dKick, dSnare, dKick, $06, dTimpaniHi, dSnare, $01, dTimpaniMid
-	sNote		$05, dTimpaniHi, $06, dKick, $01, dTimpaniMid, $05, dSnare
-	sNote		$01, dTimpaniHi, $05, dSnare, $01, dTimpaniMid, $05, dSnare
+	sNote		dSnare, $06, dtimpaniMid, $03, dtimpaniMid, dKick, $0C, dSnare
+	sNote		dKick, dSnare, dKick, $06, dtimpaniMid, dSnare, $01, dtimpaniHi
+	sNote		$05, dtimpaniMid, $06, dKick, $01, dtimpaniHi, $05, dSnare
+	sNote		$01, dtimpaniMid, $05, dSnare, $01, dtimpaniHi, $05, dSnare
 	sNote		$03, $03
 	sLoop		$01, $02, ScrabBrain_Loop23
 
@@ -360,17 +400,17 @@ ScrabBrain_Loop24:
 
 ScrabBrain_Loop25:
 	sCall		ScrabBrain_Call12
-	sNote		dTimpaniHi, $02, dKick, $01, dTimpaniMid, $05, dSnare, $01
-	sNote		dTimpaniHi, $05, dTimpaniMid, $06
+	sNote		dtimpaniMid, $02, dKick, $01, dtimpaniHi, $05, dSnare, $01
+	sNote		dtimpaniMid, $05, dtimpaniHi, $06
 	sCall		ScrabBrain_Call12
-	sNote		dTimpaniMid, $02, dSnare, $01, dTimpaniHi, $05, dSnare, $01
-	sNote		dTimpaniMid, $05, dSnare, $01, dTimpaniHi, $02, dSnare, $03
+	sNote		dtimpaniHi, $02, dSnare, $01, dtimpaniMid, $05, dSnare, $01
+	sNote		dtimpaniHi, $05, dSnare, $01, dtimpaniMid, $02, dSnare, $03
 	sLoop		$01, $02, ScrabBrain_Loop25
 	sJump		ScrabBrain_DAC
 
 ScrabBrain_Call12:
 	sNote		dKick, $0C, dSnare, $09, dKick, $06, $03, dKick
-	sNote		$01, dTimpaniHi, $02, dTimpaniMid, $03, dSnare, $01, dTimpaniHi
+	sNote		$01, dtimpaniMid, $02, dtimpaniHi, $03, dSnare, $01, dtimpaniMid
 	sNote		$0B
 	sLoop		$00, $03, ScrabBrain_Call12
 	sNote		dKick, $0C, dSnare, $09, dKick, $06, dSnare, $01

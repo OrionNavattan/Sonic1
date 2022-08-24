@@ -34,10 +34,10 @@ NemDecMain:
 		lea	(v_nem_gfx_buffer).w,a1
 		move.w	(a0)+,d2				; get number of patterns
 		lsl.w	#1,d2
-		bcc.s	loc_146A				; branch if the sign bit isn't set
+		bcc.s	.nosignbit				; branch if the sign bit isn't set
 		adda.w	#NemPCD_WriteRowToVDP_XOR-NemPCD_WriteRowToVDP,a3 ; otherwise the file uses XOR mode
 
-loc_146A:
+.nosignbit:
 		lsl.w	#2,d2					; get number of 8-pixel rows in the uncompressed data
 		movea.w	d2,a5					; and store it in a5 because there aren't any spare data registers
 		moveq	#8,d3					; 8 pixels in a pattern row

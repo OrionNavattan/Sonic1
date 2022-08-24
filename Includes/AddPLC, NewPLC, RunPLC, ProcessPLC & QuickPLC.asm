@@ -101,7 +101,7 @@ RunPLC:
 	; variable is set, PLC processing will occur during V-Int. If an
 	; interrupt occurs between here and the end of this function, then
 	; the PLC processor will begin despite it not being fully
-	; initialised yet, causing a crash (which can be triggered by 
+	; initialized, causing a crash (which can be triggered by 
 	; rolling past the signpost at the end of LZ1 and LZ2).
 	; S3K eliminates this race condition by moving this instruction 
 	; to the end of the function.
@@ -123,7 +123,7 @@ RunPLC:
 		move.l	d6,(v_nem_shift).w
 	if FixBugs=0
 	else
-	; See above
+	; See above.
 		move.w	d2,(v_nem_tile_count).w			; load tile count	
 	endc	
 		
@@ -197,8 +197,8 @@ ProcessPLC_Finish:
 		
 	if FixBugs=0	
 	; This does not shift the PLC buffer correctly; it only transfers $58 bytes 
-	; instead of $5A, skipping the VRAM offset of the 16th and final cue, 
-	; and it does not clear the 16th cue, resulting in overcopying 
+	; instead of $5A, skipping the VRAM offset of the 16th and final cue. 
+	; It also does not clear the 16th cue, resulting in overcopying 
 	; and ultimately the game getting stuck in an infinite loop processing 
 	; the same cue forever.
 		moveq	#$15,d0

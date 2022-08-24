@@ -373,7 +373,8 @@ HBlank:
 		disable_ints
 		tst.w	(f_hblank_pal_change).w			; is palette set to change during HBlank?
 		beq.s	.nochg					; if not, branch
-		move.w	#0,(f_hblank_pal_change).w
+		;move.w	#0,(f_hblank_pal_change).w
+		clr.w	(f_hblank_pal_change).w
 		movem.l	a0-a1,-(sp)				; save a0-a1 to stack
 		lea	(vdp_data_port).l,a1
 		lea	(v_pal_water).w,a0			; get palette from RAM

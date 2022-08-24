@@ -26,12 +26,12 @@ PalFadeIn_Alt:							; start position and size are already set
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w
 		bsr.w	WaitforVBlank			; wait for frame to end
 		bchg	#$00,d6					; change delay counter
-		beq		.mainloop				; if null, delay a frame
+		beq.s		.mainloop				; if null, delay a frame
 		bsr.s	FadeIn_FromBlack		; update palette
 		subq.b	#$02,d4					; decrease color check
-		bne		.mainloop				; if it has not reached zero, branch
+		bne.s	.mainloop				; if it has not reached zero, branch
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w			; wait for V-blank again (so colors transfer)
-		bra		WaitforVBlank			
+		bra.w	WaitforVBlank			
 
 ; ===========================================================================
 
@@ -74,17 +74,17 @@ FadeIn_AddColor:
 		andi.b	#cRed,d2				; get only red
 		move.w	(a0),d3					; load current colour in buffer
 		cmp.b	d5,d4					; is it time for blue to fade?
-		bhi		.noblue					; if not, branch
+		bhi.s		.noblue					; if not, branch
 		addi.w	#$0200,d3				; increase blue
 
 	.noblue:
 		cmp.b	d1,d4					; is it time for green to fade?
-		bhi	.nogreen					; if not, branch
+		bhi.s	.nogreen					; if not, branch
 		addi.b	#$20,d3					; increase green
 		
 	.nogreen:
 		cmp.b	d2,d4					; is it time for red to fade?
-		bhi	.nored						; if not, branch
+		bhi.s	.nored						; if not, branch
 		addq.b	#$02,d3					; increase red
 		
 	.nored:
@@ -107,7 +107,7 @@ PaletteFadeOut:
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w
 		bsr.w	WaitforVBlank			; wait for frame to end
 		bchg	#$00,d6					; change delay counter
-		beq		.mainloop				; if null, delay a frame
+		beq.s		.mainloop				; if null, delay a frame
 		bsr.s	FadeOut_ToBlack 		; update palette
 		dbf	d4,.mainloop				; repeat until palette has faded completely to black
 		rts	
@@ -147,17 +147,17 @@ FadeOut_DecColor:
 		move.b	d1,d2					; load green and red
 		move.b	d1,d3					; load red
 		andi.w	#cBlue,d1				; get only blue
-		beq	.noblue						; if blue is finished, branch
+		beq.s	.noblue						; if blue is finished, branch
 		subi.w	#$0200,d5				; decrease blue
 
 	.noblue:
 		andi.w	#cGreen,d2				; get only green (needs to be word)
-		beq	.nogreen					; if green is finished, branch
+		beq.s	.nogreen					; if green is finished, branch
 		subi.b	#$20,d5					; decrease green
 
 	.nogreen:
 		andi.b	#cRed,d3				; get only red
-		beq	.nored						; if red is finished, branch
+		beq.s	.nored						; if red is finished, branch
 		subq.b	#$2,d5					; decrease red
 
 	.nored:
@@ -190,12 +190,12 @@ PaletteWhiteIn:
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w
 		bsr.w	WaitForVBlank 			; wait for frame to end
 		bchg 	#$00,d6 				; change delay counter
-		beq		.mainloop				; if null, delay a frame
+		beq.s		.mainloop				; if null, delay a frame
 		bsr.s	WhiteIn_FromWhite		; update palette
 		subq.b 	#$02,d4 				; decrease colour check
-		bne		.mainloop				; if it has not reached zero, branch
+		bne.s		.mainloop				; if it has not reached zero, branch
 		move.b	#id_VBlank_Fade,(v_vblank_routine).w ; wait for V-blank again (so colors transfer)
-		bra 	WaitForVBlank  			; wait for frame to end
+		bra.w 	WaitForVBlank  			; wait for frame to end
 
 ; ===========================================================================
 
@@ -240,17 +240,17 @@ WhiteIn_DecColor:
         andi.b #$0E,d2		; get only red
         move.w (a0),d3 		; load current colour in buffer
         cmp.b d5,d4 		; is it time for blue to fade?
-        bls .noblue 		; if not, branch
+        bls.s .noblue 		; if not, branch
         subi.w #$0200,d3 	; decrease blue
 
 	.noblue:
         cmp.b d1,d4			 ; is it time for green to fade?
-        bls .nogreen 		 ; if not, branch
+        bls.s .nogreen 		 ; if not, branch
         subi.b #$20,d3 		 ; decrease green
 
 	.nogreen:
         cmp.b d2,d4 		; is it time for red to fade?
-        bls .nored 			; if not, branch
+        bls.s .nored 			; if not, branch
         subq.b #$02,d3 		; decrease red
 
 	.nored:

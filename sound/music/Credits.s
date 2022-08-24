@@ -261,7 +261,7 @@ Credits_Loop9:
 	sEnd
 
 	; Unused data
-	sNote		$00, $01
+	;sNote		$00, $01
 
 Credits_Call10:
 	sNote		$0C, $0C, $0C, $0C, $0C, $0C
@@ -792,7 +792,7 @@ Credits_Loop27:
 	sLoop		$00, $04, Credits_Loop27
 	sLoop		$01, $02, Credits_Loop25
 	if fixBugs=0
-	; The three extra rests along with the sVolAddFM command cause the remaining notes,
+	; The three extra rests along with the erroneous sVolAddFM command cause the remaining notes,
 	; meant to harmonize with the closing coda to be inaudible. 
 	sNote		nR, $60, nR, nR, nR, nR, nR , nR
 	sNote		nR, nR
@@ -1017,14 +1017,14 @@ Credits_Call2:
 	sRet
 
 	; Unused data
-	sNote		nR, $0C, nG6, nB6, nD7, nFs7, $0C, nR
-	sNote		$06, nFs7, $0C, nG7, $06, nFs7, $0C, nE7
-	sNote		$60, nR, $0C, nG6, nB6, nD7, nFs7, $0C
-	sNote		nR, $06, nFs7, $0C, nG7, $06, nFs7, $0C
-	sNote		nGs7, $5D, nR, $03, nA7, $12, nR, $06
-	sNote		nA7, $12, nR, $06, nR, $06, nGs7, $12
-	sNote		nA7, $06, nR, $12
-	sRet
+;	sNote		nR, $0C, nG6, nB6, nD7, nFs7, $0C, nR
+;	sNote		$06, nFs7, $0C, nG7, $06, nFs7, $0C, nE7
+;	sNote		$60, nR, $0C, nG6, nB6, nD7, nFs7, $0C
+;	sNote		nR, $06, nFs7, $0C, nG7, $06, nFs7, $0C
+;	sNote		nGs7, $5D, nR, $03, nA7, $12, nR, $06
+;	sNote		nA7, $12, nR, $06, nR, $06, nGs7, $12
+;	sNote		nA7, $06, nR, $12
+;	sRet
 
 Credits_Call26:
 	sGate		$0E

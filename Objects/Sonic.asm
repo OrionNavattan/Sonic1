@@ -86,8 +86,9 @@ Sonic_Control:	; Routine 2
 
 	.no_collision:
 		bsr.w	Sonic_LoopPlane				; move Sonic to correct plane when in a GHZ/SLZ loop
-		bsr.w	Sonic_LoadGfx				; load new gfx when Sonic's frame changes
-		rts	
+		;bsr.w	Sonic_LoadGfx				; load new gfx when Sonic's frame changes
+		bra.w	Sonic_LoadGfx				; load new gfx when Sonic's frame changes
+		;rts	
 
 ; ===========================================================================
 Sonic_Modes:	index *,,2
@@ -256,8 +257,9 @@ Sonic_Mode_Normal:
 		bsr.w	Sonic_LevelBound
 		jsr	(SpeedToPos).l
 		bsr.w	Sonic_AnglePos
-		bsr.w	Sonic_SlopeRepel
-		rts	
+		bra.w	Sonic_SlopeRepel
+		;bsr.w	Sonic_SlopeRepel
+		;rts	
 ; ===========================================================================
 
 Sonic_Mode_Air:
@@ -271,8 +273,9 @@ Sonic_Mode_Air:
 
 	.notwater:
 		bsr.w	Sonic_JumpAngle
-		bsr.w	Sonic_JumpCollision
-		rts	
+		bra.w	Sonic_JumpCollision
+		;bsr.w	Sonic_JumpCollision
+		;rts	
 ; ===========================================================================
 
 Sonic_Mode_Roll:
@@ -282,8 +285,9 @@ Sonic_Mode_Roll:
 		bsr.w	Sonic_LevelBound
 		jsr	(SpeedToPos).l
 		bsr.w	Sonic_AnglePos
-		bsr.w	Sonic_SlopeRepel
-		rts	
+		bra.w	Sonic_SlopeRepel
+		;bsr.w	Sonic_SlopeRepel
+		;rts	
 ; ===========================================================================
 
 Sonic_Mode_Jump:
@@ -297,8 +301,9 @@ Sonic_Mode_Jump:
 
 	.notwater:
 		bsr.w	Sonic_JumpAngle
-		bsr.w	Sonic_JumpCollision
-		rts	
+		bra.w	Sonic_JumpCollision
+		;bsr.w	Sonic_JumpCollision
+		;rts	
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	make Sonic walk/run
@@ -401,14 +406,14 @@ Sonic_LookUp:
 		; If Sonic looks up while near the top of a level, the camera's
 		; y-pos will continue to increase even after it visibly stops at the top boundary.
 		; This results in a delay in the camera returning to neutral
-		; when the Up button is released. The Following code limits the y-pos
+		; when the Up button is released. The following code limits the y-pos
 		; to the bounds of the level, eliminating this bug.
 		move.w	(v_camera_y_pos).w,d0	; get camera top coordinate
 		sub.w	(v_boundary_top).w,d0	; subtract zone's top bound from it
 		add.w	(v_camera_y_shift).w,d0	; add default offset
-		cmpi.w	#$C8,d0			; is offset <= $C8?
+		cmpi.w	#camera_y_shift_up,d0			; is offset <= $C8?
 		ble.s	.skip			; if so, branch
-		move.w	#$C8,d0			; set offset to $C8
+		move.w	#camera_y_shift_up,d0			; set offset to $C8
 
 	.skip:
 		cmp.w	(v_lookshift).w,d0
@@ -837,12 +842,9 @@ Sonic_JumpDirection:
 	if RemoveSpeedCaps=0
 	else
 	; This removes the speed cap for movement in the air.
-;		tst.w	(v_demo_mode).w				; is demo mode on?
-;		bne.s	.notindemo 			; if yes, branch
 		add.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d1,d0		; compare speed with top speed
 		ble.s	.not_left	; if speed was already greater than the maximum, branch
-;	.notindemo:	
 		endc
 		move.w	d1,d0					; set max speed
 
@@ -856,13 +858,10 @@ Sonic_JumpDirection:
 		blt.s	.update_speed				; if not, branch
 	if RemoveSpeedCaps=0
 	else
-	; This removes the speed cap for movement in the air.
-;		tst.w	(v_demo_mode).w				; is demo mode on?
-;		bne.s	.notindemo 			; if yes, branch		
+	; This removes the speed cap for movement in the air.	
 		sub.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d6,d0		; compare speed with top speed
-		bge.s	.update_speed	; if speed was already greater than the maximum, branch	
-;	.notindemo:				
+		bge.s	.update_speed	; if speed was already greater than the maximum, branch				
 	endc	
 		move.w	d6,d0					; set max speed
 
@@ -1002,23 +1001,23 @@ Sonic_LevelBound:
 	if FixBugs=0	
 		bne.w	KillSonic				; if not, kill Sonic
 	else	
-		bne.s	.killsonic
+		jne		KillSonic
 	endc	
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
 	if FixBugs=0	
 		bcs.w	KillSonic
 	else	
-		bcs.s	.killsonic				; if not, kill Sonic
+		jcs		KillSonic				; if not, kill Sonic
 	endc	
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
 		rts	
-	if FixBugs=0
-	else
-	.killsonic:
-		jmp 	KillSonic	
-	endc	
+;	if FixBugs=0
+;	else
+;	.killsonic:
+;		jmp 	KillSonic	
+;	endc	
 ; ===========================================================================
 
 .sides:
@@ -1115,7 +1114,7 @@ Sonic_Jump:
 	if FixBugs=0
 	else
 	; Clearing the control lock immediately after jumping eliminates possible input lag
-	;that can occur if jumping after hitting a horizontal spring or sliding down a slope.
+	; that can occur if jumping after hitting a horizontal spring or sliding down a slope.
 		clr.w	ost_sonic_lock_time(a0)	;clear horiz control lock
 	endc	
 		play.w	1, jsr, sfx_Jump			; play jumping sound
@@ -1129,7 +1128,16 @@ Sonic_Jump:
 		bne.s	.is_rolling				; if yes, branch
 		move.b	#sonic_height_roll,ost_height(a0)
 		move.b	#sonic_width_roll,ost_width(a0)
+		
+		tst.b	(v_victory_animation_flag) ; has victory animation flag been set?
+		beq.s	.normaljump					; if not, branch
+		move.b	#id_Leap2,ost_anim(a0) ; use victory animation
+		bra.s	.cont
+		
+	.normaljump:	
 		move.b	#id_Roll,ost_anim(a0)			; use "jumping" animation
+		
+	.cont:	
 		bset	#status_jump_bit,ost_status(a0)
 		addq.w	#sonic_height-sonic_height_roll,ost_y_pos(a0)
 
@@ -1513,7 +1521,7 @@ Sonic_ResetOnFloor:
 		nop	
 		nop	
 		nop	
-;		btst    #bitDn,(v_joypad_hold).w            ; is down being pressed?;
+;		btst    #bitDn,(v_joypad_hold).w            ; is down being pressed?
 ;  		bne.w   Sonic_ResetOnFloor_ContRolling        ; if yes, branch
 
 
@@ -1534,46 +1542,6 @@ Sonic_ResetOnFloor:
 		move.w	#0,(v_enemy_combo).w			; reset counter for points for breaking multiple enemies
 		rts
 
-
-;=====================================================================================================================
-; (Hitaxas) Fix for awful uncurling frame when a character lands on the ground from a jump
-; or if they walked off an object or edge of a floor while holding down.
-; this "bug" is present in S1-S3K.
-;=====================================================================================================================
-;Sonic_ResetOnFloor_ContRolling:
-;  		move.b  #id_Roll,ost_anim(a0)      ; play rolling animation
- 
-;---------------------------------------------------------------------------------------------------------------------
-; check if character was already rolling, used for instances where they roll off one floor to land on another
-;---------------------------------------------------------------------------------------------------------------------
-;    btst    #2,ost_status(a0)                   ; was status set to rolling?
-;    beq.s	Sonic_ResetOnFloor_Part3        ; if it was, branch
- 
-;---------------------------------------------------------------------------------------------------------------------
-; force character into rolling status, and play sound.
-;---------------------------------------------------------------------------------------------------------------------
-;    bset    #2,ost_status(a0)                   ; otherwise, set roll status
-;    move.b  #$E,y_radius(a0)                ; adjust character's y_radius
-;    move.b  #7,x_radius(a0)                 ; same for x_radius
-;    addq.w  #5,$C(a0)                       ; move character 5 pixels down, so they aren't floating
-;    move.w  #SndID_Roll,d0
-;    jsr     (PlaySound).l                   ; play rolling sound - required because this is not part of the normal roll code                        
- 
-;---------------------------------------------------------------------------------------------------------------------
-; clear status flags and act like a true reset on floor. This is nearly identical to part 3
-; but without forcing character into walking animation.
-;---------------------------------------------------------------------------------------------------------------------  
- ;   bclr    #1,ost_status(a0)                   ; clear in air status
- ;   bclr    #5,ost_status(a0)                   ; clear pushing status
- ;   bclr    #4,ost_status(a0)                   ; clear rolljump status
- ;   move.b  #0,jumping(a0)                  ; clear jumping flag
- ;   move.w  #0,(Chain_Bonus_counter).w
- ;   move.b  #0,flip_angle(a0)
- ;   move.b  #0,flips_remaining(a0)
- ;   move.w  #0,(Sonic_Look_delay_counter).w	
-;	endif
-;return_1B11E:
-;	rts
 
 
 ; ---------------------------------------------------------------------------
@@ -1639,6 +1607,13 @@ Sonic_Death:	; Routine 6
 		bsr.w	Sonic_Animate
 		bsr.w	Sonic_LoadGfx
 		jmp	(DisplaySprite).l
+
+;		pea (DisplaySprite).l
+;		pea Sonic_LoadGfx
+;		pea Sonic_Animate
+;		pea Sonic_RecordPosition
+;		pea (ObjectFall).l
+;		bra.w 	GameOver
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to check for game over
@@ -2178,47 +2153,47 @@ Sonic_BelowFloor:
 		rts
 
 ; ===========================================================================
-		move.l	ost_x_pos(a0),d2
-		move.w	ost_x_vel(a0),d0
-		ext.l	d0
-		asl.l	#8,d0
-		sub.l	d0,d2
-		move.l	d2,ost_x_pos(a0)
-		move.w	#$38,d0
-		ext.l	d0
-		asl.l	#8,d0
-		sub.l	d0,d3
-		move.l	d3,ost_y_pos(a0)
-		rts	
+;		move.l	ost_x_pos(a0),d2
+;		move.w	ost_x_vel(a0),d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		sub.l	d0,d2
+;		move.l	d2,ost_x_pos(a0)
+;		move.w	#$38,d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		sub.l	d0,d3
+;		move.l	d3,ost_y_pos(a0)
+;		rts	
 ; ===========================================================================
 
 Sonic_InsideWall:
 		rts	
 ; ===========================================================================
-		move.l	ost_y_pos(a0),d3
-		move.w	ost_y_vel(a0),d0
-		subi.w	#$38,d0
-		move.w	d0,ost_y_vel(a0)
-		ext.l	d0
-		asl.l	#8,d0
-		sub.l	d0,d3
-		move.l	d3,ost_y_pos(a0)
-		rts	
-		rts	
+;		move.l	ost_y_pos(a0),d3
+;		move.w	ost_y_vel(a0),d0
+;		subi.w	#$38,d0
+;		move.w	d0,ost_y_vel(a0)
+;		ext.l	d0
+;		asl.l	#8,d0
+;		sub.l	d0,d3
+;		move.l	d3,ost_y_pos(a0)
+;		rts	
+;		rts	
 ; ===========================================================================
-		move.l	ost_x_pos(a0),d2
-		move.l	ost_y_pos(a0),d3
-		move.w	ost_x_vel(a0),d0
-		ext.l	d0
-		asl.l	#8,d0
-		sub.l	d0,d2
-		move.w	ost_y_vel(a0),d0
-		ext.l	d0
-		asl.l	#8,d0
-		sub.l	d0,d3
-		move.l	d2,ost_x_pos(a0)
-		move.l	d3,ost_y_pos(a0)
-		rts	
+;		move.l	ost_x_pos(a0),d2
+;		move.l	ost_y_pos(a0),d3
+;		move.w	ost_x_vel(a0),d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		sub.l	d0,d2
+;		move.w	ost_y_vel(a0),d0
+;		ext.l	d0
+;		asl.l	#8,d0
+;		sub.l	d0,d3
+;		move.l	d2,ost_x_pos(a0)
+;		move.l	d3,ost_y_pos(a0)
+;		rts	
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	update Sonic's angle

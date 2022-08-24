@@ -277,6 +277,9 @@ Has_MoveBack:	; Routine $E
 		bne.w	DeleteObject				; if not, branch
 		addq.b	#2,ost_routine(a0)			; goto Has_Boundary next
 		clr.b	(f_lock_controls).w			; unlock controls
+		
+		clr.b (v_victory_animation_flag) ; clear victory animation flag
+		
 		play.w	0, jmp, mus_FZ				; play FZ music
 ; ===========================================================================
 
