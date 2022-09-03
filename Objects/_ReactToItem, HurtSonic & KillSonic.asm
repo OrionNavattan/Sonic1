@@ -276,11 +276,16 @@ React_Caterkiller:
 		beq.s	.hurt			;if not, move on
 		moveq	#-1,d0			;else, he's rolling on the ground, and shouldn't be hurt
 		rts				
+
 	.hurt:
 	endc
-		bset	#status_broken_bit,ost_status(a1)
-
-React_ChkHurt:
+		; insert invincibility test here, and branch to break enemy 
+	
+		bset	#status_broken_bit,ost_status(a1)  ; set body of Caterkiller to broken	
+		
+		
+		
+React_ChkHurt: 
 		tst.b	(v_invincibility).w			; is Sonic invincible?
 		beq.s	.notinvincible				; if not, branch
 
@@ -325,7 +330,11 @@ HurtSonic:
 	.hasshield:
 		move.b	#0,(v_shield).w				; remove shield
 		move.b	#id_Sonic_Hurt,ost_routine(a0)		; run hurt animation/action
+	if ResetOnFloor=0		
 		bsr.w	Sonic_ResetOnFloor			; reset several of Sonic's flags
+	else
+		bsr.w	Sonic_ResetOnFloor_Part2			; reset several of Sonic's flags
+	endc
 		bset	#status_air_bit,ost_status(a0)
 		move.w	#-$400,ost_y_vel(a0)			; make Sonic bounce away from the object
 		move.w	#-$200,ost_x_vel(a0)
@@ -386,13 +395,12 @@ KillSonic:
 	endc	
 		move.b	#0,(v_invincibility).w			; remove invincibility
 		move.b	#id_Sonic_Death,ost_routine(a0)		; run death animation/action
+	if ResetOnFloor=0		
 		bsr.w	Sonic_ResetOnFloor			; reset several of Sonic's flags
-	if BurntSprite=0
-		; This status bit reset has to be moved down after the death sprite and sound code,
-		; as we will need to read it for one of the checks.
-		bset	#status_air_bit,ost_status(a0)
 	else
+		bsr.w	Sonic_ResetOnFloor_Part2			; reset several of Sonic's flags
 	endc	
+		bset	#status_air_bit,ost_status(a0)	
 		move.w	#-$700,ost_y_vel(a0)			; move Sonic up
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
@@ -439,7 +447,6 @@ KillSonic:
 		move.w	#sfx_SpikeHit,d0 ; set spikes death sound
 
 	.sound_gfx:
-		bset	#status_air_bit,obStatus(a0) ; Reset Sonic's status bit
 		bset	#tile_hi_bit,ost_tile(a0)	
 	endc
 		jsr	(PlaySound1).l

@@ -834,18 +834,18 @@ Calc_VRAM_Pos:
 ; fg/bg nametable is $8000 instead of $C000.
 ; ---------------------------------------------------------------------------
 
-Calc_VRAM_Pos_Unknown:
-		add.w	4(a3),d4
-		add.w	(a3),d5
-		andi.w	#$F0,d4
-		andi.w	#$1F0,d5
-		lsl.w	#4,d4
-		lsr.w	#2,d5
-		add.w	d5,d4
-		moveq	#$8000>>14,d0
-		swap	d0
-		move.w	d4,d0
-		rts
+;Calc_VRAM_Pos_Unknown:
+;		add.w	4(a3),d4
+;		add.w	(a3),d5
+;		andi.w	#$F0,d4
+;		andi.w	#$1F0,d5
+;		lsl.w	#4,d4
+;		lsr.w	#2,d5
+;		add.w	d5,d4
+;		moveq	#$8000>>14,d0
+;		swap	d0
+;		move.w	d4,d0
+;		rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	load tiles as soon as the level	appears

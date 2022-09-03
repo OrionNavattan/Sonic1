@@ -373,6 +373,7 @@ Cat_FragSpeed:	dc.w -$200					; head x speed
 ; ===========================================================================
 
 Cat_Body_Break:
+		; test for invincibility, and skip below instruction
 		bset	#render_onscreen_bit,ost_status(a1)	; stop parent despawning
 
 Cat_Head_Break:

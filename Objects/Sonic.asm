@@ -396,6 +396,11 @@ Sonic_Balance:
 ; ===========================================================================
 
 Sonic_LookUp:
+	if ResetOnFloor=0
+	else
+		pea Sonic_Inertia(pc) ; Push where we want to go next to the stack, allowing Sonic_ResetOnFloor to branch here and return without running Sonic_Inertia
+	endc	
+	Sonic_LookUp_2:
 		btst	#bitUp,(v_joypad_hold).w		; is up being pressed?
 		beq.s	Sonic_Duck				; if not, branch
 		move.b	#id_LookUp,ost_anim(a0)			; use "looking up" animation
@@ -425,7 +430,7 @@ Sonic_LookUp:
 
 Sonic_Duck:
 		btst	#bitDn,(v_joypad_hold).w		; is down being pressed?
-		beq.s	Sonic_ResetScr				; if not, branch
+		beq.s	Sonic_NoLookUp_or_Duck			; if not, branch
 		move.b	#id_Duck,ost_anim(a0)			; use "ducking" animation
 	if FixBugs=0
 		cmpi.w	#camera_y_shift_down,(v_camera_y_shift).w ; 8
@@ -455,6 +460,11 @@ Sonic_Duck:
 ; ===========================================================================
 
 Sonic_ResetScr:
+	if ResetOnFloor=0
+	else
+		pea Sonic_Inertia(pc) ; Push where we want to go next to the stack, allowing Sonic_ResetOnFloor to branch here and return without running Sonic_Inertia
+	endc	
+	Sonic_NoLookUp_or_Duck:
 		cmpi.w	#camera_y_shift_default,(v_camera_y_shift).w ; is screen in its default position? ($60)
 		beq.s	Sonic_ScrOk				; if yes, branch
 		bcc.s	Sonic_HighScr				; branch if screen is higher
@@ -464,6 +474,10 @@ Sonic_ResetScr:
 		subq.w	#2,(v_camera_y_shift).w			; move screen back 2px to default
 
 	Sonic_ScrOk:
+	if ResetOnFloor=0
+	else
+		rts ; if called from Sonic_ResetOnFloor, return to whatever routine called it, otherwise continue to Sonic_Inertia
+	endc	
 
 Sonic_Inertia:
 		move.b	(v_joypad_hold).w,d0
@@ -1053,11 +1067,11 @@ Sonic_Roll:
 
 Sonic_ChkRoll:
 		btst	#status_jump_bit,ost_status(a0)		; is Sonic already rolling or jumping?
-		beq.s	.roll					; if not, branch
+		beq.s	Sonic_DoRoll					; if not, branch
 		rts	
 ; ===========================================================================
 
-.roll:
+Sonic_DoRoll:
 		bset	#status_jump_bit,ost_status(a0)		; set rolling/jumping flag
 		move.b	#sonic_height_roll,ost_height(a0)
 		move.b	#sonic_width_roll,ost_width(a0)
@@ -1358,7 +1372,9 @@ Sonic_JumpCollision:
 		add.w	d1,ost_y_pos(a0)			; align to floor
 		move.b	d3,ost_angle(a0)			; save floor angle
 		bsr.w	Sonic_ResetOnFloor			; reset Sonic's flags
+	if ResetOnFloor=0	
 		move.b	#id_Walk,ost_anim(a0)			; use walking animation
+	endc	
 		move.b	d3,d0
 		addi.b	#$20,d0
 		andi.b	#$40,d0
@@ -1425,7 +1441,9 @@ Sonic_JumpCollision_Left:
 		add.w	d1,ost_y_pos(a0)			; align to floor
 		move.b	d3,ost_angle(a0)			; save floor angle
 		bsr.w	Sonic_ResetOnFloor			; reset Sonic's flags
+	if ResetOnFloor=0		
 		move.b	#id_Walk,ost_anim(a0)			; use walking animation
+	endc
 		move.w	#0,ost_y_vel(a0)
 		move.w	ost_x_vel(a0),ost_inertia(a0)
 
@@ -1504,7 +1522,9 @@ Sonic_JumpCollision_Right:
 		add.w	d1,ost_y_pos(a0)			; align to floor
 		move.b	d3,ost_angle(a0)			; save floor angle
 		bsr.w	Sonic_ResetOnFloor			; reset Sonic's flags
+	if ResetOnFloor=0		
 		move.b	#id_Walk,ost_anim(a0)			; use walking animation
+	endc	
 		move.w	#0,ost_y_vel(a0)
 		move.w	ost_x_vel(a0),ost_inertia(a0)
 
@@ -1516,16 +1536,14 @@ Sonic_JumpCollision_Right:
 ; ---------------------------------------------------------------------------
 
 Sonic_ResetOnFloor:
-		btst	#status_rolljump_bit,ost_status(a0)	; is Sonic jumping while rolling?
-		beq.s	.no_rolljump				; if not, branch
-		nop	
-		nop	
-		nop	
-;		btst    #bitDn,(v_joypad_hold).w            ; is down being pressed?
-;  		bne.w   Sonic_ResetOnFloor_ContRolling        ; if yes, branch
+	if ResetOnFloor=0
+;		btst	#status_rolljump_bit,ost_status(a0)	; is Sonic jumping while rolling?
+;		beq.s	.no_rolljump				; if not, branch
+;		nop	
+;		nop	
+;		nop	
 
-
-	.no_rolljump:
+;	.no_rolljump:
 		bclr	#status_pushing_bit,ost_status(a0)
 		bclr	#status_air_bit,ost_status(a0)
 		bclr	#status_rolljump_bit,ost_status(a0)
@@ -1541,8 +1559,56 @@ Sonic_ResetOnFloor:
 		move.b	#0,ost_sonic_jump(a0)
 		move.w	#0,(v_enemy_combo).w			; reset counter for points for breaking multiple enemies
 		rts
+		
+	else
+	
+		btst    #bitUp,(v_joypad_hold).w      			; is up being pressed?
+        bne.s   .duck_or_lookup                   		; if so, branch
+        btst    #bitDn,(v_joypad_hold).w    			; is down being pressed?
+        bne.s	.chkroll								; if so, branch
+        bra.s	Sonic_ResetOnFloor_Part2				; if neither, no change in behavior from vanilla
+        
+    .chkroll:
+     	tst.w   ost_inertia(a0)                         ; is character moving?
+        beq.s   .duck_or_lookup                         ; if not, branch
+        lea (Sonic_DoRoll).l,a6
+        bra.s	.clearflags
+        
+    .duck_or_lookup:   
+        move.b  #sonic_height,ost_height(a0)            ; adjust Sonic's collision height to standing
+        move.b  #sonic_width,ost_width(a0)              ; adjust Sonic's collision width to standing
+    	subq.w  #sonic_height-sonic_height_roll,ost_y_pos(a0)
+    	lea (Sonic_LookUp_2).l,a6  
+    	
+    .clearflags:
+        bclr    #status_jump_bit,ost_status(a0)         ; clear jumping/rolling status 
+        bclr    #status_air_bit,ost_status(a0)          ; clear in air status
+        bclr    #status_pushing_bit,ost_status(a0)      ; clear pushing status
+        bclr    #status_rolljump_bit,ost_status(a0)     ; clear rolljump status
+        move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
+        move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+        jmp	(a6)  ; Dynamic (!) jump to Sonic_ChkRoll or Sonic_LookUp
+        ; Above will return to original caller of ResetOnFloor afterwards.
+        
+Sonic_ResetOnFloor_Part2:
+		; This will be called directly when Sonic is hurt, drowns, or dies.
+        bclr    #status_pushing_bit,ost_status(a0)      ; clear pushing status
+    	bclr    #status_air_bit,ost_status(a0)          ; clear in air status
+        bclr    #status_rolljump_bit,ost_status(a0)     ; clear rolljump status	
+		btst	#status_jump_bit,ost_status(a0)			; is Sonic jumping/rolling?
+		beq.s	.no_jump								; if not, branch
+		bclr    #status_jump_bit,ost_status(a0)         ; clear jumping/rolling status
+    	move.b  #sonic_height,ost_height(a0)             ; this increases Sonic's collision height to standing
+        move.b  #sonic_width,ost_width(a0)              ; adjust Sonic's collision width to standing
+        move.b  #id_Walk,ost_anim(a0)         			; default to running/walking animation	
+    	subq.w  #sonic_height-sonic_height_roll,ost_y_pos(a0)
 
-
+	.no_jump:
+        move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
+        move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+ 		rts
+ 
+	endc
 
 ; ---------------------------------------------------------------------------
 ; Sonic	when he	gets hurt

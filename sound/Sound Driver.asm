@@ -191,7 +191,7 @@ DAC_sample_rate:
 	if RestoreProtoDrums=0
 		dc.b  18, 21, 28, 29, $FF, $FF
 	else
-		dc.b  23, 26, 33, 34, $FF, $FF
+		dc.b  18+5, 21+5, 28+5, 29+5, $FF, $FF
 	endc
 ; ---------------------------------------------------------------------------
 ; Subroutine to update FM

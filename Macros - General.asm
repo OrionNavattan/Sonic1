@@ -63,18 +63,18 @@ index:		macro
 		pusho
 		opt	m-
 
-		if strlen("\1")>0				; check if start is defined
-		index_start: = \1
-		else
+		if strlen("\1")>0				; check if start is defined 
+		index_start: = \1				; if start location is defined, use it
+		else							; else, use -1
 		index_start: = -1
 		endc
 		if strlen("\0")=0				; check if width is defined (b, w, l)
 		index_width: equs "w"				; use w by default
 		else
-		index_width: equs "\0"
+		index_width: equs "\0"			; else, use specified width
 		endc
 		
-		if strcmp("\index_width","b")
+		if strcmp("\index_width","b")	
 		index_width_int: = 1
 		elseif strcmp("\index_width","w")
 		index_width_int: = 2
@@ -139,14 +139,14 @@ ptr:		macro
 		pusho
 		opt	m-
 
-		if index_start=-1
-		dc.\index_width \1-*
+		if index_start=-1 ; if no start location was defined for the parent index
+		dc.\index_width \1-* ; make pointers relative to themselves
 		else
-		dc.\index_width \1-index_start
+		dc.\index_width \1-index_start	; else, use index start location
 		endc
 		
-		if ~def(prefix_id)
-		prefix_id: equs "id_"
+		if ~def(prefix_id)  ; define prefix ID
+		prefix_id: equs "id_" 
 		endc
 		
 		if instr("\1",".")=1				; check if pointer is local

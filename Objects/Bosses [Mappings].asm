@@ -2,7 +2,7 @@
 ; Sprite mappings - Bosses (ship, Eggman and flame)
 ; ---------------------------------------------------------------------------
 
-;Modifications in Map_Bosses to fix Eggman's unintentionally shaved mustache (ported from Mercury's ReadySonic)
+; Modifications in Map_Bosses to fix Eggman's unintentionally shaved mustache (ported from Mercury's ReadySonic)
 
 Map_Bosses:	index *
 		ptr frame_boss_ship

@@ -65,6 +65,8 @@ RestoreProtoDrums: equ 1 ; Restores the higher pitched, gated-reverb sound of th
 
 LZMusic: equ 1 ; Adds an extra note to Labyrinth Zone's music that is in the demo version, but not in the final.
 
+ResetOnFloor: equ 1
+
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
 		include "Nemesis File List.asm"

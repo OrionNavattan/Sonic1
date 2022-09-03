@@ -125,7 +125,7 @@ GM_Title:
 		lea	(v_ost_psb).w,a1
 		moveq	#0,d0
 	if FixBugs=0	
-		; This only clears half of the OST. This leaves  stale data
+		; This only clears half of the OST. This leaves stale data
 		; from the "SONIC TEAM PRESENTS" screen in the table,
 		; preventing the "PRESS START BUTTON" object from appearing.
 		move.w	#7,d1
