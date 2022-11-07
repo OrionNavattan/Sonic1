@@ -105,7 +105,29 @@ RunPLC:
 
 	.normal_mode:
 		andi.w	#$7FFF,d2				; clear highest bit
-		move.w	d2,(v_nem_tile_count).w			; load tile count
+	if ~FixBugs
+	; Vladikcomper:
+	; This is done too early: this variable is also used as a flag 
+	; to signal that there are PLCs to process, which means that as 
+	; soon as this variable is set, PLC processing will occur during V-Int. 
+	; If an interrupt occurs between here and the end of this function, 
+	; then the PLC processor will begin without being fully
+	; initialized, causing a crash. This can reliably be triggered by 
+	; rolling past the signpost at the end of LZ1 and LZ2, where the 
+	; downward shift of the screen, combined with the water level
+	; being above scanline 96 and a hack to prevent the sound driver
+	; from running on HBlank when it occurs above said scanline 
+	; results in a high chance of the interrupt occurring while 
+	; the PLC for the signpost is being processed.
+	
+	; This bug also exists in Sonic 2 and Sonic CD, although there
+	; are no known ways to reliably trigger it in those games.
+	; S3K eliminates this race condition by moving this instruction 
+	; to the end of the function.
+
+	
+		move.w	d2,(v_nem_tile_count).w			; load tile count	
+	endc			
 		bsr.w	NemDec_BuildCodeTable
 		move.b	(a0)+,d5				; get next byte of header
 		asl.w	#8,d5					; move to high byte of word
@@ -119,6 +141,10 @@ RunPLC:
 		move.l	d0,(v_nem_d2).w
 		move.l	d5,(v_nem_header).w
 		move.l	d6,(v_nem_shift).w
+	if FixBugs
+	; See above.
+		move.w	d2,(v_nem_tile_count).w			; load tile count	
+	endc
 
 	.exit:
 		rts
@@ -189,11 +215,42 @@ ProcessPLC_Exit:
 
 ProcessPLC_Finish:
 		lea	(v_plc_buffer).w,a0
-		moveq	#$15,d0
+		
+	if FixBugs
+		; Vladikcomper:
+		; Shift the PLC buffer by the exact number of bytes in each cue (6)
+		; using pairs of longword and word moves, and clear the last slot 
+		; when finished, avoiding the bug described below. Also uses only 506
+		; processor cycles instead of around 740.
+		lea sizeof_plc(a0),a1 	 ; start of second slot in the queue
+   		moveq   #(v_plc_buffer_end-v_plc_buffer-6)/6-1,d0 ; $E, number of loops needed to shift everything
 
 	.loop:
-		move.l	6(a0),(a0)+				; shift contents of PLC buffer up 6 bytes
-		dbf	d0,.loop
+		move.l  (a1)+,(a0)+		; shift the first 4 bytes...
+		move.w  (a1)+,(a0)+		; ...then the final 2 bytes of the cue to the next slot
+		dbf d0,.loop			; loop until entire buffer has been shifted
+ 
+    	moveq   #0,d0
+    	move.l  d0,(a0)+    ; clear the first longword... 
+    	move.w  d0,(a0)+    ; ...and the final word of the last cue to prevent overcopying it
+    	
+	else
+		; This shifts the PLC buffer using longword moves alone. However,
+		; the total amount of data that needs to be shifted ($5A, the number 
+		; of PLC slots minus one) is not divisible by a longword. 
+		; Consequently, only $58 bytes are shifted; the final two bytes
+		; (the VRAM offset of the $16th and final cue, are skipped.
+		; Additionally, that $16th cue is not cleared, with the result that
+		; if it is used, the part that isn't broken will get copied over 
+		; until it fills the entire buffer, causing the PLC processor to get stuck in an 
+		; infinite loop.
+		
+		moveq	#(v_plc_buffer_end-v_plc_buffer-6)/4-1,d0 ; $15
+
+	.loop:
+		move.l	sizeof_plc(a0),(a0)+	; shift contents of PLC buffer up 6 bytes
+		dbf	d0,.loop					; repeat until everything has been shifted (but see the bug above)	
+	endc
 		rts
 
 ; ---------------------------------------------------------------------------

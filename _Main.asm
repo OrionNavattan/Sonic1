@@ -38,6 +38,8 @@ AddressSRAM:	equ 3						; 0 = odd+even; 2 = even only; 3 = odd only
 		if ~def(Revision)				; bit-perfect check will automatically set this variable
 Revision:	equ 1
 		endc
+		
+FixBugs:	equ 0	; set to 1 to fix various engine and gameplay bugs		
 
 ZoneCount:	equ 6						; discrete zones are: GHZ, MZ, SYZ, LZ, SLZ, and SBZ
 
@@ -562,8 +564,10 @@ LGrass_Coll_Sloped:
 		include "Includes\ExecuteObjects & Object Pointers.asm"
 
 NullObject:
-		;jmp	(DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
-
+	if FixBugs
+		jmp	(DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
+	endc
+	
 		include "Objects\_ObjectFall & SpeedToPos.asm"
 
 		include "Objects\_DisplaySprite.asm"

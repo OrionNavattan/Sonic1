@@ -847,9 +847,24 @@ UCX_Camera:
 		move.w	(v_ost_player+ost_x_pos).w,d0
 		sub.w	(v_camera_x_pos).w,d0			; d0 = Sonic's distance from left edge of screen
 		subi.w	#144,d0					; is distance less than 144px?
+	if FixBugs
+		bmi.s	UCX_BehindMid
+	else
+	; This branch should be signed rather than unsigned. If the above subi 
+	; returns a negative value (e,g., a cutscene were to scroll the camera far 
+	; enough to the right that Sonic is completely offscreen), this branch
+	; will be taken, causing the camera to scroll to the right across 
+	; the entire level until it loops back to Sonic's position.
 		bcs.s	UCX_BehindMid				; if yes, branch
+	endc	
 		subi.w	#16,d0					; is distance more than 160px?
+	if FixBugs
+	; This branch shouldn't make any difference, but it should still
+	; be a signed one, since we are dealing with signed values.
+		bpl.s	UCX_AheadOfMid				; if yes, branch
+	else	
 		bcc.s	UCX_AheadOfMid				; if yes, branch
+	endc	
 		clr.w	(v_camera_x_diff).w			; no camera movement
 		rts	
 ; ===========================================================================
@@ -875,6 +890,19 @@ UCX_SetScreen:
 ; ===========================================================================
 
 UCX_BehindMid:
+	if FixBugs
+	; To allow tiles to be drawn properly, the scroll subroutines limit the scroll
+	; rate to 16 pixels per frame for all vertical scrolling, and for horizontal 
+	; scrolling to the right. This is NOT done for scrolling to the left.
+	; This doesn't cause issues in the unmodified game, but if one were to insert a 
+	; cutscene or other scripted event that moves the camera to the right of,
+	; and then back towards Sonic, this may become noticeable.
+	; The following code adds the missing check for leftward scrolling.
+		cmpi.w	#-16,d0					; is Sonic within 16px of middle area?
+		bcc.s	.within_16			; if not, branch
+		move.w	#$FFF0,d0				; set to -16 if less
+	.within_16:	
+	endc
 		add.w	(v_camera_x_pos).w,d0			; d0 = new camera x pos
 		cmp.w	(v_boundary_left).w,d0			; is camera within boundary?
 		bgt.s	UCX_SetScreen				; if yes, branch
@@ -1130,14 +1158,14 @@ UpdateBG_Y2:
 		eori.b	#$10,(v_bg1_y_redraw_flag).w
 		sub.l	d3,d0
 		bpl.s	.redraw_bottom
-		if revision=0
+		ifRrevision=0
 			bset	#redraw_top_bit,(v_bg1_redraw_direction).w
 		else
 			bset	#redraw_topall_bit,(v_bg1_redraw_direction).w
 		endc
 		rts
 	.redraw_bottom:
-		if revision=0
+		if Revision=0
 			bset	#redraw_bottom_bit,(v_bg1_redraw_direction).w
 		else
 			bset	#redraw_bottomall_bit,(v_bg1_redraw_direction).w

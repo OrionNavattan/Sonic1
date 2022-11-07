@@ -71,7 +71,11 @@ GM_Title:
 	.load_text:
 		move.w	(a5)+,(a6)
 		dbf	d1,.load_text				; load level select font
-
+	if FixBugs
+		; Clear f_disable_scrolling. This fixes the title screen not scrolling 
+		; after a game over from drowning.
+		move.b	#0,(f_disable_scrolling).w ; Clear no background scroll flag 
+	endc
 		move.b	#0,(v_last_lamppost).w			; clear lamppost counter
 		move.w	#0,(v_debug_active).w			; disable debug item placement mode
 		move.w	#0,(v_demo_mode).w			; disable debug mode
