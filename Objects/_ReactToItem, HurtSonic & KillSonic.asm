@@ -20,7 +20,14 @@ ReactToItem:
 		move.b	ost_height(a0),d5
 		subq.b	#sonic_height-sonic_height_hitbox,d5	; d5 = Sonic's height minus 3
 		sub.w	d5,d3					; d3 = y pos of Sonic's top edge
+	
+	if FixBugs
+	; Use Sonic's ducking animation to determine if he is ducking rather than 
+	; the frame.
+		cmpi.b	#id_Duck,ost_anim(a0)				; is Sonic ducking?	
+	else	
 		cmpi.b	#id_frame_Duck,ost_frame(a0)		; is Sonic ducking?
+	endc	
 		bne.s	.notducking				; if not, branch
 		addi.w	#(sonic_height_hitbox-sonic_height_hitbox_duck)*2,d3 ; lower top edge when ducking (by 12px)
 		moveq	#sonic_height_hitbox_duck,d5		; use smaller height
@@ -249,6 +256,30 @@ Enemy_Points:	dc.w 100/10
 ; ===========================================================================
 
 React_Caterkiller:
+	if FixBugs
+		; The Caterkiller's body is despawned one frame after the head, creating the possibility of
+		; Sonic being hurt if he rolls into one from the front at high speeds. This works around the issue
+		; by skipping getting hurt if Sonic and the Caterkiller are facing opposite directions.
+		move.b	#1,d0
+		move.w	ost_inertia(a0),d1
+		bmi.s	.skip
+		move.b	#0,d0
+		
+	.skip:
+		move.b	ost_status(a1),d1
+		andi.b	#1,d1
+		cmp.b	d0,d1						; are Sonic and the Caterkiller facing the same way?
+		bne.s	.hurt						; if not, branch
+		btst	#status_air,ost_status(a0)	;is Sonic in the air?	
+		bne.s	.hurt						;if so, branch
+		btst	#status_jump_bit,ost_status(a0)	;is Sonic spinning?
+		beq.s	.hurt						;if not, branch
+		moveq	#-1,d0						;else, he's rolling on the ground, and shouldn't be hurt
+		rts				
+
+	.hurt:
+	endc
+	
 		bset	#status_broken_bit,ost_status(a1)
 
 React_ChkHurt:

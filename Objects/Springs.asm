@@ -136,7 +136,25 @@ Spring_BounceLR:
 	.xflipped:
 		move.w	#sonic_lock_time_spring,ost_sonic_lock_time(a1) ; lock controls for 0.25 seconds
 		move.w	ost_x_vel(a1),ost_inertia(a1)
+	
+	if FixBugs	
+		tst.w   ost_x_vel(a1) ; is Sonic running left?
+        bmi.s   .face_left    ; if so, branch
+        bclr    #status_xflip_bit,ost_status(a1)
+        bra.s   .face_right
+		
+	.face_left:
+		bset	#status_xflip_bit,ost_status(a1)	
+		
+	.face_right:
+	else	
+		; This will flip Sonic unconditionally. If he manages to hit a horizontal spring
+		; while facing away from it, he will be flipped unnecessarily, 
+		; causing him to face the wrong way while moving away from it. 
+		; The above code fixes this by setting or clearing his flip bit based on his X-velocity. 
 		bchg	#status_xflip_bit,ost_status(a1)
+	endc	
+	
 		btst	#status_jump_bit,ost_status(a1)		; is Sonic jumping/rolling?
 		bne.s	.is_rolling				; if yes, branch
 		move.b	#id_Walk,ost_anim(a1)			; use walking animation

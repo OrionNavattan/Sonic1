@@ -168,6 +168,15 @@ Solid_SkipRenderChk:
 		ext.w	d3
 		add.w	d3,d2					; d2 = combined Sonic + object half height
 		move.w	ost_y_pos(a1),d3
+	if FixBugs
+		; Part of ducking size fix.	
+		cmpi.b	#id_Duck,ost_anim(a1) 
+		bne.s	.skip
+		subi.w	#5,d2
+		addi.w	#5,d3
+		
+	.skip:		
+	endc		
 		sub.w	ost_y_pos(a0),d3			; d3 = y pos of Sonic on object (0 is centre)
 		addq.w	#4,d3
 		add.w	d2,d3					; d3 = y pos of Sonic's feet on object (0 is top)
@@ -247,6 +256,24 @@ Solid_SideAir:
 Solid_NoCollision:
 		btst	#status_pushing_bit,ost_status(a0)	; is Sonic pushing?
 		beq.s	Solid_Debug				; if not, branch
+	if FixBugs
+		; The line before Solid_NotPushing sets Sonic's running animation, leading to the walk-jump
+		; bug wherein Sonic will use his walking sprite when jumping. drowning, or getting hurt
+		; if he is next to an object that calls SolidObject.
+		; While deleting that line also largely fixes it, it does allow some edge cases 
+		; to still creep through. This code, albiet ungainly, eliminates the issue altogether.
+		
+		cmpi.b	#id_Roll,ost_anim(a1) 	; is Sonic in his jumping/rolling animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Drown,ost_anim(a1)	; is Sonic in his drowning animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Hurt,ost_anim(a1)	; is Sonic in his hurt animation?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Death,ost_anim(a1)	; is Sonic dead?
+		beq.s	Solid_NotPushing		; if so, branch
+		cmpi.b	#id_Burnt,ost_anim(a1)  ; is Sonic dead from being burnt?
+		beq.s	Solid_NotPushing		; if so, branch	
+	endc		
 		move.w	#id_Run,ost_anim(a1)			; use running animation
 
 Solid_NotPushing:
@@ -272,10 +299,22 @@ Solid_Below:
 		bpl.s	Solid_TopBtmAir				; branch if moving downwards
 		tst.w	d3
 		bpl.s	Solid_TopBtmAir				; branch if nearer top (he can't be)
+	if ~FixBugs
+	; This is in the wrong place: Sonic will not be pushed out of objects
+	; from above if he's not moving upwards against it!
+	; This is much more noticable when playing as Knuckles in Sonic 2, as he'll be
+	; able to phase through objects when climbing up walls.
+	; 'Knuckles in Sonic 2' and 'Sonic 3 & Knuckles' tried to fix this,
+	; but didn't do it very well.	
 		sub.w	d3,ost_y_pos(a1)			; correct Sonic's position
+	endc
 		move.w	#0,ost_y_vel(a1)			; stop Sonic moving
 
 Solid_TopBtmAir:
+	if FixBugs
+		; See above.
+		sub.w	d3,ost_y_pos(a1)			; correct Sonic's position
+	endc
 		moveq	#-1,d4					; return top/bottom collision
 		rts	
 ; ===========================================================================

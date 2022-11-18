@@ -73,7 +73,12 @@ Buzz_Move:
 		addi.w	#$1C,ost_y_pos(a1)
 		move.w	#$200,ost_y_vel(a1)			; move missile downwards
 		move.w	#$200,ost_x_vel(a1)			; move missile to the right
-		move.w	#$18,d0
+	if FixBugs	
+		; Move the spawn point of the missile closer to the stinger.
+		move.w	#$14,d0 
+	else	
+		move.w	#$18,d0						; start position of missile
+	endc	
 		btst	#status_xflip_bit,ost_status(a0)	; is Buzz Bomber facing left?
 		bne.s	.noflip					; if not, branch
 		neg.w	d0

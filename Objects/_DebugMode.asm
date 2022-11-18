@@ -24,6 +24,26 @@ Debug_Main:	; Routine 0
 		andi.w	#$3FF,(v_bg1_y_pos).w
 		move.b	#0,ost_frame(a0)
 		move.b	#0,ost_anim(a0)
+	if FixBugs	
+	; Clear a handful of status flags and Sonic's speed. This prevents
+	; some unintended behaviors when exiting debug mode 
+		clr.w	ost_x_vel(a0)
+		clr.w	ost_y_vel(a0)
+		clr.w	ost_inertia(a0)
+		btst	#status_platform_bit,ost_status(a0)	; is Sonic standing on an object?
+		beq.s	.setpos		; if not, branch
+		bclr	#status_platform_bit,ost_status(a0)	; clear Sonic's standing flag
+		moveq	#0,d0
+		move.b	ost_sonic_on_obj(a0),d0	; get object id	
+		clr.b	ost_sonic_on_obj(a0)	; clear object id
+		lsl.w	#6,d0
+		addi.l	#v_ost_all&$FFFFFF,d0
+		movea.l	d0,a2
+		bclr	#status_platform_bit,ost_status(a2)	; clear object's standing flag
+		clr.b	ost_solid(a2)
+		
+	.setpos:
+	endc	
 		cmpi.b	#id_Special,(v_gamemode).w		; is game mode $10 (special stage)?
 		bne.s	.islevel				; if not, branch
 
