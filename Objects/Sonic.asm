@@ -1695,7 +1695,8 @@ GameOver:
 	; results in a noticeable delay if Sonic died the top of a level, and a near instant reset 
 	; if he died near the bottom. Using the screen position for this comparison eliminates the time difference.
 		move.w	(v_camera_y_pos).w,d0		
-	endc	
+	endc
+		addi.w	#224+32,d0	
 		cmp.w	ost_y_pos(a0),d0			; has Sonic fallen more than 32px below the bottom boundary (if no bugfix) or camera position (if bugfix) after dying?
 	if FixBugs=0	
 		bcc.w	.exit					; if not, branch

@@ -362,6 +362,7 @@ DLE_MZ1_4:
 		cmpi.w	#$B80,(v_camera_x_pos).w
 		bcs.s	.exit				; branch if camera is left of $B80
 		;endc
+		move.w	#$500,(v_boundary_top).w
 		addq.b	#2,(v_dle_routine).w			; goto DLE_MZ1_6 next
 
 	.exit:
