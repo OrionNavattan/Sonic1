@@ -1009,29 +1009,23 @@ Sonic_LevelBound:
 
 
 .bottom: 
-		; Not bugfixes, but branches that have to be extended due to other fixes
-		; pushing them out of range.
 		cmpi.w	#id_SBZ_act2,(v_zone).w			; is level SBZ2 ?
-	if FixBugs=0	
-		bne.w	KillSonic				; if not, kill Sonic
-	else	
-		jne		KillSonic
-	endc	
+	
+		bne.s	.killsonic				; if not, kill Sonic
+	
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
-	if FixBugs=0	
-		bcs.w	KillSonic
-	else	
-		jcs		KillSonic				; if not, kill Sonic
-	endc	
+
+		bcs.s	.killsonic
+	
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
 		rts	
-;	if FixBugs=0
-;	else
-;	.killsonic:
-;		jmp 	KillSonic	
-;	endc	
+
+	.killsonic:
+		moveq	#0,d0
+		movea.l	d0,a2 ; clear a2 to prevent leftover data from interfering with the cause of death checks
+		jmp 	KillSonic		
 ; ===========================================================================
 
 .sides:
@@ -1587,7 +1581,7 @@ Sonic_ResetOnFloor:
         bclr    #status_rolljump_bit,ost_status(a0)     ; clear rolljump status
         move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
         move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
-        jmp	(a6)  ; Dynamic (!) jump to Sonic_ChkRoll or Sonic_LookUp
+        jmp	(a6)  ; dynamic (!) jump to Sonic_ChkRoll or Sonic_LookUp
         ; Above will return to original caller of ResetOnFloor afterwards.
         
 Sonic_ResetOnFloor_Part2:

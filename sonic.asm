@@ -142,54 +142,215 @@ EndOfHeader:
 ;		bra.s	ErrorTrap
 ; ===========================================================================
 
-		include	"Includes\Mega Drive Setup.asm"		; EntryPoint
+EntryPoint:
+		disable_ints			; disable interrupts during setup; they will be reenabled by the Sega Screen
+		lea SetupValues(pc),a0	; load setup array
+		movem.l	(a0)+,a1-a3/a5/a6	; Z80 RAM start, work RAM start, Z80 bus request register, VDP data port, VDP control port
+		movem.w (a0)+,d1/d2/d5	; VDP registers loop counter, first VDP register value ($8004), VDP register increment/value for Z80 stop and reset release ($100)
+		moveq	#0,d4			; DMA fill and memory clearing value
+		movea.l	d4,a4
+		move.l	a4,usp			; clear user stack pointer
 
-GameProgram:
-		tst.w	(vdp_control_port).l
-		btst	#6,(port_e_control).l
-		beq.s	CheckSumCheck
-		cmpi.l	#'init',(v_checksum_pass).w		; has checksum routine already run?
-		beq.w	GameInit				; if yes, branch
+		tst.w	port_e_control_hi-z80_bus_request(a3)	; was this a soft reset?
+		bne.w	.wait_DMA								; if so, skip the TMSS check
+		
+		move.b	console_version-z80_bus_request(a3),d3	; load hardware version
+		asl.b	#4,d3									; get only hardware version ID (equ flag will be cleared if any of the first three bits are nonzero)
+	
+		beq.s	.wait_DMA								; if Model 1 VA4 or earlier (ID = 0), branch
+		move.l	#'SEGA',tmss_sega-z80_bus_request(a3)	; satisfy the TMSS
+		
+	.wait_dma:	
+		move.w	(a6),ccr		; get status register, resetting the 2nd write flag in the process
+		bvs.s	.wait_dma		; if a DMA was in progress during a soft reset, wait until it is finished...
+		
+	.loop_vdp:
+		move.w	d2,(a6)					; set VDP register
+		add.w	d5,d2					; advance register ID
+		move.b	(a0)+,d2				; load next register value 
+		dbf	d1,.loop_vdp				; repeat for all registers ; final value loaded will be used later to initialize I/0 ports
+		
+		move.l	(a0)+,(a6)				; set DMA fill destination
+		move.w	d4,(a5)					; set DMA fill value (0000), clearing the VRAM
+		
+		tst.w	port_e_control_hi-z80_bus_request(a3)		; was this a soft reset?
+		bne.s	.clear_every_reset			; if so, skip clearing RAM addresses $FE00-$FFFF
+		
+		lea	(v_keep_after_reset).w,a4		; $FFFFFE00		
+		move.w	#(($FFFFFFFF-v_keep_after_reset+1)/4)-1,d1	; repeat times
+	.loop_ram1:
+		move.l	d4,(a4)+
+		dbf	d1,.loop_ram1				; clear RAM ($FE00-$FFFF)
 
-CheckSumCheck:
-		movea.l	#EndOfHeader,a0				; start	checking bytes after the header	($200)
-		movea.l	#ROM_End_Ptr,a1				; stop at end of ROM
-		move.l	(a1),d0
-		moveq	#0,d1
+	.clear_every_reset:
+		move.w	#((v_keep_after_reset&$FFFF)/4)-1,d1	; set repeat times
+	.loop_ram2:
+		move.l	d4,(a2)+				; a2 = start of 68K RAM
+		dbf	d1,.loop_ram2				; clear RAM ($0000-$FDFF)
+		
+		move.w	d5,(a3)									; stop the Z80 (we will clear the VSRAM and CRAM while waiting for it to stop)
+		move.w	d5,z80_reset-z80_bus_request(a3)		; ensure Z80 reset is not set
+	
+		move.w	(a0)+,(a6) ; set VDP increment to 2
+	
+		move.l	(a0)+,(a6)		; set VDP to VSRAM write
+		moveq	#(sizeof_vsram/4)-1,d1	; set repeat times
+	.loop_vsram:	
+		move.l	d4,(a5)		; clear 4 bytes of VSRAM
+		dbf	d1,.loop_vsram	; repeat until entire VSRAM has been cleared	
+		
+		move.l	(a0)+,(a6)				; set VDP to CRAM write
+		moveq	#(sizeof_pal_all/4)-1,d1	; set repeat times
+	.loop_cram:	
+		move.l	d4,(a5)		; clear two palette entries
+		dbf	d1,.loop_cram	; repeat until entire CRAM has been cleared
+		
+	.waitz80:
+		btst	d4,(a3)					; has the Z80 stopped?
+		bne.s	.waitz80				; if not, branch
+		
+		move.w	#(Z80_Startup_end-Z80_Startup)-1,d1	; load size of Z80 startup program
+	.load_z80:	
+		move.b (a0)+,(a1)+ ; load Z80 startup program byte by byte into the Z80 RAM
+		dbf d1,.load_z80
+		
+		move.w #(sizeof_z80_ram-(Z80_Startup_end-Z80_Startup))-1,d1	; size of remaining Z80 ram
+	.clear_Z80_ram:	
+		move.b d4,(a1)+ 	; clear the rest of Z80 RAM
+		dbf	d1,.clear_Z80_ram
 
-	.loop:
-		add.w	(a0)+,d1
-		cmp.l	a0,d0
-		bhs.s	.loop
-		movea.l	#Checksum,a1				; read the checksum
-		cmp.w	(a1),d1					; compare checksum in header to ROM
-		bne.w	CheckSumError				; if they don't match, branch
+		move.w	d4,z80_reset-z80_bus_request(a3)		; reset Z80
+		rept 4
+		nop						; wait a little time to finish resetting
+		endr
+		
+		move.w	d5,z80_reset-z80_bus_request(a3)		; release Z80 reset
+		move.w	d4,(a3)									; start the Z80 
+	
+		moveq	#4-1,d1				; set number of PSG channels to mute 
+	.psg_loop:
+		move.b	(a0)+,psg_input-vdp_data_port(a6)		; set the PSG channel volume to null (no sound)
+		dbf	d1,.psg_loop				; repeat for all channels	
 
-	CheckSumOk:
-		lea	(v_keep_after_reset).w,a6		; $FFFFFE00
-		moveq	#0,d7
-		move.w	#(($FFFFFFFF-v_keep_after_reset+1)/4)-1,d6
-	.clearRAM:
-		move.l	d7,(a6)+
-		dbf	d6,.clearRAM				; clear RAM ($FE00-$FFFF)
+	; Checksum check; delete everything from here to .init_joypads to remove
+		tst.w	port_e_control_hi-z80_bus_request(a3)		; was this a soft reset?
+		bne.w	.init_joypads		; if so,  skip the checksum check
+	
+		movea.l	#EndOfHeader,a1				; start	checking bytes after the header	($200)
+		movea.l	#ROM_End_Ptr,a2				; stop at end of ROM
+		move.l	(a2),d0
 
+	.checksum_loop:
+		add.w	(a1)+,d4	; add each word of the rom to d4
+		cmp.l	a1,d0		; have we reached the end?
+		bcc.s	.checksum_loop	; if not, branch
+		
+		movea.l	#Checksum,a1	; read checksum
+		cmp.w	(a1),d4			; compare checksum in header to ROM
+		beq.s	.init_joypads	; if they match, branch
+		move.w	#cRed,(a5)		; set BG color to red
+		;enable_display
+		bra.s	* 				; stay here forever	
+	
+	.init_joypads:
+		move.w	d2,port_1_control_hi-z80_bus_request(a3)				; initialise port 1
+		move.w	d2,port_2_control_hi-z80_bus_request(a3)				; initialise port 2
+		move.w	d2,port_e_control_hi-z80_bus_request(a3)				; initialise port e (last one)
+		
+		movem.l	-4(sp),d0-a6		; clear all registers
+		
+		move.b	(SetupVDP).l,d0	; get first entry of SetupVDP
+		ori.w	#$8100,d0		; make it a valid command word ($8134)
+		move.w	d0,(v_vdp_mode_buffer).w		; save to buffer for later use
+		move.w	#vdp_hint_counter+(screen_height-1),(v_vdp_hint_counter).w ; horizontal interrupt every 224th scanline
+		
 		move.b	(console_version).l,d0
-		andi.b	#$C0,d0
+		andi.b	#console_region+console_speed,d0
 		move.b	d0,(v_console_region).w			; get region setting
-		move.l	#'init',(v_checksum_pass).w		; set flag so checksum won't run again
-
-GameInit:
-		lea	($FF0000).l,a6
-		moveq	#0,d7
-		move.w	#((v_keep_after_reset&$FFFF)/4)-1,d6
-	.clearRAM:
-		move.l	d7,(a6)+
-		dbf	d6,.clearRAM				; clear RAM ($0000-$FDFF)
-
-		bsr.w	VDPSetupGame				; clear CRAM and set VDP registers
-		bsr.w	DacDriverLoad
-		bsr.w	JoypadInit				; initialise joypads
+		
+		bsr.w	DacDriverLoad		; load the DAC Driver
 		move.b	#id_Sega,(v_gamemode).w			; set Game Mode to Sega Screen
+		bra.s	MainGameLoop
+		
+SetupValues:
+		dc.l	z80_ram
+		dc.l	$FFFF0000	;ram_start 
+		dc.l	z80_bus_request
+		dc.l	vdp_data_port
+		dc.l	vdp_control_port
+		
+		dc.w	SetupVDP_end-SetupVDP-1				; number of VDP registers to write
+		dc.w	vdp_md_color		; $8004, normal color mode
+		dc.w	vdp_mode_register2-vdp_mode_register1	; VDP Reg increment value & opposite initialisation flag for Z80
+	SetupVDP:	
+		dc.b	(vdp_enable_vint|vdp_enable_dma|vdp_ntsc_display|vdp_md_display)&$FF 
+		dc.b	(vdp_fg_nametable+(vram_fg>>10))&$FF		; set foreground nametable address
+		dc.b	(vdp_window_nametable+(vram_window>>10))&$FF	; set window nametable address
+		dc.b	(vdp_bg_nametable+(vram_bg>>13))&$FF		; set background nametable address
+		dc.b	(vdp_sprite_table+(vram_sprites>>9))&$FF		; set sprite table address
+		dc.b	vdp_sprite_table2&$FF				; unused
+		dc.b	(vdp_bg_color+0)&$FF			; set background colour (palette entry 0)
+		dc.b	vdp_sms_hscroll&$FF				; unused
+		dc.b 	vdp_sms_vscroll&$FF				; unused
+		dc.b	(vdp_hint_counter+0)&$FF				; default horizontal interrupt register
+		dc.b	(vdp_full_vscroll|vdp_full_hscroll)&$FF		; $8B00 ; full-screen vertical/horizontal scrolling
+		dc.b	vdp_320px_screen_width&$FF			; $8C81 ; 40-cell display mode
+		dc.b	(vdp_hscroll_table+(vram_hscroll>>10))&$FF	; set background hscroll address
+		dc.b	vdp_nametable_hi&$FF				; unused
+		dc.b 	(vdp_auto_inc+2)&$FF				; set VDP increment size
+		dc.b	(vdp_plane_width_64|vdp_plane_height_32)&$FF	; $9001 ; 64x32 cell plane size
+		dc.b	vdp_window_x_pos&$FF				; window horizontal position
+		dc.b 	vdp_window_y_pos&$FF				; window vertical position
+
+		dc.l 	(sizeof_vram/4)-1					; VDP $93/94 - DMA length
+		dc.w 	0						; VDP $95/96 - DMA source
+		dc.b 	vdp_dma_vram_fill&$FF			; VDP $97 - DMA fill VRAM
+		
+		dc.b	$40			; I/O port initialization value
+		
+	SetupVDP_end:	
+	
+		dc.l	$40000080	; DMA fill VRAM
+		dc.w vdp_auto_inc+2				; VDP increment
+		dc.l	$40000010				; VSRAM write mode
+		dc.l	$C0000000				; CRAM write mode
+		
+		
+	Z80_Startup:
+		; Cut down from Sega's original: the 68K now zeros the Z80 RAM,
+		; so this just handles clearing the registers.
+		cpu	Z80
+		obj 	0
+
+		xor	a					; clear a
+		ld	sp,.end				; set stack pointer to end of program (causing all of the pops to fill registers with 0)
+		pop	ix					; clear all other registers
+		pop	iy
+		ld	i,a
+		ld	r,a
+		pop	de
+		pop	hl
+		pop	af
+		
+		
+		ex	af,af				; swap af with af'
+		exx						; swap bc, de, and hl
+		pop	bc					; clear the shadow registers as well
+		pop	de
+		pop	hl
+		pop	af
+		ld	sp,hl				; clear stack pointer
+
+		di						; disable interrupts
+		jp *					; jump here to stay here forever
+
+	.end:							; the space from here til end of Z80 RAM will be filled with 00's
+		even						; align the Z80 start up code to the next even byte. Values below require alignment
+		objend
+		cpu 68000		
+	Z80_Startup_end:
+	
+		dc.b	$9F,$BF,$DF,$FF				; PSG mute values (PSG 1 to 4)		
 
 MainGameLoop:
 		move.b	(v_gamemode).w,d0			; load Game Mode
@@ -221,17 +382,17 @@ GameModeArray:
 		rts
 ; ===========================================================================
 
-CheckSumError:
-		bsr.w	VDPSetupGame
-		move.l	#$C0000000,(vdp_control_port).l		; set VDP to CRAM write
-		moveq	#(sizeof_pal_all/2)-1,d7
-
-	.fillred:
-		move.w	#cRed,(vdp_data_port).l			; fill palette with red
-		dbf	d7,.fillred				; repeat $3F more times
-
-	.endlessloop:
-		bra.s	.endlessloop
+;CheckSumError:
+;		bsr.w	VDPSetupGame
+;		move.l	#$C0000000,(vdp_control_port).l		; set VDP to CRAM write
+;		moveq	#(sizeof_pal_all/2)-1,d7
+;
+;	.fillred:
+;		move.w	#cRed,(vdp_data_port).l			; fill palette with red
+;		dbf	d7,.fillred				; repeat $3F more times
+;
+;	.endlessloop:
+;		bra.s	.endlessloop
 ; ===========================================================================
 
 Art_Text:	incbin	"Graphics\Level Select & Debug Text.bin" ; text used in level select and debug mode
@@ -239,7 +400,7 @@ Art_Text:	incbin	"Graphics\Level Select & Debug Text.bin" ; text used in level s
 
 		include	"Includes\VBlank & HBlank.asm"
 		include	"Includes\JoypadInit & ReadJoypads.asm"
-		include	"Includes\VDPSetupGame.asm"
+;		include	"Includes\VDPSetupGame.asm"
 		include	"Includes\ClearScreen.asm"
 		include	"sound\PlaySound + DacDriverLoad.asm"
 		include	"Includes\PauseGame.asm"
