@@ -10,30 +10,30 @@
 		filedef	Blk16_SBZ,"16x16 Mappings\SBZ",eni,unc
 
 		filedef	Blk256_GHZ,"256x256 Mappings\GHZ",kos,unc
-		if Revision=0
-		filedef	Blk256_MZ,"256x256 Mappings\MZ (REV00)",kos,unc
-		else
+;		if Revision=0
+;		filedef	Blk256_MZ,"256x256 Mappings\MZ (REV00)",kos,unc
+;		else
 		filedef	Blk256_MZ,"256x256 Mappings\MZ",kos,unc
-		endc
+;		endc
 		filedef	Blk256_SYZ,"256x256 Mappings\SYZ",kos,unc
 		filedef	Blk256_LZ,"256x256 Mappings\LZ",kos,unc
 		filedef	Blk256_SLZ,"256x256 Mappings\SLZ",kos,unc
-		if Revision=0
-		filedef	Blk256_SBZ,"256x256 Mappings\SBZ (REV00)",kos,unc
-		else
+;		if Revision=0
+;		filedef	Blk256_SBZ,"256x256 Mappings\SBZ (REV00)",kos,unc
+;		else
 		filedef	Blk256_SBZ,"256x256 Mappings\SBZ",kos,unc
-		endc
+;		endc
 
 ; ---------------------------------------------------------------------------
 ; File definitions - graphics
 ; ---------------------------------------------------------------------------
 
 		; Title screen
-		if Revision=0
-		filedef	Nem_SegaLogo,"Graphics Nemesis\Sega Logo",nem,bin
-		else
+;		if Revision=0
+;		filedef	Nem_SegaLogo,"Graphics Nemesis\Sega Logo",nem,bin
+;		else
 		filedef	Nem_SegaLogo,"Graphics Nemesis\Sega Logo (JP1)",nem,bin
-		endc
+;		endc
 		filedef	Nem_TitleFg,"Graphics Nemesis\Title Screen Foreground",nem,bin
 		filedef	Nem_TitleSonic,"Graphics Nemesis\Title Screen Sonic",nem,bin
 		filedef	Nem_TitleTM,"Graphics Nemesis\Title Screen TM",nem,bin
@@ -209,19 +209,19 @@
 		filedef Kos_EndFlowers,"Graphics Kosinski\Ending Flowers",kos,bin
 		filedef Nem_CreditText,"Graphics Nemesis\Ending - Credits",nem,bin
 		filedef Nem_EndStH,"Graphics Nemesis\Ending - StH Logo",nem,bin
-		if Revision=0
-		filedef	Nem_EndEggman,"Graphics Nemesis\Unused - Eggman Ending",nem,bin
-		endc
+;		if Revision=0
+;		filedef	Nem_EndEggman,"Graphics Nemesis\Unused - Eggman Ending",nem,bin
+;		endc
 		
 		; Unused
-		if Revision=0
-		filedef Nem_Smoke,"Graphics Nemesis\Unused - Smoke",nem,bin
-		filedef Nem_SyzSparkle,"Graphics Nemesis\Unused - SYZ Sparkles",nem,bin
-		filedef Nem_LzSonic,"Graphics Nemesis\Unused - LZ Sonic Holding Breath",nem,bin
-		filedef Nem_UnkFire,"Graphics Nemesis\Unused - Fireball",nem,bin
-		filedef Nem_Warp,"Graphics Nemesis\Unused - Special Stage Warp",nem,bin
-		filedef Nem_Goggle,"Graphics Nemesis\Unused - Goggles",nem,bin
-		endc
+;		if Revision=0
+;		filedef Nem_Smoke,"Graphics Nemesis\Unused - Smoke",nem,bin
+;		filedef Nem_SyzSparkle,"Graphics Nemesis\Unused - SYZ Sparkles",nem,bin
+;		filedef Nem_LzSonic,"Graphics Nemesis\Unused - LZ Sonic Holding Breath",nem,bin
+;		filedef Nem_UnkFire,"Graphics Nemesis\Unused - Fireball",nem,bin
+;		filedef Nem_Warp,"Graphics Nemesis\Unused - Special Stage Warp",nem,bin
+;		filedef Nem_Goggle,"Graphics Nemesis\Unused - Goggles",nem,bin
+;		endc
 
 ; ---------------------------------------------------------------------------
 ; File definitions - palettes
