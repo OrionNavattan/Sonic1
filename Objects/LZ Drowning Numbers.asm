@@ -13,7 +13,7 @@ DrownCount:
 		move.w	Drown_Index(pc,d0.w),d1
 		jmp	Drown_Index(pc,d1.w)
 ; ===========================================================================
-Drown_Index:	index *,,2
+Drown_Index:	index offset(*),,2
 		ptr Drown_Main
 		ptr Drown_Animate
 		ptr Drown_ChkWater
@@ -246,7 +246,7 @@ Drown_Countdown:; Routine $A
 		move.b	#$A,ost_drown_extra_bub(a0)
 		move.w	#1,ost_drown_extra_flag(a0)
 		move.w	#120,ost_drown_restart_time(a0)		; restart after 2 seconds
-		move.l	a0,-(sp)				; save OST address to stack
+		pushr	a0					; save OST address to stack
 		lea	(v_ost_player).w,a0			; use Sonic's OST temporarily
 	if ResetOnFloor=0	
 		bsr.w	Sonic_ResetOnFloor			; clear Sonic's status flags
@@ -259,20 +259,20 @@ Drown_Countdown:; Routine $A
 		move.w	#0,ost_y_vel(a0)
 		move.w	#0,ost_x_vel(a0)
 		move.w	#0,ost_inertia(a0)
-	if FixBugs=0
-	else
+	if FixBugs
 	; Drowning Fixes. See Sonic_Drowned for more information.
 		move.b  #id_Sonic_Drowned,ost_routine(a0)       ; force Sonic to drown		
 	endc	
 		move.b	#1,(f_disable_scrolling).w
-	if FixBugs=0
-	else
+
+	if FixBugs
 	; The timer is not stopped when Sonic drowns. If he drowns at 9:58, his death animation 
 	; will be applied to his drowning sprite before the Time Over card appears.
 	; Stopping the timer when he drowns eliminates this edge case.
 		move.b	#0,(f_hud_time_update)	; stop the timer immediately	
 	endc	
-		movea.l	(sp)+,a0				; restore OST from stack
+		popr	a0				; restore OST from stack
+
 		rts	
 ; ===========================================================================
 
@@ -290,11 +290,11 @@ Drown_Countdown:; Routine $A
 	; This code is no longer needed with the drowning fixes applied.
 	; See Sonic_Drowned for more information.
 	.delay_death:
-		move.l	a0,-(sp)				; save OST address to stack
+		pushr	a0					; save OST address to stack
 		lea	(v_ost_player).w,a0			; use Sonic's OST temporarily
 		jsr	(SpeedToPos).l				; update Sonic's position
 		addi.w	#$10,ost_y_vel(a0)			; make Sonic fall
-		movea.l	(sp)+,a0				; restore OST
+		popr	a0					; restore OST
 		bra.s	.create_bubble
 	else	
 	endc	
@@ -379,7 +379,7 @@ Drown_Countdown:; Routine $A
 
 include_DrownCount_animation:	macro
 
-Ani_Drown:	index *
+Ani_Drown:	index offset(*)
 		ptr ani_drown_zeroappear
 		ptr ani_drown_oneappear
 		ptr ani_drown_twoappear

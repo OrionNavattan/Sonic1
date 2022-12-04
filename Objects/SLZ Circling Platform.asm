@@ -13,7 +13,7 @@ CirclingPlatform:
 		out_of_range	DeleteObject,ost_circ_x_start(a0)
 		bra.w	DisplaySprite
 ; ===========================================================================
-Circ_Index:	index *,,2
+Circ_Index:	index offset(*),,2
 		ptr Circ_Main
 		ptr Circ_Platform
 		ptr Circ_StoodOn
@@ -45,9 +45,9 @@ Circ_StoodOn:	; Routine 4
 		moveq	#0,d1
 		move.b	ost_displaywidth(a0),d1
 		jsr	(ExitPlatform).l			; goto Circ_Platform next if Sonic leaves platform
-		move.w	ost_x_pos(a0),-(sp)
+		pushr.w	ost_x_pos(a0)
 		bsr.w	Circ_Types
-		move.w	(sp)+,d2
+		popr.w	d2
 		jmp	(MoveWithPlatform2).l			; update Sonic's position
 ; ===========================================================================
 
@@ -60,7 +60,7 @@ Circ_Types:
 		jmp	Circ_Type_Index(pc,d1.w)
 ; ===========================================================================
 Circ_Type_Index:
-		index *,,4
+		index offset(*),,4
 		ptr Circ_Anticlockwise				; types 0-3
 		ptr Circ_Clockwise				; types 4-7
 ; ===========================================================================

@@ -17,14 +17,13 @@ Sonic_Normal:
 		move.w	Sonic_Index(pc,d0.w),d1
 		jmp	Sonic_Index(pc,d1.w)
 ; ===========================================================================
-Sonic_Index:	index *,,2
+Sonic_Index:	index offset(*),,2
 		ptr Sonic_Main ; #id_Sonic_Main equ $0
 		ptr Sonic_Control ; #id_Sonic_Control equ $2
 		ptr Sonic_Hurt ; #id_Sonic_Hurt equ $4
 		ptr Sonic_Death	; #id_Sonic_Death equ $6
 		ptr Sonic_ResetLevel ; #id_Sonic_ResetLevel equ $8
-	if FixBugs=0
-	else
+	if FixBugs
 		ptr Sonic_Drowned ; #id_Sonic_Drowned equ $A
 	endc	
 ; ===========================================================================
@@ -91,7 +90,7 @@ Sonic_Control:	; Routine 2
 		;rts	
 
 ; ===========================================================================
-Sonic_Modes:	index *,,2
+Sonic_Modes:	index offset(*),,2
 		ptr Sonic_Mode_Normal				; status_jump_bit = 0; status_air_bit = 0
 		ptr Sonic_Mode_Air				; status_jump_bit = 0; status_air_bit = 1
 		ptr Sonic_Mode_Roll				; status_jump_bit = 1; status_air_bit = 0
@@ -191,8 +190,8 @@ Sonic_Water:
 		move.w	(v_water_height_actual).w,d0
 		cmp.w	ost_y_pos(a0),d0			; is Sonic above the water?
 		bge.s	.abovewater				; if yes, branch
-	if FixBugs=0
-	else	
+
+	if FixBugs	
 		; If Sonic jumps when he is just above the point where he would be considered submerged,
 		; his position may briefly fall under the water's surface again.
 		; This causes the physics code that would normally simulate the water's surface tension
@@ -203,6 +202,7 @@ Sonic_Water:
 		tst.w	ost_y_vel(a0)	; is Sonic moving upward (i.e. from jumping)?
 		bmi.s	.exit	; if yes, skip routine
 	endc	
+	
 		bset	#status_underwater_bit,ost_status(a0)	; set underwater flag in status
 		bne.s	.exit					; branch if already set
 
@@ -229,8 +229,8 @@ Sonic_Water:
 		move.w	#sonic_acceleration,(v_sonic_acceleration).w ; restore Sonic's acceleration
 		move.w	#sonic_deceleration,(v_sonic_deceleration).w ; restore Sonic's deceleration
 		asl	ost_y_vel(a0)
-	if FixBugs=0
-	else
+
+	if FixBugs
 	; If Sonic exits water while in his hurt state, the usual speed increase 
 	; is not applied nor is the splash effect displayed due to his y-velocity causing
 	; the following beq.w to always branch. Adding this tst corrects this.
@@ -396,8 +396,7 @@ Sonic_Balance:
 ; ===========================================================================
 
 Sonic_LookUp:
-	if ResetOnFloor=0
-	else
+	if ResetOnFloor
 		pea Sonic_Inertia(pc) ; Push where we want to go next to the stack, allowing Sonic_ResetOnFloor to branch here and return without running Sonic_Inertia
 	endc	
 	Sonic_LookUp_2:
@@ -460,8 +459,7 @@ Sonic_Duck:
 ; ===========================================================================
 
 Sonic_ResetScr:
-	if ResetOnFloor=0
-	else
+	if ResetOnFloor
 		pea Sonic_Inertia(pc) ; Push where we want to go next to the stack, allowing Sonic_ResetOnFloor to branch here and return without running Sonic_Inertia
 	endc	
 	Sonic_NoLookUp_or_Duck:
@@ -474,8 +472,7 @@ Sonic_ResetScr:
 		subq.w	#2,(v_camera_y_shift).w			; move screen back 2px to default
 
 	Sonic_ScrOk:
-	if ResetOnFloor=0
-	else
+	if ResetOnFloor
 		rts ; if called from Sonic_ResetOnFloor, return to whatever routine called it, otherwise continue to Sonic_Inertia
 	endc	
 
@@ -526,9 +523,9 @@ Sonic_StopAtWall:
 	.neginertia:
 		move.b	ost_angle(a0),d0
 		add.b	d1,d0					; d0 = angle with 90-degree rotation
-		move.w	d0,-(sp)				; store in stack
+		pushr.w	d0					; store in stack
 		bsr.w	Sonic_CalcRoomAhead			; get distance to wall ahead
-		move.w	(sp)+,d0				; restore from stack
+		popr.w	d0					; restore from stack
 		tst.w	d1					; has Sonic hit a wall?
 		bpl.s	.exit					; if not, branch
 		asl.w	#8,d1
@@ -586,16 +583,11 @@ Sonic_MoveLeft:
 		neg.w	d1					; negative for left direction	
 		cmp.w	d1,d0
 		bgt.s	.below_max				; branch if Sonic is moving below max speed
-	if RemoveSpeedCaps=0
-	else	
-	; This removes the speed cap for leftward motion. With workaround
-	; to prevent this change from applying to the demos.
-;		tst.w	(v_demo_mode).w				; is demo mode on?
-;		bne.s	.notindemo 			; if yes, branch
+	if RemoveSpeedCaps	
+	; This removes the speed cap for leftward motion.
 		add.w	d5,d0
 		cmp.w	d1,d0
 		ble.s	.below_max		
-;	.notindemo:
 	endc	
 		move.w	d1,d0					; apply speed limit
 
@@ -652,15 +644,11 @@ Sonic_MoveRight:
 		add.w	d5,d0					; d0 = inertia plus acceleration
 		cmp.w	d6,d0
 		blt.s	.below_max				; branch if Sonic is moving below max speed
-	if RemoveSpeedCaps=0
-	else
+	if RemoveSpeedCaps
 	; This removes the speed cap for rightward motion.
-;		tst.w	(v_demo_mode).w				; is demo mode on?
-;		bne.s	.notindemo 			; if yes, branch
 		sub.w	d5,d0
 		cmp.w	d6,d0
 		bge.s	.below_max			
-;	.notindemo:
 	endc
 		move.w	d6,d0					; apply speed limit
 
@@ -747,8 +735,7 @@ Sonic_RollSpeed:
 		subq.w	#sonic_height-sonic_height_roll,ost_y_pos(a0)
 
 .update_speed:
-	if FixBugs=0
-	else
+	if FixBugs
 	; This is almost unnoticeable in the unmodified game, but if Sonic looks up or ducks,
 	; then immediately starts rolling afterwards, the camera will get stuck and not finish 
 	; scrolling back to neutral until Sonic exits his roll. This is because the code 
@@ -853,8 +840,7 @@ Sonic_JumpDirection:
 		neg.w	d1
 		cmp.w	d1,d0					; does new speed exceed max?
 		bgt.s	.not_left				; if not, branch
-	if RemoveSpeedCaps=0
-	else
+	if RemoveSpeedCaps
 	; This removes the speed cap for movement in the air.
 		add.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d1,d0		; compare speed with top speed
@@ -870,8 +856,7 @@ Sonic_JumpDirection:
 		add.w	d5,d0					; d0 = speed plus acceleration
 		cmp.w	d6,d0					; does new speed exceed max?
 		blt.s	.update_speed				; if not, branch
-	if RemoveSpeedCaps=0
-	else
+	if RemoveSpeedCaps
 	; This removes the speed cap for movement in the air.	
 		sub.w	d5,d0		; remove this frame's acceleration change
 		cmp.w	d6,d0		; compare speed with top speed
@@ -943,7 +928,7 @@ Sonic_JumpDirection:
 ; ---------------------------------------------------------------------------
 
 Sonic_LevelBound:
-	if fixBugs=0
+	if FixBugs=0
 	; If the x-velocity is negative and has a larger absolute value than the current x-position, 
 	; the resulting underflow results in a large positive value that leads to unintended 
 	; x-wrapping. 
@@ -990,8 +975,7 @@ Sonic_LevelBound:
 
 	.chkbottom:
 		move.w	(v_boundary_bottom).w,d0
-	if FixBugs=0
-	else
+	if FixBugs
 	; This routine checks the current bottom boundary instead of the intended one,
 	; leading to the occasional instance of Sonic dying if he goes too fast in the GHZ1 and 3 tunnels.
 	; This can be corrected by using the intended boundary if it is moving down, 
@@ -1001,7 +985,7 @@ Sonic_LevelBound:
         move.w  (v_boundary_bottom_next).w,d0 ; intended bottom boundary=d0	
 	.notlower:
 	endc
-		addi.w	#224,d0
+		addi.w	#screen_height,d0
 		cmp.w	ost_y_pos(a0),d0			; has Sonic touched the bottom boundary?
 		blt.s	.bottom					; if yes, branch
 		rts	
@@ -1010,13 +994,9 @@ Sonic_LevelBound:
 
 .bottom: 
 		cmpi.w	#id_SBZ_act2,(v_zone).w			; is level SBZ2 ?
-	
 		bne.s	.killsonic				; if not, kill Sonic
-	
 		cmpi.w	#$2000,(v_ost_player+ost_x_pos).w	; has Sonic reached $2000 on x axis?
-
 		bcs.s	.killsonic
-	
 		clr.b	(v_last_lamppost).w			; clear	lamppost counter
 		move.w	#1,(f_restart).w			; restart the level
 		move.w	#id_SBZ_act3,(v_zone).w			; set level to SBZ3 (LZ4)
@@ -1070,8 +1050,7 @@ Sonic_DoRoll:
 		move.b	#sonic_height_roll,ost_height(a0)
 		move.b	#sonic_width_roll,ost_width(a0)
 		move.b	#id_Roll,ost_anim(a0)			; use "rolling" animation
-	if FixBugs=0
-	else
+	if FixBugs
 	; hard sets frame, fixing flickering when rolling in GHZ tunnels	
 		move.b	#id_frame_Roll1,ost_frame(a0)	
 	endc	
@@ -1119,13 +1098,15 @@ Sonic_Jump:
 		addq.l	#4,sp
 		move.b	#1,ost_sonic_jump(a0)
 		clr.b	ost_sonic_sbz_disc(a0)
-	if FixBugs=0
-	else
+
+	if FixBugs
 	; Clearing the control lock immediately after jumping eliminates possible input lag
 	; that can occur if jumping after hitting a horizontal spring or sliding down a slope.
 		clr.w	ost_sonic_lock_time(a0)	;clear horiz control lock
 	endc	
+
 		play.w	1, jsr, sfx_Jump			; play jumping sound
+
 	if FixBugs=0
 	; These instructions are pointless, and give Sonic the wrong height and width 
 	; when roll-jumping.
@@ -1550,8 +1531,10 @@ Sonic_ResetOnFloor:
 		subq.w	#sonic_height-sonic_height_roll,ost_y_pos(a0)
 
 	.no_jump:
-		move.b	#0,ost_sonic_jump(a0)
-		move.w	#0,(v_enemy_combo).w			; reset counter for points for breaking multiple enemies
+		;move.b	#0,ost_sonic_jump(a0)
+		clr.b  ost_sonic_jump(a0)
+		;move.w	#0,(v_enemy_combo).w			; reset counter for points for breaking multiple enemies
+		clr.w	(v_enemy_combo).w
 		rts
 		
 	else
@@ -1579,8 +1562,10 @@ Sonic_ResetOnFloor:
         bclr    #status_air_bit,ost_status(a0)          ; clear in air status
         bclr    #status_pushing_bit,ost_status(a0)      ; clear pushing status
         bclr    #status_rolljump_bit,ost_status(a0)     ; clear rolljump status
-        move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
-        move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+        ;move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
+        clr.b  ost_sonic_jump(a0)
+        ;move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+        clr.w	(v_enemy_combo).w
         jmp	(a6)  ; dynamic (!) jump to Sonic_ChkRoll or Sonic_LookUp
         ; Above will return to original caller of ResetOnFloor afterwards.
         
@@ -1598,8 +1583,10 @@ Sonic_ResetOnFloor_Part2:
     	subq.w  #sonic_height-sonic_height_roll,ost_y_pos(a0)
 
 	.no_jump:
-        move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
-        move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+        ;move.b  #0,ost_sonic_jump(a0)                   ; clear jumping flag
+        clr.b  ost_sonic_jump(a0)
+        ;move.w  #0,(v_enemy_combo).w					; clear bonus combo counter
+        clr.w	(v_enemy_combo).w
  		rts
  
 	endc
@@ -1690,7 +1677,7 @@ GameOver:
 	; if he died near the bottom. Using the screen position for this comparison eliminates the time difference.
 		move.w	(v_camera_y_pos).w,d0		
 	endc
-		addi.w	#224+32,d0	
+		addi.w	#screen_height+32,d0	
 		cmp.w	ost_y_pos(a0),d0			; has Sonic fallen more than 32px below the bottom boundary (if no bugfix) or camera position (if bugfix) after dying?
 	if FixBugs=0	
 		bcc.w	.exit					; if not, branch
@@ -2148,7 +2135,7 @@ Sonic_AnglePos:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor
-		move.w	d1,-(sp)				; save d1 (distance to floor) to stack
+		pushr.w	d1					; save d1 (distance to floor) to stack
 
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2165,7 +2152,7 @@ Sonic_AnglePos:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor				; d1 = distance to floor left side
-		move.w	(sp)+,d0				; d0 = distance to floor right side
+		popr.w	d0					; d0 = distance to floor right side
 		bsr.w	Sonic_Angle				; update angle
 		tst.w	d1
 		beq.s	.on_floor				; branch if Sonic is 0px from floor
@@ -2323,7 +2310,7 @@ Sonic_WalkVertR:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindWall
-		move.w	d1,-(sp)				; save d1 (distance to wall) to stack
+		pushr.w	d1					; save d1 (distance to wall) to stack
 
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2339,7 +2326,7 @@ Sonic_WalkVertR:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindWall				; d1 = distance to wall lower side
-		move.w	(sp)+,d0				; d0 = distance to wall upper side
+		popr.w	d0					; d0 = distance to wall upper side
 		bsr.w	Sonic_Angle				; update angle
 		tst.w	d1
 		beq.s	.on_wall				; branch if Sonic is 0px from wall
@@ -2402,7 +2389,7 @@ Sonic_WalkCeiling:
 		move.w	#tilemap_yflip,d6			; yflip tile
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor
-		move.w	d1,-(sp)				; save d1 (distance to ceiling) to stack
+		pushr.w	d1					; save d1 (distance to ceiling) to stack
 
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2419,7 +2406,7 @@ Sonic_WalkCeiling:
 		move.w	#tilemap_yflip,d6			; yflip tile
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor				; d1 = distance to ceiling left side
-		move.w	(sp)+,d0				; d0 = distance to ceiling right side
+		popr.w	d0					; d0 = distance to ceiling right side
 		bsr.w	Sonic_Angle				; update angle
 		tst.w	d1
 		beq.s	.on_ceiling				; branch if Sonic is 0px from ceiling
@@ -2482,7 +2469,7 @@ Sonic_WalkVertL:
 		move.w	#tilemap_xflip,d6			; xflip tile
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindWall
-		move.w	d1,-(sp)				; save d1 (distance to wall) to stack
+		pushr.w	d1					; save d1 (distance to wall) to stack
 
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2499,7 +2486,7 @@ Sonic_WalkVertL:
 		move.w	#tilemap_xflip,d6			; xflip tile
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindWall				; d1 = distance to wall lower side
-		move.w	(sp)+,d0				; d0 = distance to wall upper side
+		popr.w	d0					; d0 = distance to wall upper side
 		bsr.w	Sonic_Angle				; update angle
 		tst.w	d1
 		beq.s	.on_wall				; branch if Sonic is 0px from wall
@@ -2658,7 +2645,7 @@ Sonic_FindFloor:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor
-		move.w	d1,-(sp)				; save d1 (distance to floor) to stack
+		pushr.w	d1					; save d1 (distance to floor) to stack
 		
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2674,7 +2661,7 @@ Sonic_FindFloor:
 		move.w	#0,d6
 		moveq	#tilemap_solid_top_bit,d5		; bit to test for solidness (top solid)
 		bsr.w	FindFloor				; d1 = distance to floor left side
-		move.w	(sp)+,d0				; d0 = distance to floor right side
+		popr.w	d0					; d0 = distance to floor right side
 		move.b	#0,d2
 
 Sonic_FindSmaller:
@@ -2762,7 +2749,7 @@ Sonic_FindWallRight:
 		move.w	#0,d6
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindWall
-		move.w	d1,-(sp)				; save d1 (distance to wall) to stack
+		pushr.w	d1					; save d1 (distance to wall) to stack
 		
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2778,7 +2765,7 @@ Sonic_FindWallRight:
 		move.w	#0,d6
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindWall				; d1 = distance to wall upper side
-		move.w	(sp)+,d0				; d0 = distance to wall lower side
+		popr.w	d0					; d0 = distance to wall lower side
 		
 		move.b	#$C0,d2
 		bra.w	Sonic_FindSmaller			; make d1 the smaller distance
@@ -2846,7 +2833,7 @@ Sonic_FindCeiling:
 		move.w	#tilemap_yflip,d6			; yflip tile
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindFloor
-		move.w	d1,-(sp)				; save d1 (distance to ceiling) to stack
+		pushr.w	d1					; save d1 (distance to ceiling) to stack
 		
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2863,7 +2850,7 @@ Sonic_FindCeiling:
 		move.w	#tilemap_yflip,d6			; yflip tile
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindFloor				; d1 = distance to ceiling on left side
-		move.w	(sp)+,d0				; d0 = distance to ceiling on right side
+		popr.w	d0					; d0 = distance to ceiling on right side
 		
 		move.b	#$80,d2
 		bra.w	Sonic_FindSmaller			; make d1 the smaller distance
@@ -2931,7 +2918,7 @@ Sonic_FindWallLeft:
 		move.w	#tilemap_xflip,d6			; xflip tile
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindWall
-		move.w	d1,-(sp)				; save d1 (distance to wall) to stack
+		pushr.w	d1					; save d1 (distance to wall) to stack
 		
 		move.w	ost_y_pos(a0),d2
 		move.w	ost_x_pos(a0),d3
@@ -2948,7 +2935,7 @@ Sonic_FindWallLeft:
 		move.w	#tilemap_xflip,d6			; xflip tile
 		moveq	#tilemap_solid_lrb_bit,d5		; bit to test for solidness (left/right/bottom solid)
 		bsr.w	FindWall				; d1 = distance to wall lower side
-		move.w	(sp)+,d0				; d0 = distance to wall upper side
+		popr.w	d0					; d0 = distance to wall upper side
 		
 		move.b	#$40,d2
 		bra.w	Sonic_FindSmaller			; make d1 the smaller distance

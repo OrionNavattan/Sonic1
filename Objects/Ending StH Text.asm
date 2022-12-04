@@ -16,7 +16,7 @@ EndSTH:
 		jmp	(DisplaySprite).l
 ;		endc
 ; ===========================================================================
-ESth_Index:	index *,,2
+ESth_Index:	index offset(*),,2
 		ptr ESth_Main
 		ptr ESth_Move
 		ptr ESth_GotoCredits
@@ -28,29 +28,30 @@ ost_esth_wait_time:	rs.w 1					; $30 ; time until exit
 
 ESth_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto ESth_Move next
-		move.w	#-$20,ost_x_pos(a0)			; object starts outside the level boundary
-		move.w	#$D8,ost_y_screen(a0)
+		move.w	#screen_left-160,ost_x_pos(a0)		; object starts outside the screen boundary
+		move.w	#screen_top+88,ost_y_screen(a0)
 		move.l	#Map_ESTH,ost_mappings(a0)
 		move.w	#tile_Nem_EndStH,ost_tile(a0)
 		move.b	#render_abs,ost_render(a0)
 		move.b	#0,ost_priority(a0)
 
 ESth_Move:	; Routine 2
-		cmpi.w	#$C0,ost_x_pos(a0)			; has object reached $C0?
+		cmpi.w	#screen_left+64,ost_x_pos(a0)		; has object reached 64px?
 		beq.s	.at_target				; if yes, branch
-		addi.w	#$10,ost_x_pos(a0)			; move object to the right
+		addi.w	#16,ost_x_pos(a0)			; move object to the right
 ;		if Revision=0
 ;			bra.w	DisplaySprite
 ;		else
 		rts
 ;		endc
 
+
 .at_target:
 		addq.b	#2,ost_routine(a0)			; goto ESth_GotoCredits next
 ;		if Revision=0
 ;			move.w	#120,ost_esth_wait_time(a0)	; set duration for delay (2 seconds)
 ;		else
-			move.w	#300,ost_esth_wait_time(a0)	; set duration for delay (5 seconds)
+		move.w	#300,ost_esth_wait_time(a0)	; set duration for delay (5 seconds)
 ;		endc
 
 ESth_GotoCredits:

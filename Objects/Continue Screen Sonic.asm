@@ -12,7 +12,7 @@ ContSonic:
 		jsr	CSon_Index(pc,d1.w)
 		jmp	(DisplaySprite).l
 ; ===========================================================================
-CSon_Index:	index *,,2
+CSon_Index:	index offset(*),,2
 		ptr CSon_Main
 		ptr CSon_ChkLand
 		ptr CSon_Animate
@@ -56,7 +56,7 @@ CSon_Animate:	; Routine 4
 	.start_pressed:
 		addq.b	#2,ost_routine(a0)			; goto CSon_Run next
 		move.l	#Map_Sonic,ost_mappings(a0)
-		move.w	#$780,ost_tile(a0)
+		move.w	#tile_sonic,ost_tile(a0)
 		move.b	#id_Float4,ost_anim(a0)			; use "getting up" animation
 		clr.w	ost_inertia(a0)
 		subq.w	#8,ost_y_pos(a0)
@@ -80,7 +80,7 @@ CSon_Run:	; Routine 6
 ; Animation script
 ; ---------------------------------------------------------------------------
 
-Ani_CSon:	index *
+Ani_CSon:	index offset(*)
 		ptr ani_csonic_0
 
 ani_csonic_0:	dc.b 4

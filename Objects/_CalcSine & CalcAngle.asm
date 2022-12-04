@@ -2,11 +2,11 @@
 ; Subroutine to convert an angle (0 to $FF) to sine and cosine (-$100 to $100)
 
 ; input:
-;	d0 = angle
+;	d0.w = angle
 
 ; output:
-;	d0 = sine
-;	d1 = cosine
+;	d0.w = sine
+;	d1.w = cosine
 ; ---------------------------------------------------------------------------
 
 CalcSine:
@@ -22,17 +22,19 @@ CalcSine:
 ; Subroutine to calculate the square root of a number (0 to $FFFF)
 
 ; input:
-;	d0 = number
+;	d0.w = number
 
 ; output:
-;	d0 = square root of number
+;	d0.w = square root of number
+
+;	uses d0.l
 ; ---------------------------------------------------------------------------
 
 include_CalcAngle:	macro
 
 ;		if Revision=0
 ;CalcSqrt:
-;			movem.l	d1-d2,-(sp)			; preserve d1 and d2 in stack
+;			pushr	d1-d2		; preserve d1 and d2 in stack
 ;			move.w	d0,d1
 ;			swap	d1				; copy input to high word of d1
 ;			moveq	#0,d0
@@ -49,15 +51,16 @@ include_CalcAngle:	macro
 ;			subq.w	#1,d0
 ;			dbf	d2,.loop
 ;			lsr.w	#1,d0
-;			movem.l	(sp)+,d1-d2			; retrieve d1 and d2 from stack
+;			popr	d1-d2			; retrieve d1 and d2 from stack
 ;			rts	
+
 ; ===========================================================================
 ;
 ;	.loc_2C9A:
 ;			addq.w	#1,d0
 ;			dbf	d2,.loop
 ;			lsr.w	#1,d0
-;			movem.l	(sp)+,d1-d2
+;			popr	d1-d2
 ;			rts
 ;		endc
 
@@ -66,15 +69,17 @@ include_CalcAngle:	macro
 ; Subroutine to convert x/y distance to an angle
 
 ; input:
-;	d1 = x-axis distance
-;	d2 = y-axis distance
+;	d1.w = x-axis distance
+;	d2.w = y-axis distance
 
 ; output:
-;	d0 = angle
+;	d0.w = angle
+
+;	uses d0.l
 ; ---------------------------------------------------------------------------
 
 CalcAngle:
-		movem.l	d3-d4,-(sp)
+		pushr	d3-d4
 		moveq	#0,d3
 		moveq	#0,d4
 		move.w	d1,d3					; d3 = x distance
@@ -120,13 +125,13 @@ CalcAngle_ChkRotation:
 		addi.w	#$100,d0
 
 	.y_positive:
-		movem.l	(sp)+,d3-d4
+		popr	d3-d4
 		rts	
 ; ===========================================================================
 
 CalcAngle_Both0:
 		move.w	#$40,d0
-		movem.l	(sp)+,d3-d4
+		popr	d3-d4
 		rts
 
 		endm

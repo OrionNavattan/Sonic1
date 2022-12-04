@@ -1,6 +1,8 @@
-SegaPCM_File:	equs	"sound/dac/sega.pcm"			; the actual file location of the Sega PCM file. Used a few times below
 		pusho						; save options
 		opt	ae+					; enable auto evens
+		
+		
+Z80_Space:			equ $1760				; space reserved for the DAC Driver. The DAC compressor may ask you to increase this value.
 
 ; ---------------------------------------------------------------------------
 ; Constants for track variables

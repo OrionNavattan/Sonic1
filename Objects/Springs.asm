@@ -20,7 +20,7 @@ Springs:
 		;rts
 		bra.w	DisplaySprite	
 ; ===========================================================================
-Spring_Index:	index *,,2
+Spring_Index:	index offset(*),,2
 		ptr Spring_Main					; 0
 		ptr Spring_Up					; 2
 		ptr Spring_AniUp				; 4
@@ -221,7 +221,7 @@ Spring_ResetDwn:
 ; Animation script
 ; ---------------------------------------------------------------------------
 
-Ani_Spring:	index *
+Ani_Spring:	index offset(*)
 		ptr ani_spring_up
 		ptr ani_spring_left
 		

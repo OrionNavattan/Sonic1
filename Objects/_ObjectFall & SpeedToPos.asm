@@ -1,8 +1,8 @@
 ; ---------------------------------------------------------------------------
 ; Subroutine to	make an	object fall downwards, increasingly fast
-; (Also updates its position)
+; Also updates its position
 
-;	uses d0, d2, d3
+;	uses d0.l, d2.l, d3.l
 ; ---------------------------------------------------------------------------
 
 ; Both routines replaced with code backported from S3&K
@@ -46,7 +46,7 @@ ObjectFall:
 ; ---------------------------------------------------------------------------
 ; Subroutine translating object	speed to update	object position
 
-;	uses d0, d2, d3
+;	uses d0.l, d2.l, d3.l
 ; ---------------------------------------------------------------------------
 
 SpeedToPos:

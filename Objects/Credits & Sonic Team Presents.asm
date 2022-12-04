@@ -11,15 +11,15 @@ CreditsText:
 		move.w	Cred_Index(pc,d0.w),d1
 		jmp	Cred_Index(pc,d1.w)
 ; ===========================================================================
-Cred_Index:	index *,,2
+Cred_Index:	index offset(*),,2
 		ptr Cred_Main
 		ptr Cred_Display
 ; ===========================================================================
 
 Cred_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto Cred_Display next
-		move.w	#$120,ost_x_pos(a0)
-		move.w	#$F0,ost_y_screen(a0)
+		move.w	#screen_left+160,ost_x_pos(a0)
+		move.w	#screen_top+112,ost_y_screen(a0)
 		move.l	#Map_Cred,ost_mappings(a0)
 		move.w	#tile_Nem_CreditText,ost_tile(a0)
 		move.w	(v_credits_num).w,d0			; load credits index number

@@ -13,7 +13,7 @@ Caterkiller:
 		move.w	Cat_Index(pc,d0.w),d1
 		jmp	Cat_Index(pc,d1.w)
 ; ===========================================================================
-Cat_Index:	index *,,2
+Cat_Index:	index offset(*),,2
 		ptr Cat_Main
 		ptr Cat_Head
 		ptr Cat_BodySeg1
@@ -145,7 +145,7 @@ Cat_Despawn:
 Cat_Delete:	; Routine $A
 		jmp	(DeleteObject).l
 ; ===========================================================================
-Cat_Head_Index:	index *,,2
+Cat_Head_Index:	index offset(*),,2
 		ptr Cat_Undulate
 		ptr Cat_Floor
 ; ===========================================================================
@@ -173,7 +173,7 @@ Cat_Floor:
 		subq.b	#1,ost_cat_wait_time(a0)		; decrement timer
 		bmi.s	.undulate_next				; branch if -1
 ;		if Revision=0
-;			move.l	ost_x_pos(a0),-(sp)		; save x pos to stack
+;			pushr	ost_x_pos(a0)		; save x pos to stack
 ;			move.l	ost_x_pos(a0),d2
 ;		else
 		tst.w	ost_x_vel(a0)
@@ -181,6 +181,7 @@ Cat_Floor:
 		move.l	ost_x_pos(a0),d2
 		move.l	d2,d3				; d3 = x pos before update
 ;		endc
+
 		move.w	ost_x_vel(a0),d0
 		btst	#status_xflip_bit,ost_status(a0)
 		beq.s	.noflip
@@ -191,9 +192,10 @@ Cat_Floor:
 		asl.l	#8,d0					; multiply speed by $100
 		add.l	d0,d2					; add to x pos
 		move.l	d2,ost_x_pos(a0)			; update position
+
 ;		if Revision=0
 ;			jsr	(FindFloorObj).l
-;			move.l	(sp)+,d2			; retrieve previous x pos from stack
+;			popr	d2			; retrieve previous x pos from stack
 ;			cmpi.w	#-8,d1
 ;			blt.s	.turn_around			; branch if > 8px below floor
 ;			cmpi.w	#$C,d1
@@ -213,6 +215,7 @@ Cat_Floor:
 		bge.s	.turn_around			; branch if > 11px above floor (also detects a ledge)
 		add.w	d1,ost_y_pos(a0)		; align to floor
 ;		endc
+
 		moveq	#0,d0
 		move.b	ost_cat_segment_pos(a0),d0		; get pos counter for head (starts as 0)
 		addq.b	#1,ost_cat_segment_pos(a0)		; increment counter
@@ -388,8 +391,7 @@ Cat_Head_Break:
 		move.w	d0,ost_x_vel(a0)			; set x speed
 		move.w	#-$400,ost_y_vel(a0)
 		move.b	#id_Cat_Fragment,ost_routine(a0)	; goto Cat_Fragment next
-	if FixBugs=0
-	else
+	if FixBugs
 	; Part of Caterkiller defeat fix. See React_Caterkiller for more information.
 		move.b	#id_col_4x4+id_col_hurt,ost_col_type(a0)     
 	endc			

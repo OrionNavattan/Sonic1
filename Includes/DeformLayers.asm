@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
 ; Background layer deformation subroutines
 
-;	uses d0, d1, d2, d3, d4, d5, d6, a1, a2, a3
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 DeformLayers:
@@ -38,7 +38,7 @@ DeformLayers:
 ; ---------------------------------------------------------------------------
 ; Offset index for background layer deformation	code
 ; ---------------------------------------------------------------------------
-Deform_Index:	index *
+Deform_Index:	index offset(*)
 		ptr Deform_GHZ
 		ptr Deform_LZ
 		ptr Deform_MZ

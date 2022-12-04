@@ -2,17 +2,34 @@
 ; Solid	object subroutine (includes spikes, blocks, rocks etc)
 ;
 ; input:
-;	d1 = object half width
-;	d2 = object half height (initial collision)
-;	d3 = object half height (when stood on object)
-;	d4 = object x position (when stood on object)
+;	d1.w = object half width
+;	d2.w = object half height (initial collision)
+;	d3.w = object half height (when stood on object)
+;	d4.w = object x position (when stood on object)
 ;
 ; output:
-;	d3 = y distance of Sonic from nearest top/bottom edge (-ve if on bottom)
-;	d4 = collision type: 0 = none/no change; 1 = side collision; -1 = top/bottom collision
-;	d5 = x distance of Sonic from nearest left/right edge
+;	d3.w = y distance of Sonic from nearest top/bottom edge (-ve if on bottom)
+;	d4.l = collision type: 0 = none/no change; 1 = side collision; -1 = top/bottom collision
+;	d5.w = x distance of Sonic from nearest left/right edge
 ;	a1 = address of OST of Sonic
-;	uses d0, d1, d2, a2
+
+;	uses d0.l, d1.l, d2.w, a2
+
+; usage (if object only moves vertically or not at all):
+;		move.w	#$1B,d1					; width
+;		move.w	#5,d2					; height
+;		move.w	#5,d3					; height
+;		move.w	ost_x_pos(a0),d4
+;		bsr.w	SolidObject
+
+; usage (if object moves horizontally):
+;		pushr.w	ost_x_pos(a0)				; save x pos before moving
+;		bsr.w	MoveObject				; move object
+;		move.w	#$1B,d1					; width
+;		move.w	#5,d2					; height
+;		move.w	#5,d3					; height
+;		popr.w	d4					; retrieve previous x pos
+;		bsr.w	SolidObject			
 ; ---------------------------------------------------------------------------
 
 SolidObject:
@@ -84,15 +101,16 @@ SolidObject_NoRenderChk:
 ; Solid	object with heightmap subroutine (MZ grass platforms)
 ;
 ; input:
-;	d1 = object half width
-;	d2 = object half height
+;	d1.w = object half width
+;	d2.w = object half height
 ;	a2 = address of heightmap data
 ;
 ; output:
-;	d4 = collision type: 1 = side collision; -1 = top/bottom collision
-;	d5 = x distance of Sonic from nearest left/right edge
+;	d4.l = collision type: 1 = side collision; -1 = top/bottom collision
+;	d5.w = x distance of Sonic from nearest left/right edge
 ;	a1 = address of OST of Sonic
-;	uses d0, d1, d2, d3, a2
+
+;	uses d0.l, d1.l, d2.w, d3.w, a2
 ; ---------------------------------------------------------------------------
 
 SolidObject_Heightmap:
@@ -311,10 +329,10 @@ Solid_TopBtmAir:
 Solid_Squash:
 		btst	#status_air_bit,ost_status(a1)		; is Sonic in the air?
 		bne.s	Solid_TopBtmAir				; if yes, branch
-		move.l	a0,-(sp)				; save address of OST of current object to stack
+		pushr	a0					; save address of OST of current object to stack
 		movea.l	a1,a0					; temporarily make Sonic the current object
 		jsr	(KillSonic).l				; kill Sonic
-		movea.l	(sp)+,a0				; restore address of OST of current object from stack
+		popr	a0					; restore address of OST of current object from stack
 		moveq	#-1,d4					; return top/bottom collision
 		rts	
 ; ===========================================================================
@@ -348,6 +366,11 @@ Solid_Miss:
 ; ---------------------------------------------------------------------------
 ; Subroutine to reset platform flags and store the OST index of the object
 ; being stood on
+
+; output:
+;	a1 = address of OST of Sonic
+
+;	uses d0.l, a2
 ; ---------------------------------------------------------------------------
 
 Solid_ResetFloor:
@@ -373,10 +396,10 @@ Solid_ResetFloor:
 		move.w	ost_x_vel(a1),ost_inertia(a1)
 		btst	#status_air_bit,ost_status(a1)		; is Sonic in the air?
 		beq.s	.notinair				; if not, branch
-		move.l	a0,-(sp)				; save address of OST of current object to stack
+		pushr	a0					; save address of OST of current object to stack
 		movea.l	a1,a0					; temporarily make Sonic the current object
 		jsr	(Sonic_ResetOnFloor).l			; reset Sonic as if on floor
-		movea.l	(sp)+,a0				; restore address of OST of current object from stack
+		popr	a0					; restore address of OST of current object from stack
 
 	.notinair:
 		bset	#status_platform_bit,ost_status(a1)	; set object standing flag

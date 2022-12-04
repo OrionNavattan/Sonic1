@@ -14,7 +14,7 @@ Spikes:
 		move.w	Spike_Index(pc,d0.w),d1
 		jmp	Spike_Index(pc,d1.w)
 ; ===========================================================================
-Spike_Index:	index *,,2
+Spike_Index:	index offset(*),,2
 		ptr Spike_Main
 		ptr Spike_Solid
 
@@ -94,13 +94,14 @@ Spike_Upright:
 Spike_Hurt:
 		tst.b	(v_invincibility).w			; is Sonic invincible?
 		bne.s	Spike_Display				; if yes, branch
-	if SpikeFix=0	
-	else
+
+	if SpikeFix
 		; This changes spike behavior to match all subsequent games
 		tst.w	ost_sonic_flash_time(a1)	; is Sonic flashing after being hurt?
 		bne.s	Spike_Display			; if yes, branch	
 	endc	
-		move.l	a0,-(sp)				; save OST address for spikes to stack
+		pushr	a0				; save OST address for spikes to stack
+
 		movea.l	a0,a2					; a2 is OST for spikes now
 		lea	(v_ost_player).w,a0			; a0 is temporarily Sonic now
 		cmpi.b	#id_Sonic_Hurt,ost_routine(a0)		; is Sonic hurt or dead?
@@ -114,7 +115,7 @@ Spike_Hurt:
 		jsr	(HurtSonic).l				; lose rings/die
 
 	Spike_Skip_Hurt:
-		movea.l	(sp)+,a0				; restore OST address for spikes from stack
+		popr	a0					; restore OST address for spikes from stack
 
 Spike_Display:
 		;bsr.w	DisplaySprite
@@ -131,7 +132,7 @@ Spike_Move:
 		jmp	Spike_TypeIndex(pc,d1.w)
 ; ===========================================================================
 Spike_TypeIndex:
-		index *
+		index offset(*)
 		ptr Spike_Still					; $x0
 		ptr Spike_UpDown				; $x1
 		ptr Spike_LeftRight				; $x2

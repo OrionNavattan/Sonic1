@@ -9,13 +9,13 @@ GM_Title:
 		disable_ints
 		bsr.w	DacDriverLoad
 		lea	(vdp_control_port).l,a6
-		move.w	#$8004,(a6)				; normal colour mode
-		move.w	#$8200+(vram_fg>>10),(a6)		; set foreground nametable address
-		move.w	#$8400+(vram_bg>>13),(a6)		; set background nametable address
-		move.w	#$9001,(a6)				; 64x32 cell plane size
-		move.w	#$9200,(a6)				; window vertical position 0 (i.e. disabled)
-		move.w	#$8B03,(a6)				; single pixel line horizontal scrolling
-		move.w	#$8720,(a6)				; set background colour (palette line 2, entry 0)
+		move.w	#vdp_md_color,(a6)			; normal colour mode
+		move.w	#vdp_fg_nametable+(vram_fg>>10),(a6)	; set foreground nametable address
+		move.w	#vdp_bg_nametable+(vram_bg>>13),(a6)	; set background nametable address
+		move.w	#vdp_plane_width_64|vdp_plane_height_32,(a6) ; 64x32 cell plane size
+		move.w	#vdp_window_y_pos,(a6)			; window vertical position 0 (i.e. disabled)
+		move.w	#vdp_full_vscroll|vdp_1px_hscroll,(a6)	; single pixel line horizontal scrolling
+		move.w	#vdp_bg_color+$20,(a6)			; set background colour (palette line 2, entry 0)
 		clr.b	(f_water_pal_full).w
 		bsr.w	ClearScreen
 
@@ -66,7 +66,7 @@ GM_Title:
 		lea	(vdp_data_port).l,a6
 		locVRAM	vram_text,4(a6)
 		lea	(Art_Text).l,a5				; load level select font
-		move.w	#(sizeof_art_text/2)-1,d1
+		move.w	#(sizeof_Art_Text/2)-1,d1
 
 	.load_text:
 		move.w	(a5)+,(a6)
@@ -398,8 +398,8 @@ PlayLevel:
 		move.l	#points_for_life,(v_score_next_life).w ; extra life is awarded at 50000 points
 		;endc
 		play.b	1, bsr.w, cmd_Fade			; fade out music
-		rts	
-; ===========================================================================
+		rts
+		
 ; ---------------------------------------------------------------------------
 ; Level	select - level pointers
 ; ---------------------------------------------------------------------------
@@ -527,6 +527,11 @@ PlayDemo:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	change what you're selecting in the level select
+
+; output:
+;	a6 = vdp_data_port ($C00000)
+
+;	uses d0.l, d1.l, d2.l, d3.w, d4.l, a1
 ; ---------------------------------------------------------------------------
 
 LevSel_Navigate:
@@ -592,6 +597,11 @@ LevSel_SndTest:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to load level select text
+
+; output:
+;	a6 = vdp_data_port ($C00000)
+
+;	uses d0.l, d1.l, d2.l, d3.w, d4.l, a1
 ; ---------------------------------------------------------------------------
 
 LevSel_ShowText:
@@ -653,6 +663,12 @@ soundtest_pos:	= (sizeof_vram_row*$18)+($18*2)
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw sound test number
+
+; input:
+;	d3.w = VRAM tile setting
+;	a6 = vdp_data_port ($C00000)
+
+;	uses d0.w
 ; ---------------------------------------------------------------------------
 
 LevSel_DrawSound:
@@ -668,6 +684,13 @@ LevSel_DrawSound:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to draw a line of text
+
+; input:
+;	d3.w = VRAM tile setting
+;	a1 = address of string
+;	a6 = vdp_data_port ($C00000)
+
+;	uses d0.l, d2.l
 ; ---------------------------------------------------------------------------
 
 LevSel_DrawLine:

@@ -3,13 +3,13 @@
 ; ---------------------------------------------------------------------------
 
 VBlank:
-		movem.l	d0-a6,-(sp)				; save all registers to stack
+		pushr	d0-a6					; save all registers to stack
 		tst.b	(v_vblank_routine).w			; is routine number 0?
 		beq.s	VBlank_Lag				; if yes, branch
 		move.w	(vdp_control_port).l,d0
 		move.l	#$40000010+(0<<16),(vdp_control_port).l	; set write destination to VSRAM address 0
 		move.l	(v_fg_y_pos_vsram).w,(vdp_data_port).l	; send screen y-axis pos. to VSRAM
-		btst	#6,(v_console_region).w			; is Mega Drive PAL?
+		btst	#console_speed_bit,(v_console_region).w	; is Mega Drive PAL?
 		beq.s	.notPAL					; if not, branch
 
 		move.w	#$700,d0
@@ -42,10 +42,10 @@ VBlank_Music:
 
 VBlank_Exit:
 		addq.l	#1,(v_vblank_counter).w			; increment frame counter
-		movem.l	(sp)+,d0-a6				; restore all registers from stack
+		popr	d0-a6					; restore all registers from stack
 		rte						; end of VBlank
 ; ===========================================================================
-VBlank_Index:	index *,,2
+VBlank_Index:	index offset(*),,2
 		ptr VBlank_Lag					; 0
 		ptr VBlank_Sega					; 2
 		ptr VBlank_Title				; 4
@@ -73,7 +73,7 @@ VBlank_Lag:
 		bne.w	VBlank_Music				; if not, branch
 
 		move.w	(vdp_control_port).l,d0
-		btst	#6,(v_console_region).w			; is Mega Drive PAL?
+		btst	#console_speed_bit,(v_console_region).w	; is Mega Drive PAL?
 		beq.s	.notPAL					; if not, branch
 
 		move.w	#$700,d0
@@ -373,20 +373,24 @@ HBlank:
 		disable_ints
 		tst.w	(f_hblank_pal_change).w			; is palette set to change during HBlank?
 		beq.s	.nochg					; if not, branch
+
 		;move.w	#0,(f_hblank_pal_change).w
 		clr.w	(f_hblank_pal_change).w
-		movem.l	a0-a1,-(sp)				; save a0-a1 to stack
+		pushr	a0-a1				; save a0-a1 to stack
+
 		lea	(vdp_data_port).l,a1
 		lea	(v_pal_water).w,a0			; get palette from RAM
 		move.l	#$C0000000,4(a1)			; set VDP to CRAM write
 		rept sizeof_pal_all/4
 		move.l	(a0)+,(a1)				; copy palette to CRAM
 		endr
-		move.w	#$8A00+223,4(a1)			; reset HBlank register
-		movem.l	(sp)+,a0-a1				; restore a0-a1 from stack
+
+		move.w	#vdp_hint_counter+(screen_height-1),4(a1)			; reset HBlank register
+		popr	a0-a1				; restore a0-a1 from stack
 	if FixBugs=0
 		; Part of the same workaround described above in VBlank_Level. 
 		; Also no longer needed if the sound driver bug has been fixed. 	
+
 		tst.b	(f_hblank_run_snd).w			; is flag set to update sound & some graphics during HBlank?
 		bne.s	.update_hblank				; if yes, branch
 	else	
@@ -401,10 +405,10 @@ HBlank:
 		; The following only runs during a level and HBlank is set to run on line 96 or below
 .update_hblank:
 		clr.b	(f_hblank_run_snd).w
-		movem.l	d0-a6,-(sp)				; save registers to stack
+		pushr	d0-a6					; save registers to stack
 		bsr.w	DrawTiles_LevelGfx_HUD_PLC		; display new tiles, update animated gfx, update HUD, decompress 3 cells of Nemesis gfx
 		jsr	(UpdateSound).l				; update audio
-		movem.l	(sp)+,d0-a6				; restore registers from stack
+		popr	d0-a6					; restore registers from stack
 		rte						; end of HBlank
 	else	
 	endc

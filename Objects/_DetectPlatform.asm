@@ -2,14 +2,20 @@
 ; Subroutine to detect collision with a platform, and update relevant flags
 ;
 ; input:
-;	d0 = y position (Plat_NoXCheck_AltY only)
-;	d1 = platform width
+;	d0.w = y position (Plat_NoXCheck_AltY only)
+;	d1.w = platform width
 
 ; output:
-;	d2 = Sonic's y position
-;	a1 = OST of Sonic
-;	a2 = OST of platform that Sonic is already on
-;	uses d0, d1
+;	d2.w = Sonic's y position
+;	a1 = address of OST of Sonic
+;	a2 = address of OST of platform that Sonic is already on
+
+;	uses d0.l, d1.w
+
+; usage:
+;		moveq	#0,d1
+;		move.b	ost_displaywidth(a0),d1
+;		bsr.w	DetectPlatform
 ; ---------------------------------------------------------------------------
 
 DetectPlatform:
@@ -77,10 +83,10 @@ Plat_NoCheck:							; jump here to skip all checks
 		move.w	ost_x_vel(a1),ost_inertia(a1)
 		btst	#status_air_bit,ost_status(a1)		; is Sonic in the air/jumping?
 		beq.s	.notinair				; if not, branch
-		move.l	a0,-(sp)
+		pushr	a0
 		movea.l	a1,a0
 		jsr	(Sonic_ResetOnFloor).l			; make Sonic land
-		movea.l	(sp)+,a0
+		popr	a0
 
 	.notinair:
 		bset	#status_platform_bit,ost_status(a1)

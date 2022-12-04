@@ -83,14 +83,14 @@ ErrorWaitForC:
 ; output:
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d0, d1, a0
+;	uses d0.l, d1.l, a0
 ; ---------------------------------------------------------------------------
 
 ShowErrorMessage:
 		lea	(vdp_data_port).l,a6
 		locVRAM	vram_error				; target $F800 in VRAM
 		lea	(Art_Text).l,a0				; level select text graphics
-		move.w	#((sizeof_art_text-sizeof_cell)/2)-1,d1	; -$20 because the last letter (X) is missed off
+		move.w	#((sizeof_Art_Text-sizeof_cell)/2)-1,d1	; -$20 because the last letter (X) is missed off
 	.loadgfx:
 		move.w	(a0)+,(a6)
 		dbf	d1,.loadgfx
@@ -111,7 +111,7 @@ ShowErrorMessage:
 		rts
 
 ; ===========================================================================
-ErrorText:	index *
+ErrorText:	index offset(*)
 		ptr .exception
 		ptr .bus
 		ptr .address

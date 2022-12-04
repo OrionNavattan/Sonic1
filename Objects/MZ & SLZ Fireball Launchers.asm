@@ -15,7 +15,7 @@ FireMaker:
 		out_of_range	DeleteObject
 		rts
 ; ===========================================================================
-FireM_Index:	index *,,2
+FireM_Index:	index offset(*),,2
 		ptr FireM_Main
 		ptr FireM_MakeFire
 

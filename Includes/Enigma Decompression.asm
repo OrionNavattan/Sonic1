@@ -2,23 +2,23 @@
 ; Enigma decompression algorithm
 
 ; input:
-;	d0 = starting art tile (added to each 8x8 before writing to destination)
+;	d0.w = starting art tile (added to each 8x8 before writing to destination)
 ;	a0 = source address
 ;	a1 = destination address
 
 ;	uses a0
 
 ; usage:
-;	lea	(source).l,a0
-;	lea	(destination).l,a1
-;	move.w	#arttile,d0
-;	bsr.w	EniDec
+;		lea	(source).l,a0
+;		lea	(destination).l,a1
+;		move.w	#arttile,d0
+;		bsr.w	EniDec
 
 ; See http://www.segaretro.org/Enigma_compression for format description
 ; ---------------------------------------------------------------------------
 
 EniDec:
-		movem.l	d0-d7/a1-a5,-(sp)
+		pushr	d0-d7/a1-a5
 		movea.w	d0,a3					; store starting art tile
 		move.b	(a0)+,d0
 		ext.w	d0
@@ -132,7 +132,7 @@ EniDec_Done:
 		addq.w	#1,a0					; ensure we're on an even byte
 
 	.evenbyte:
-		movem.l	(sp)+,d0-d7/a1-a5
+		popr	d0-d7/a1-a5
 		rts	
 
 ; ---------------------------------------------------------------------------

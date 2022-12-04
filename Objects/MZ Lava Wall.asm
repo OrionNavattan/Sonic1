@@ -12,7 +12,7 @@ LavaWall:
 		move.w	LWall_Index(pc,d0.w),d1
 		jmp	LWall_Index(pc,d1.w)
 ; ===========================================================================
-LWall_Index:	index *,,2
+LWall_Index:	index offset(*),,2
 		ptr LWall_Main
 		ptr LWall_Solid
 		ptr LWall_Action
@@ -90,9 +90,9 @@ LWall_Solid:	; Routine 2
 		addq.w	#1,d3
 		move.w	ost_x_pos(a0),d4
 		move.b	ost_routine(a0),d0
-		move.w	d0,-(sp)				; save routine counter to stack
+		pushr.w	d0					; save routine counter to stack
 		bsr.w	SolidObject
-		move.w	(sp)+,d0
+		popr.w	d0
 		move.b	d0,ost_routine(a0)			; restore routine counter from stack (unnecessary?)
 		cmpi.w	#$6A0,ost_x_pos(a0)			; has object reached $6A0 on the x-axis?
 		bne.s	.animate				; if not, branch
@@ -144,7 +144,7 @@ LWall_Delete:	; Routine 8
 
 include_LavaWall_animation:	macro
 
-Ani_LWall:	index *
+Ani_LWall:	index offset(*)
 		ptr ani_lavawall_0
 		
 ani_lavawall_0:	dc.b 9

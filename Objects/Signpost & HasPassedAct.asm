@@ -19,7 +19,7 @@ Signpost:
 		;rts
 		bra.w	DisplaySprite	
 ; ===========================================================================
-Sign_Index:	index *,,2
+Sign_Index:	index offset(*),,2
 		ptr Sign_Main
 		ptr Sign_Touch
 		ptr Sign_Spin
@@ -204,7 +204,7 @@ Sign_Exit:	; Routine 8
 ; Animation script
 ; ---------------------------------------------------------------------------
 
-Ani_Sign:	index *
+Ani_Sign:	index offset(*)
 		ptr ani_sign_eggman
 		ptr ani_sign_spin1
 		ptr ani_sign_spin2

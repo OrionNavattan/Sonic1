@@ -23,6 +23,10 @@ sizeof_level:		equ sizeof_levelrow*level_max_height	; includes background in $40
 
 screen_width:		equ 320
 screen_height:		equ 224
+screen_top:		equ 128					; y coordinate of top edge of screen for sprites
+screen_left:		equ 128					; x coordinate of left edge of screen for sprites
+screen_bottom:		equ screen_top+screen_height
+screen_right:		equ screen_left+screen_width
 
 ; VRAM data
 vram_window:		equ $A000				; window nametable - unused
@@ -71,9 +75,6 @@ sizeof_vram_sprites:	equ sizeof_sprite*countof_max_sprites	; sprite table ($280 
 sizeof_vram_hscroll:	equ $380
 sizeof_vram_hscroll_padded:	equ $400
 sizeof_vram_row:	equ 64*2				; single row of fg/bg nametable, assuming 64 wide
-sizeof_art_text:	equ filesize("Graphics\Level Select & Debug Text.bin")
-sizeof_art_flowers:	equ filesize("Graphics - Compressed\Ending Flowers.unc")
-sizeof_art_giantring:	equ filesize("Graphics\Giant Ring.bin")
 
 countof_color:		equ 16					; colours per palette line
 countof_colour:		equ countof_color

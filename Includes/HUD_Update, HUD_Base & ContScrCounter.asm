@@ -1,14 +1,11 @@
 ; ---------------------------------------------------------------------------
 ; Subroutine to	update the HUD
 
-; output:
+; input:
 ;	a6 = vdp_data_port ($C00000)
-;	uses d0, d1, d2, d3, d4, d6, a1, a2, a3
-; ---------------------------------------------------------------------------
 
-hudVRAM:	macro loc
-		move.l	#($40000000+((loc&$3FFF)<<16)+((loc&$C000)>>14)),d0
-		endm
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d6.l, a0, a1, a2, a3
+; ---------------------------------------------------------------------------
 
 HUD_Update:
 	if FixBugs=0
@@ -22,7 +19,7 @@ HUD_Update:
 		beq.s	.chkrings				; if not, branch
 
 		clr.b	(f_hud_score_update).w
-		hudVRAM	$DC80					; set VRAM address
+		locVRAM	$DC80,d0				; set VRAM address
 		move.l	(v_score).w,d1				; load score
 		bsr.w	Hud_Score
 
@@ -34,7 +31,7 @@ HUD_Update:
 
 	.notzero:
 		clr.b	(v_hud_rings_update).w
-		hudVRAM	$DF40					; set VRAM address
+		locVRAM	$DF40,d0				; set VRAM address
 		moveq	#0,d1
 		move.w	(v_rings).w,d1				; load number of rings
 		bsr.w	Hud_Rings
@@ -62,11 +59,11 @@ HUD_Update:
 		move.b	#9,(a1)					; keep as 9
 
 	.updatetime:
-		hudVRAM	$DE40
+		locVRAM	$DE40,d0
 		moveq	#0,d1
 		move.b	(v_time_min).w,d1			; load	minutes
 		bsr.w	Hud_Mins
-		hudVRAM	$DEC0
+		locVRAM	$DEC0,d0
 		moveq	#0,d1
 		move.b	(v_time_sec).w,d1			; load	seconds
 		bsr.w	Hud_Secs
@@ -111,13 +108,13 @@ HudDebug:
 
 	.notzero:
 		clr.b	(v_hud_rings_update).w
-		hudVRAM	$DF40					; set VRAM address
+		locVRAM	$DF40,d0				; set VRAM address
 		moveq	#0,d1
 		move.w	(v_rings).w,d1				; load number of rings
 		bsr.w	Hud_Rings
 
 	.objcounter:
-		hudVRAM	$DEC0					; set VRAM address
+		locVRAM	$DEC0,d0				; set VRAM address
 		moveq	#0,d1
 		move.b	(v_spritecount).w,d1			; load "number of objects" counter
 		bsr.w	Hud_Secs
@@ -147,7 +144,7 @@ HudDebug:
 ; input:
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d0, d1, d2, d3, d4, d6, a1, a2, a3
+;	uses d0.w, d1.w, d2.w, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_ZeroRings:
@@ -161,7 +158,8 @@ Hud_ZeroRings:
 
 ; output:
 ;	a6 = vdp_data_port ($C00000)
-;	uses d0, d1, d2, d3, d4, d6, a1, a2, a3
+
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_Base:
@@ -209,7 +207,7 @@ Hud_TilesRings:	dc.b $FF, $FF, 0				; "  0" in rings
 ; input:
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d1, d2, d6, a1, a3
+;	uses d1.l, d2.w, d6.l, a1, a3
 ; ---------------------------------------------------------------------------
 
 HudDb_XY:
@@ -249,11 +247,11 @@ HudDb_XY2:
 ; Subroutine to	load rings numbers patterns
 
 ; input:
-;	d0 = VDP instruction for VRAM address
-;	d1 = number of rings
+;	d0.l = VDP instruction for VRAM address
+;	d1.l = number of rings
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d1, d2, d3, d4, d6, a1, a2, a3
+;	uses d1.l, d2.l, d3.l, d4.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_Rings:
@@ -310,12 +308,12 @@ Hud_LoadArt:
 ; Subroutine to	load countdown numbers on the continue screen
 
 ; input:
-;	d1 = number on countdown
+;	d1.l = number on countdown
 
 ; output:
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d1, d2, d3, d6, a1, a2, a3
+;	uses d1.l, d2.l, d3.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 ContScrCounter:
@@ -363,11 +361,11 @@ Hud_1:		dc.l 1
 ; Subroutine to	load time numbers patterns
 
 ; input:
-;	d0 = VDP instruction for VRAM address
-;	d1 = number on time counter
+;	d0.l = VDP instruction for VRAM address
+;	d1.l = number on time counter
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d1, d2, d3, d4, d6, a1, a2, a3
+;	uses d1.l, d2.l, d3.l, d4.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_Mins:
@@ -416,11 +414,11 @@ Hud_Time_Load:
 ; Subroutine to	load time/ring bonus numbers patterns
 
 ; input:
-;	d0 = VDP instruction for VRAM address
-;	d1 = number on bonus counter
+;	d0.l = VDP instruction for VRAM address
+;	d1.l = number on bonus counter
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d1, d2, d3, d4, d5, d6, a1, a2, a3
+;	uses d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_TimeRingBonus:
@@ -476,11 +474,11 @@ Hud_TimeRingBonus:
 ; input:
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d0, d1, d2, d3, d4, d5, d6, a1, a2, a3
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, a1, a2, a3
 ; ---------------------------------------------------------------------------
 
 Hud_Lives:
-		hudVRAM	$FBA0					; VRAM address of lives counter
+		locVRAM	$FBA0,d0				; VRAM address of lives counter
 		moveq	#0,d1
 		move.b	(v_lives).w,d1				; load number of lives
 		lea	(Hud_10).l,a2				; multiples of 10

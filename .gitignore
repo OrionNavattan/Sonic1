@@ -9,5 +9,6 @@ vbindiff.bat
 *.gsx
 SonLVL INI Files/*
 sound/errors.txt
-.DS_Store
+*.7z
+sound/DAC Driver.unc
 *.sym

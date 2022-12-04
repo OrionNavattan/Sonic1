@@ -4,7 +4,8 @@
 
 ; Modifications in Map_Bosses to fix Eggman's unintentionally shaved mustache (ported from Mercury's ReadySonic)
 
-Map_Bosses:	index *
+Map_Bosses:	index offset(*)
+
 		ptr frame_boss_ship
 		ptr frame_boss_face1
 		ptr frame_boss_face2
@@ -111,7 +112,7 @@ frame_boss_bigflame2:
 ; Sprite mappings - extra boss items & weapons
 ; ---------------------------------------------------------------------------
 
-Map_BossItems:	index *
+Map_BossItems:	index offset(*)
 		ptr frame_boss_chainanchor1
 		ptr frame_boss_chainanchor2
 		ptr frame_boss_cross

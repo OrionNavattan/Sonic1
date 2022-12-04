@@ -15,7 +15,7 @@ SSS_Normal:
 		move.w	SSS_Index(pc,d0.w),d1
 		jmp	SSS_Index(pc,d1.w)
 ; ===========================================================================
-SSS_Index:	index *,,2
+SSS_Index:	index offset(*),,2
 		ptr SSS_Main
 		ptr SSS_Action
 		ptr SSS_ExitStage
@@ -62,7 +62,7 @@ SSS_Action:	; Routine 2
 		jsr	(Sonic_LoadGfx).l			; update Sonic's gfx
 		jmp	(DisplaySprite).l
 ; ===========================================================================
-SSS_Modes:	index *,,2
+SSS_Modes:	index offset(*),,2
 		ptr SSS_OnWall
 		ptr SSS_InAir
 ; ===========================================================================
@@ -146,12 +146,12 @@ SSS_UpdatePos:
 		add.l	d1,ost_x_pos(a0)			; add (inertia*cosine) to x pos
 		muls.w	ost_inertia(a0),d0
 		add.l	d0,ost_y_pos(a0)			; add (inertia*sine) to y pos
-		movem.l	d0-d1,-(sp)				; save values to stack
+		pushr	d0-d1					; save values to stack
 		move.l	ost_y_pos(a0),d2
 		move.l	ost_x_pos(a0),d3
 		bsr.w	SSS_FindWall				; detect nearby walls
 		beq.s	.no_collide				; branch if none found
-		movem.l	(sp)+,d0-d1
+		popr	d0-d1
 		sub.l	d1,ost_x_pos(a0)			; cancel position updates
 		sub.l	d0,ost_y_pos(a0)
 		move.w	#0,ost_inertia(a0)			; stop Sonic
@@ -159,7 +159,7 @@ SSS_UpdatePos:
 ; ===========================================================================
 
 .no_collide:
-		movem.l	(sp)+,d0-d1
+		popr	d0-d1
 		rts
 
 ; ===========================================================================

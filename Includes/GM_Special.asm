@@ -7,21 +7,14 @@ GM_Special:
 		bsr.w	PaletteWhiteOut				; fade to white from previous gamemode
 		disable_ints
 		lea	(vdp_control_port).l,a6
-		move.w	#$8B03,(a6)				; 1-pixel line scroll mode
-		move.w	#$8004,(a6)				; normal colour mode
-		move.w	#$8A00+175,(v_vdp_hint_counter).w
-		move.w	#$9011,(a6)				; 64x64 cell plane size
+		move.w	#vdp_full_vscroll|vdp_1px_hscroll,(a6)	; 1-pixel line scroll mode
+		move.w	#vdp_md_color,(a6)			; normal colour mode
+		move.w	#vdp_hint_counter+175,(v_vdp_hint_counter).w
+		move.w	#vdp_plane_width_64|vdp_plane_height_64,(a6) ; 64x64 cell plane size
 		disable_display
 		bsr.w	ClearScreen
 		enable_ints
 		dma_fill	0,$6FFF,$5000
-
-	.wait_for_dma:
-		move.w	(a5),d1					; read control port ($C00004)
-		btst	#1,d1					; is DMA running?
-		bne.s	.wait_for_dma				; if yes, branch
-		
-		move.w	#$8F02,(a5)				; set VDP increment to 2 bytes
 		bsr.w	SS_BGLoad
 		moveq	#id_PLC_SpecialStage,d0
 		bsr.w	QuickPLC				; load special stage gfx
@@ -146,9 +139,9 @@ SS_FinishLoop:
 
 		disable_ints
 		lea	(vdp_control_port).l,a6
-		move.w	#$8200+(vram_fg>>10),(a6)		; set foreground nametable address
-		move.w	#$8400+(vram_bg>>13),(a6)		; set background nametable address
-		move.w	#$9001,(a6)				; 64x32 cell plane size
+		move.w	#vdp_fg_nametable+(vram_fg>>10),(a6)	; set foreground nametable address
+		move.w	#vdp_bg_nametable+(vram_bg>>13),(a6)	; set background nametable address
+		move.w	#vdp_plane_width_64|vdp_plane_height_32,(a6) ; 64x32 cell plane size
 		bsr.w	ClearScreen
 		locVRAM	vram_Nem_TitleCard			; $B000 - Pattern Load Cues.asm
 		lea	(Nem_TitleCard).l,a0			; load title card patterns
@@ -214,7 +207,7 @@ SS_ToSegaScreen:
 ; ---------------------------------------------------------------------------
 ; Special stage	background mappings loading subroutine
 
-;	uses d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, d7.l, a0, a1, a2
 ; ---------------------------------------------------------------------------
 
 ; Fish/bird dimensions in cells
@@ -253,11 +246,11 @@ SS_BGLoad:
 		lea	(v_ss_enidec_buffer).l,a1		; use tilemap for checkerboard pattern
 
 	.is_birdfish:
-		movem.l	d0-d4,-(sp)
+		pushr	d0-d4
 		moveq	#fish_width-1,d1
 		moveq	#fish_height-1,d2
 		bsr.w	TilemapToVRAM				; copy tilemap for 1 bird or fish from RAM to VRAM
-		movem.l	(sp)+,d0-d4
+		popr	d0-d4
 
 	.skip_birdfish:
 		addi.l	#(fish_width*2)<<16,d0			; skip 8 cells ($10 bytes)
@@ -298,11 +291,12 @@ SS_BGLoad:
 		bra.w	TilemapToVRAM				; copy tilemap for clouds to VRAM
 ;	endc
 ; ---------------------------------------------------------------------------
-; Palette cycling routine - special stage
+; Palette cycling and background animation routine
 
 ; output:
 ;	a6 = vdp_control_port
-;	uses d0, d1, a0, a1, a2
+
+;	uses d0.l, d1.w, a0, a1, a2
 ; ---------------------------------------------------------------------------
 
 PalCycle_SS:
@@ -328,11 +322,11 @@ PalCycle_SS:
 		move.w	d0,(v_ss_bg_mode).w
 		lea	(SS_BG_Modes).l,a1
 		lea	(a1,d0.w),a1				; jump to mode data
-		move.w	#$8200,d0				; VDP register - fg nametable address
+		move.w	#vdp_fg_nametable,d0			; VDP register - fg nametable address
 		move.b	(a1)+,d0				; apply address from mode data
 		move.w	d0,(a6)					; send VDP instruction
 		move.b	(a1),(v_fg_y_pos_vsram).w		; get byte to send to VSRAM
-		move.w	#$8400,d0				; VDP register - bg nametable address
+		move.w	#vdp_bg_nametable,d0			; VDP register - bg nametable address
 		move.b	(a0)+,d0				; apply address from list
 		move.w	d0,(a6)					; send VDP instruction
 		move.l	#$40000010,(vdp_control_port).l		; set VDP to VSRAM write mode
@@ -442,7 +436,7 @@ include_Special_2:	macro
 ; ---------------------------------------------------------------------------
 ; Subroutine to	make the special stage background animated
 
-;	uses d0, d1, d2, d3, a1, a3
+;	uses d0.l, d1.l, d2.l, d3.l, a1, a3
 ; ---------------------------------------------------------------------------
 
 SS_BGAnimate:
@@ -571,7 +565,7 @@ include_Special_3:	macro
 ; input:
 ;	d5 = sprite count (from BuildSprites)
 
-;	uses d0, d2, d3, d4, d5, d1, d7, a0, a1
+;	uses d0.l, d1.l, d2.l, d3.l, d4.w, d7.w, a0, a1
 ; ---------------------------------------------------------------------------
 
 SS_ShowLayout:
@@ -579,7 +573,7 @@ SS_ShowLayout:
 		bsr.w	SS_UpdateItems
 
 ; Calculate x/y positions of each cell in a 16x16 grid when rotated
-		move.w	d5,-(sp)				; save sprite count to stack
+		pushr.w	d5					; save sprite count to stack
 		lea	(v_ss_sprite_grid_plot).w,a1		; address to write grid coords
 		move.b	(v_ss_angle).w,d0
 ;		andi.b	#$FC,d0					; round down angle to nearest 4 (disable this line for smoother rotation)
@@ -603,14 +597,14 @@ SS_ShowLayout:
 		move.w	#ss_visible_height-1,d7			; grid is 16 cells high
 
 	.loop_gridrow:
-		movem.w	d0-d2,-(sp)
-		movem.w	d0-d1,-(sp)
+		pushr.w	d0-d2
+		pushr.w	d0-d1
 		neg.w	d0
 		muls.w	d2,d1
 		muls.w	d3,d0
 		move.l	d0,d6
 		add.l	d1,d6
-		movem.w	(sp)+,d0-d1
+		popr.w	d0-d1
 		muls.w	d2,d0
 		muls.w	d3,d1
 		add.l	d0,d1
@@ -628,12 +622,12 @@ SS_ShowLayout:
 		add.l	d4,d1
 		dbf	d6,.loop_gridcell			; repeat for all cells in row
 
-		movem.w	(sp)+,d0-d2
+		popr.w	d0-d2
 		addi.w	#ss_block_width,d3
 		dbf	d7,.loop_gridrow			; repeat for all rows
 
 ; Populate the 16x16 grid with sprites based on the level layout
-		move.w	(sp)+,d5
+		popr.w	d5
 		lea	(v_ss_layout).l,a0
 		moveq	#0,d0
 		move.w	(v_camera_y_pos).w,d0			; get camera y pos
@@ -704,7 +698,7 @@ SS_ShowLayout:
 ; ---------------------------------------------------------------------------
 ; Subroutine to	animate	walls and rings	in the special stage
 
-;	uses d0, d1, a0, a1
+;	uses d0.l, d1.l, a0, a1
 ; ---------------------------------------------------------------------------
 
 SS_AniWallsRings:
@@ -861,7 +855,8 @@ SS_Wall_Vram_Settings:
 
 ; output:
 ;	a2 = address of free slot in sprite update list
-;	uses d0
+
+;	uses d0.w
 ; ---------------------------------------------------------------------------
 
 SS_FindFreeUpdate:
@@ -880,7 +875,7 @@ SS_FindFreeUpdate:
 ; ---------------------------------------------------------------------------
 ; Subroutine to	update special stage items after they've been touched
 
-;	uses d0, d7, a0, a1
+;	uses d0.l, d7.w, a0, a1
 ; ---------------------------------------------------------------------------
 
 SS_UpdateItems:
@@ -1076,7 +1071,7 @@ SpecialStartPosList:
 ; ---------------------------------------------------------------------------
 ; Subroutine to	load special stage layout
 
-;	uses d0, d1, d2, a0, a1, a3
+;	uses d0.l, d1.l, d2.l, a0, a1, a3
 ; ---------------------------------------------------------------------------
 
 SS_Load:

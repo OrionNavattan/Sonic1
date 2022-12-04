@@ -1,24 +1,26 @@
 @echo off
 
-rem assemble Z80 sound driver
-axm68k /m /k /p "sound\DAC Driver.asm", "sound\DAC Driver.unc" >"sound\errors.txt", , "sound\DAC Driver.lst"
-type "sound\errors.txt"
-IF NOT EXIST "sound\DAC Driver.unc" PAUSE & EXIT 2
-
 rem compress kosinski files
-for %%f in ("256x256 Mappings\*.unc") do kosinski_compress "%%f" "256x256 Mappings\%%~nf.kos"
-kosinski_compress "Graphics - Compressed\Ending Flowers.unc" "Graphics - Compressed\Ending Flowers.kos"
-kosinski_compress "sound\DAC Driver.unc" "sound\DAC Driver.kos"
+for %%f in ("256x256 Mappings\*.unc") do "bin\kosinski_compress.exe" "%%f" "256x256 Mappings\%%~nf.kos"
+for %%f in ("Graphics Kosinski\*.bin") do "bin\kosinski_compress.exe" "%%f" "Graphics Kosinski\%%~nf.kos"
 
 rem assemble final rom and generate symbol file
 IF EXIST s1built.bin move /Y s1built.bin s1built.prev.bin >NUL
-axm68k /m /k /p sonic.asm, s1built.bin >errors.txt, sonic.sym, sonic.lst
+
+IF EXIST DAC Driver.unc move /Y DAC Driver.unc >NUL
+"bin\axm68k.exe" /m /k /p _Main.asm, s1built.bin >errors.txt, sonic.sym , _Main.lst
 type errors.txt
+if not exist s1built.bin pause & exit
+
+rem compress and insert DAC driver
+"bin\DualPCM_Compress.exe" "sound\DAC Driver.unc" "sound\DAC Driver Offset & Size.dat" s1built.bin "bin\kosinski_compress.exe"
 
 rem encode symbols and append to end of assembled rom
 IF EXIST s1built.bin convsym sonic.lst s1built.bin -input asm68k_lst -inopt "/localSign=@ /localJoin=. /ignoreMacroDefs+ /ignoreMacroExp- /addMacrosAsOpcodes+" -a
 
 rem check for success and fix header
 IF NOT EXIST s1built.bin PAUSE & EXIT 2
-fixheadr.exe s1built.bin
+
+"bin\fixheadr.exe" s1built.bin s1built.bin
 pause
+

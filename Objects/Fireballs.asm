@@ -14,7 +14,7 @@ FireBall:
 		
 		;bra.w	DisplaySprite
 ; ===========================================================================
-FBall_Index:	index *,,2
+FBall_Index:	index offset(*),,2
 		ptr FBall_Main
 		ptr FBall_Action
 		ptr FBall_Delete
@@ -92,7 +92,7 @@ FBall_ChkDel:
 		;rts
 		bra.w	DisplaySprite	
 ; ===========================================================================
-FBall_TypeIndex:index *
+FBall_TypeIndex:index offset(*)
 		ptr FBall_Type_UpDown
 		ptr FBall_Type_UpDown
 		ptr FBall_Type_UpDown
@@ -190,7 +190,7 @@ FBall_Delete:	; Routine 4
 ; Animation script
 ; ---------------------------------------------------------------------------
 
-Ani_Fire:	index *
+Ani_Fire:	index offset(*)
 		ptr ani_fire_vertical
 		ptr ani_fire_vertcollide
 		ptr ani_fire_horizontal

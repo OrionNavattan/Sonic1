@@ -13,7 +13,7 @@ FloatingBlock:
 		move.w	FBlock_Index(pc,d0.w),d1
 		jmp	FBlock_Index(pc,d1.w)
 ; ===========================================================================
-FBlock_Index:	index *
+FBlock_Index:	index offset(*)
 		ptr FBlock_Main
 		ptr FBlock_Action
 
@@ -117,14 +117,14 @@ FBlock_Main:	; Routine 0
 		clr.w	ost_fblock_move_dist(a0)
 
 FBlock_Action:	; Routine 2
-		move.w	ost_x_pos(a0),-(sp)
+		pushr.w	ost_x_pos(a0)
 		moveq	#0,d0
 		move.b	ost_subtype(a0),d0			; get object subtype (changed if original was $80+)
 		andi.w	#$F,d0					; read only the	low nybble
 		add.w	d0,d0
 		move.w	FBlock_Types(pc,d0.w),d1
 		jsr	FBlock_Types(pc,d1.w)			; update position
-		move.w	(sp)+,d4
+		popr.w	d4
 		tst.b	ost_render(a0)
 		bpl.s	.chkdel
 		moveq	#0,d1
@@ -154,7 +154,7 @@ FBlock_Action:	; Routine 2
 		jmp	(DeleteObject).l
 ;		endc
 ; ===========================================================================
-FBlock_Types:	index *
+FBlock_Types:	index offset(*)
 		ptr FBlock_Still				; 0
 		ptr FBlock_LeftRight				; 1
 		ptr FBlock_LeftRightWide			; 2

@@ -14,7 +14,7 @@ MovingBlock:
 		move.w	MBlock_Index(pc,d0.w),d1
 		jmp	MBlock_Index(pc,d1.w)
 ; ===========================================================================
-MBlock_Index:	index *,,2
+MBlock_Index:	index offset(*),,2
 		ptr MBlock_Main
 		ptr MBlock_Platform
 		ptr MBlock_StandOn
@@ -83,9 +83,9 @@ MBlock_StandOn:	; Routine 4
 		moveq	#0,d1
 		move.b	ost_displaywidth(a0),d1
 		jsr	(ExitPlatform).l
-		move.w	ost_x_pos(a0),-(sp)
+		pushr.w	ost_x_pos(a0)
 		bsr.w	MBlock_Move
-		move.w	(sp)+,d2
+		popr.w	d2
 		jsr	(MoveWithPlatform2).l
 
 MBlock_ChkDel:
@@ -101,7 +101,7 @@ MBlock_Move:
 		move.w	MBlock_TypeIndex(pc,d0.w),d1
 		jmp	MBlock_TypeIndex(pc,d1.w)
 ; ===========================================================================
-MBlock_TypeIndex:index *
+MBlock_TypeIndex:index offset(*)
 		ptr MBlock_Still				; 0 - doesn't move
 		ptr MBlock_LeftRight				; 1 - moves side to side
 		ptr MBlock_Right				; 2 - moves right when stood on, stops at wall

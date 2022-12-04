@@ -11,7 +11,7 @@ BossMarble:
 		move.w	BMZ_Index(pc,d0.w),d1
 		jmp	BMZ_Index(pc,d1.w)
 ; ===========================================================================
-BMZ_Index:	index *,,2
+BMZ_Index:	index offset(*),,2
 		ptr BMZ_Main
 		ptr BMZ_ShipMain
 		ptr BMZ_FaceMain
@@ -73,7 +73,7 @@ BMZ_ShipDisplay:
 		or.b	d0,ost_render(a0)			; combine x/yflip bits from status instead
 		jmp	(DisplaySprite).l
 ; ===========================================================================
-BMZ_ShipIndex:index *,,2
+BMZ_ShipIndex:index offset(*),,2
 		ptr BMZ_ShipStart
 		ptr BMZ_ShipMove
 		ptr BMZ_Explode
@@ -153,7 +153,7 @@ BMZ_ShipMove:  ; Ship Routine 2
 		bra.w	BMZ_Update				; update actual position, check for hits
 ; ===========================================================================
 BMZ_ShipMove_Index:
-		index *,,2
+		index offset(*),,2
 		ptr BMZ_ChgDir
 		ptr BMZ_DropFire
 		ptr BMZ_ChgDir

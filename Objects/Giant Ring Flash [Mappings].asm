@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
 ; Sprite mappings - flash effect when you collect the giant ring
 ; ---------------------------------------------------------------------------
-Map_Flash:	index *
+Map_Flash:	index offset(*)
 		ptr frame_flash_0
 		ptr frame_flash_1
 		ptr frame_flash_2
@@ -13,7 +13,7 @@ Map_Flash:	index *
 		
 frame_flash_0:
 		spritemap
-		piece	0, -$20, 4x4, 0, 
+		piece	0, -$20, 4x4, 0
 		piece	0, 0, 4x4, 0, yflip
 		endsprite
 		

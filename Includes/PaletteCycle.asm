@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
 ; Palette cycling routine loading subroutine
 
-;	uses d0, d1, d2, a0, a1, a2
+;	uses d0.l, d1.l, d2.l, a0, a1, a2
 ; ---------------------------------------------------------------------------
 
 PaletteCycle:
@@ -12,7 +12,7 @@ PaletteCycle:
 		move.w	PCycle_Index(pc,d0.w),d0
 		jmp	PCycle_Index(pc,d0.w)			; jump to relevant palette routine
 
-PCycle_Index:	index *
+PCycle_Index:	index offset(*)
 		ptr PCycle_GHZ
 		ptr PCycle_LZ
 		ptr PCycle_MZ

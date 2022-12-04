@@ -7,20 +7,6 @@
 ;  Adapted to s1disasm by Aurora Fields
 ; ===========================================================================
 
-		opt	l.					; . is the local label symbol
-		opt	ae-					; automatic even's are disabled by default
-		opt	ws+					; allow statements to contain white-spaces
-		opt	w+					; print warnings
-		opt	m+					; do not expand macros - if enabled, this can break assembling
-
-RestoreProtoDrums: equ 1
-
-		org	0					; z80 Align, handled by the build process
-		include	"Macros - More CPUs.asm"		; include language macros
-		cpu	z80					; also start a new z80 program
-
-SEGAPCM:	equ $DEADBEEF					; give Sega PCM an arbitary value. Basically, just avoid getting optimized by Kosinski
-SEGAPCM_Len:	equ $AC1D					; give Sega PCM an arbitary size. Basically, just avoid getting optimized by Kosinski
 SEGAPCM_Pitch:	equ 0Bh						; the pitch of the SEGA sound
 
 		rsset 1FFCh					; extra RAM variables
@@ -45,11 +31,11 @@ Z80Driver_Start:
 		xor	a					; a=0
 		ld	(zDAC_Status),a				; Disable DAC
 		ld	(zDAC_Sample),a				; Clear sample
-		ld	a,(SEGAPCM>>24)&$FF			; least significant bit from ROM bank ID
+		ld	a,((SegaPCM&$FF8000)/$8000)&1		; least significant bit from ROM bank ID
 		ld	(zBankSelect),a				; Latch it to bank register, initializing bank switch
 
 		ld	b,8					; Number of bits to latch to ROM bank
-		ld	a,(SEGAPCM>>16)&$FF			; Bank ID without the least significant bit
+		ld	a,((SegaPCM&$FF8000)/$8000)>>1		; Bank ID without the least significant bit
 
 .bankswitch:
 		ld	(zBankSelect),a				; Latch another bit to bank register.
@@ -65,7 +51,7 @@ zDACDecodeTbl:
 		db   0,	  1,   2,   4,   8,  10h,  20h,  40h
 		db 80h,	 -1,  -2,  -4,  -8, -10h, -20h, -40h
 
-		if (*&$FF00)<>(zDACDecodeTbl&$FF00)
+		if (offset(*)&$FF00)<>(offset(zDACDecodeTbl)&$FF00)
 		inform 2,"zDACDecodeTbl was not properly aligned!"
 		endc
 ; ---------------------------------------------------------------------------
@@ -193,8 +179,8 @@ PlaySampleLoop:
 ; ---------------------------------------------------------------------------
 
 Play_Sega:
-		ld	de,SEGAPCM&$FFFF			; de = bank-relative location of the SEGA sound
-		ld	hl,SEGAPCM_Len&$FFFF			; hl = size of the SEGA sound
+		ld	de,(SegaPCM&$FFFF)|$8000		; de = bank-relative location of the SEGA sound
+		ld	hl,sizeof_SegaPCM&$FFFF			; hl = size of the SEGA sound
 		ld	c,2Ah					; c = DAC data register
 
 .play:
@@ -229,34 +215,33 @@ zsample:	macro	name, pitch
 
 PCM_Table:
 	if RestoreProtoDrums=0
-		zsample	dKick, 17h				; Kick sample
-		zsample	dSnare, 1h				; Snare sample
-		zsample	dTimpani, 1Bh				; Kick sample
+		zsample	zdKick, 17h				; Kick sample
+		zsample	zdSnare, 1h				; Snare sample
+		zsample	zdTimpani, 1Bh				; Kick sample
 	else
 	; increase the pitch of the samples
-		zsample	dKick, 19h				; Kick sample
-		zsample	dSnare, 6h				; Snare sample
-		zsample	dTimpani, 20h				; Kick sample
+		zsample	zdKick, 17h+2				; Kick sample
+		zsample	zdSnare, 1h+5				; Snare sample
+		zsample	zdTimpani, 1Bh+5				; Kick sample
 	endc	
-Sample3_Pitch:	= *-4						; this is the location of timpani pitch
+Sample3_Pitch:	= offset(*)-4						; this is the location of timpani pitch
+
 
 ; ---------------------------------------------------------------------------
 ; Includes for all the samples
 ; ---------------------------------------------------------------------------
 
-dKick:		incbin "sound/dac/kick.dpcm"
-dKick_End:
+zdKick:		incbin "sound/dac/kick.dpcm"
+zdKick_End:
 
-dSnare:		incbin "sound/dac/snare.dpcm"
-dSnare_End:
+zdSnare:		incbin "sound/dac/snare.dpcm"
+zdSnare_End:
 
-dTimpani:	incbin "sound/dac/timpani.dpcm"
-dTimpani_End:
+zdTimpani:	incbin "sound/dac/timpani.dpcm"
+zdTimpani_End:
 ; ---------------------------------------------------------------------------
 
 EndOfDriver:
-		if *>z80_stack
+		if offset(*)>z80_stack
 		inform 2,"The sound driver, including samples, may at most be $\$z80_stack bytes, but is currently $\$* bytes in size."
 		endc
-
-		END

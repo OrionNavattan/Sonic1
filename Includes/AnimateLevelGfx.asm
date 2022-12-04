@@ -3,7 +3,8 @@
 
 ; output:
 ;	a6 = vdp_data_port ($C00000)
-;	uses d0, d1, d2, d3, a1, a2, a3, a4
+
+;	uses d0.l, d1.w, d2.w, d3.w, a1, a2, a3, a4
 ; ---------------------------------------------------------------------------
 
 AnimateLevelGfx:
@@ -21,7 +22,7 @@ AnimateLevelGfx:
 		rts	
 
 ; ===========================================================================
-AniArt_Index:	index *
+AniArt_Index:	index offset(*)
 		ptr AniArt_GHZ
 		ptr AniArt_none
 		ptr AniArt_MZ
@@ -392,7 +393,9 @@ AniArt_none:
 ; input:
 ;	a1 = source address
 ;	a6 = vdp_data_port ($C00000)
-;	d1 = number of tiles to load (minus one)
+;	d1.w = number of tiles to load (minus one)
+
+;	uses d1.w, a1
 ; ---------------------------------------------------------------------------
 
 LoadTiles:
@@ -406,15 +409,15 @@ LoadTiles:
 ; Subroutines to animate MZ magma
 
 ; input:
-;	d1 = number of longwords to write to VRAM
+;	d1.w = number of longwords to write to VRAM
 ;	a1 = address of magma gfx (stored as 32x32 image)
 ;	a6 = vdp_data_port ($C00000)
 
-;	uses d0
+;	uses d0.l, d1.w, a1
 ; ---------------------------------------------------------------------------
 
 AniArt_MZ_Magma_Index:
-		index *
+		index offset(*)
 		ptr AniArt_MZ_Magma_Shift0_Col0
 		ptr AniArt_MZ_Magma_Shift1_Col0
 		ptr AniArt_MZ_Magma_Shift2_Col0
@@ -575,12 +578,12 @@ AniArt_MZ_Magma_Shift3_Col3:
 ; input:
 ;	a6 = vdp_data_port
 
-;	uses d0, d1, a1
+;	uses d0.l, d1.w, a1
 ; ---------------------------------------------------------------------------
 
 LoadArt_GiantRing:
 
-tilecount:	= (sizeof_art_giantring/sizeof_cell)/7		; number of tiles to load per frame over 7 frames (14)
+tilecount:	= (sizeof_Art_BigRing/sizeof_cell)/7		; number of tiles to load per frame over 7 frames (14)
 
 		tst.w	(v_giantring_gfx_offset).w		; $C40 is written here by GiantRing (98 tiles)
 		bne.s	.loadTiles				; branch if not 0

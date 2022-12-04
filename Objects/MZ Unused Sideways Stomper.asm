@@ -11,7 +11,7 @@ SideStomp:
 		move.w	SStom_Index(pc,d0.w),d1
 		jmp	SStom_Index(pc,d1.w)
 ; ===========================================================================
-SStom_Index:	index *,,2
+SStom_Index:	index offset(*),,2
 		ptr SStom_Main
 		ptr SStom_Solid
 		ptr SStom_Spikes
@@ -85,12 +85,12 @@ SStom_Main:	; Routine 0
 		move.b	#$10,ost_displaywidth(a0)
 
 SStom_Solid:	; Routine 2
-		move.w	ost_x_pos(a0),-(sp)
+		pushr.w	ost_x_pos(a0)
 		bsr.w	SStom_Move				; update position of main block
 		move.w	#$17,d1
 		move.w	#$20,d2
 		move.w	#$20,d3
-		move.w	(sp)+,d4
+		popr.w	d4
 		bsr.w	SolidObject
 		;bsr.w	DisplaySprite
 		bra.w	SStom_ChkDel
@@ -134,7 +134,7 @@ SStom_Move:
 
 ; ===========================================================================
 SStom_Move_Index:
-		index *
+		index offset(*)
 		ptr SStom_Move_0				; 0
 		ptr SStom_Move_0				; 1 - same as 0
 		;ptr SStom_Move_0				; 2 - missing

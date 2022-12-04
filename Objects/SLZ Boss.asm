@@ -12,7 +12,7 @@ BossStarLight:
 		move.w	BSLZ_Index(pc,d0.w),d1
 		jmp	BSLZ_Index(pc,d1.w)
 ; ===========================================================================
-BSLZ_Index:	index *,,2
+BSLZ_Index:	index offset(*),,2
 		ptr BSLZ_Main
 		ptr BSLZ_ShipMain
 		ptr BSLZ_FaceMain
@@ -91,7 +91,7 @@ BSLZ_ShipDisplay:
 		or.b	d0,ost_render(a0)			; combine x/yflip bits from status instead
 		jmp	(DisplaySprite).l
 ; ===========================================================================
-BSLZ_ShipIndex:	index *,,2
+BSLZ_ShipIndex:	index offset(*),,2
 		ptr BSLZ_ShipStart
 		ptr BSLZ_ShipMove
 		ptr BSLZ_MakeBall
@@ -240,10 +240,10 @@ BSLZ_MakeBall:
 		adda.w	#sizeof_ost,a1				; next OST slot
 		dbf	d1,.loop				; repeat for all OST slots
 
-		move.l	a0,-(sp)				; save current OST address to stack
+		pushr	a0					; save current OST address to stack
 		lea	(a2),a0					; pretend the seesaw is current object
 		jsr	(FindNextFreeObj).l			; find free OST slot after this one
-		movea.l	(sp)+,a0				; restore current OST
+		popr	a0					; restore current OST
 		bne.s	.exit					; branch if free OST slot not found
 
 		move.b	#id_BossSpikeball,(a1)			; load spiked ball object

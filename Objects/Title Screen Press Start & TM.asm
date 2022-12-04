@@ -12,7 +12,7 @@ PSBTM:
 		jsr	PSB_Index(pc,d1.w)
 		bra.w	DisplaySprite
 ; ===========================================================================
-PSB_Index:	index *,,2
+PSB_Index:	index offset(*),,2
 		ptr PSB_Main
 		ptr PSB_Animate
 		ptr PSB_Exit
@@ -20,14 +20,15 @@ PSB_Index:	index *,,2
 
 PSB_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto PSB_Animate next
+
 	if FixBugs=0
 		; This places the text a little too far to the left on the title screen
-		move.w	#$D0,ost_x_pos(a0)
+		move.w	#screen_left+80,ost_x_pos(a0)
 	else
 		; This centers the text on the title screen
-		move.w	#$D8,ost_x_pos(a0)		
+		move.w	#screen_left+88,ost_x_pos(a0)		
 	endc	
-		move.w	#$130,ost_y_screen(a0)
+		move.w	#screen_top+176,ost_y_screen(a0)
 		move.l	#Map_PSB,ost_mappings(a0)
 		move.w	#vram_title/sizeof_cell,ost_tile(a0)
 		cmpi.b	#id_frame_psb_mask,ost_frame(a0)	; is object the sprite mask or "TM"?
@@ -38,8 +39,8 @@ PSB_Main:	; Routine 0
 		bne.s	PSB_Exit				; if not, branch
 
 		move.w	#(vram_title_tm/sizeof_cell)+tile_pal2,ost_tile(a0) ; "TM" specific code
-		move.w	#$170,ost_x_pos(a0)
-		move.w	#$F8,ost_y_screen(a0)
+		move.w	#screen_left+240,ost_x_pos(a0)
+		move.w	#screen_top+120,ost_y_screen(a0)
 
 PSB_Exit:	; Routine 4
 		rts	
@@ -55,7 +56,7 @@ PSB_Animate:	; Routine 2
 
 include_PSBTM_animation:	macro
 
-Ani_PSB:	index *
+Ani_PSB:	index offset(*)
 		ptr ani_psb_flash
 		
 ani_psb_flash:	dc.b $1F

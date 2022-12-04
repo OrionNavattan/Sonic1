@@ -9,7 +9,7 @@ sega_bg_height:	equ 8
 sega_fg_width:	equ $28						; fg dimensions - white box with logo cutout
 sega_fg_height:	equ $1C
 
-countof_stripe:	equ filesize("Palettes\Sega - Stripe.bin")/2	; colours in stripe that moves across logo
+countof_stripe:	equ sizeof_Pal_Sega1/2				; colours in stripe that moves across logo
 countof_sega:	equ $C/2					; colours in Sega logo
 
 GM_Sega:
@@ -17,11 +17,11 @@ GM_Sega:
 		bsr.w	ClearPLC
 		bsr.w	PaletteFadeOut				; fade out from previous gamemode
 		lea	(vdp_control_port).l,a6
-		move.w	#$8004,(a6)				; use normal colour mode
-		move.w	#$8200+(vram_fg>>10),(a6)		; set foreground nametable address
-		move.w	#$8400+(vram_bg>>13),(a6)		; set background nametable address
-		move.w	#$8700,(a6)				; set background colour (palette entry 0)
-		move.w	#$8B00,(a6)				; full-screen horizontal scrolling
+		move.w	#vdp_md_color,(a6)			; use normal colour mode
+		move.w	#vdp_fg_nametable+(vram_fg>>10),(a6)	; set foreground nametable address
+		move.w	#vdp_bg_nametable+(vram_bg>>13),(a6)	; set background nametable address
+		move.w	#vdp_bg_color+0,(a6)			; set background colour (palette entry 0)
+		move.w	#vdp_full_vscroll|vdp_full_hscroll,(a6)	; full-screen horizontal scrolling
 		clr.b	(f_water_pal_full).w
 		disable_ints
 		disable_display
@@ -89,7 +89,9 @@ Sega_WaitLoop:
 ; Palette cycling routine - Sega logo
 
 ; output:
-;	d0 = 0 when palette routine is complete
+;	d0.l = 0 when palette routine is complete
+
+;	uses d1.l, d2.w, a0, a1
 ; ---------------------------------------------------------------------------
 
 PalCycle_Sega:

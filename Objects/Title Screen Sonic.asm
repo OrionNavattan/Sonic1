@@ -11,7 +11,7 @@ TitleSonic:
 		move.w	TSon_Index(pc,d0.w),d1
 		jmp	TSon_Index(pc,d1.w)
 ; ===========================================================================
-TSon_Index:	index *,,2
+TSon_Index:	index offset(*),,2
 		ptr TSon_Main
 		ptr TSon_Delay
 		ptr TSon_Move
@@ -20,23 +20,24 @@ TSon_Index:	index *,,2
 
 TSon_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto TSon_Delay next
+
 	if FixBugs=0
 		; This places Sonic a little too far left on the title screen
-		move.w	#$F0,ost_x_pos(a0)
+		move.w	#screen_left+112,ost_x_pos(a0)
 	else
 		; This centers Sonic on the title screen
-		move.w	#$F8,ost_x_pos(a0)		
+		move.w	#screen_left+120,ost_x_pos(a0)		
 	endc	
-		move.w	#$DE,ost_y_screen(a0)			; position is fixed to screen
+		move.w	#screen_top+94,ost_y_screen(a0)			; position is fixed to screen
 		move.l	#Map_TSon,ost_mappings(a0)
 		move.w	#(vram_title_sonic/sizeof_cell)+tile_pal2,ost_tile(a0)
 		move.b	#1,ost_priority(a0)
-		move.b	#29,ost_anim_time_low(a0)			; set time delay to 0.5 seconds
+		move.b	#29,ost_anim_time_low(a0)		; set time delay to 0.5 seconds
 		lea	(Ani_TSon).l,a1
 		bsr.w	AnimateSprite
 
 TSon_Delay:	;Routine 2
-		subq.b	#1,ost_anim_time_low(a0)			; decrement timer
+		subq.b	#1,ost_anim_time_low(a0)		; decrement timer
 		bpl.s	.wait					; if time remains, branch
 		addq.b	#2,ost_routine(a0)			; goto TSon_Move next
 		bra.w	DisplaySprite
@@ -47,7 +48,7 @@ TSon_Delay:	;Routine 2
 
 TSon_Move:	; Routine 4
 		subq.w	#8,ost_y_screen(a0)			; move Sonic up
-		cmpi.w	#$96,ost_y_screen(a0)			; has Sonic reached final position?
+		cmpi.w	#screen_top+22,ost_y_screen(a0)		; has Sonic reached final position?
 		bne.s	.display				; if not, branch
 		addq.b	#2,ost_routine(a0)			; goto TSon_Animate next
 
@@ -73,7 +74,7 @@ TSon_Animate:	; Routine 6
 
 include_TitleSonic_animation:	macro
 
-Ani_TSon:	index *
+Ani_TSon:	index offset(*)
 		ptr ani_tson_0
 		
 ani_tson_0:	dc.b 7

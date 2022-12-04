@@ -1,7 +1,7 @@
 ; ---------------------------------------------------------------------------
 ; Subroutine to	load a level's objects
 
-;	uses d0, d1, d2, d6, a0, a1, a2
+;	uses d0.l, d1.w, d2.l, d6.l, a0, a1, a2
 ; ---------------------------------------------------------------------------
 
 ObjPosLoad:
@@ -11,7 +11,7 @@ ObjPosLoad:
 		jmp	OPL_Index(pc,d0.w)
 
 ; ===========================================================================
-OPL_Index:	index *
+OPL_Index:	index offset(*)
 		ptr OPL_Init
 		ptr OPL_Main
 ; ===========================================================================
@@ -223,14 +223,15 @@ OPL_NoMove:
 ; Subroutine to	load an object
 
 ; input:
-;	d2 = position in respawn list
+;	d2.w = position in respawn list
 ;	a0 = pointer to specific object in objpos list
 ;	a2 = v_respawn_list
 
 ; output:
-;	d0 = 0 if object is spawned (or skipped because it was broken)
+;	d0.l = 0 if object is spawned (or skipped because it was broken)
 ;	a1 = address of OST of spawned object
-;	uses d1, a0
+
+;	uses d1.w, a0
 ; ---------------------------------------------------------------------------
 
 OPL_SpawnObj:

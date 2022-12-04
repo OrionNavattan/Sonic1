@@ -2,11 +2,17 @@
 ; Subroutine to load pattern load cues (to queue pattern load requests)
 
 ; input:
-;	d0 = index of PLC list
+;	d0.w = index of PLC list
+
+;	uses d0.w
+
+; usage:
+;		moveq	#id_PLC_Explode,d0
+;		jsr	(AddPLC).l
 ; ---------------------------------------------------------------------------
 
 AddPLC:
-		movem.l	a1-a2,-(sp)				; save a1/a2 to stack
+		pushr	a1-a2					; save a1/a2 to stack
 		lea	(PatternLoadCues).l,a1
 		add.w	d0,d0
 		move.w	(a1,d0.w),d0
@@ -30,7 +36,7 @@ AddPLC:
 		dbf	d0,.loop				; repeat for all items in PLC
 
 	.skip:
-		movem.l	(sp)+,a1-a2				; restore a1/a2 from stack
+		popr	a1-a2					; restore a1/a2 from stack
 		rts
 
 ; ---------------------------------------------------------------------------
@@ -38,11 +44,13 @@ AddPLC:
 ; clear the PLC buffer
 
 ; input:
-;	d0 = index of PLC list
+;	d0.w = index of PLC list
+
+;	uses d0.l
 ; ---------------------------------------------------------------------------
 
 NewPLC:
-		movem.l	a1-a2,-(sp)				; save a1/a2 to stack
+		pushr	a1-a2					; save a1/a2 to stack
 		lea	(PatternLoadCues).l,a1
 		add.w	d0,d0
 		move.w	(a1,d0.w),d0
@@ -58,13 +66,13 @@ NewPLC:
 		dbf	d0,.loop				; repeat for all items in PLC
 
 	.skip:
-		movem.l	(sp)+,a1-a2				; restore a1/a2 from stack
+		popr	a1-a2					; restore a1/a2 from stack
 		rts
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	clear the pattern load cue buffer
 
-;	uses d0, a2
+;	uses d0.l, a2
 ; ---------------------------------------------------------------------------
 
 ClearPLC:
@@ -79,6 +87,8 @@ ClearPLC:
 ; ---------------------------------------------------------------------------
 ; Subroutine to	check the PLC buffer and begin decompression if it contains
 ; anything. ProcessPLC handles the actual decompression during VBlank
+
+;	uses d0.l, d1.w, d2.w, d5.l, d6.l, d7.w, a0, a1, a3
 ; ---------------------------------------------------------------------------
 
 RunPLC:
@@ -132,6 +142,8 @@ RunPLC:
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	decompress graphics listed in the PLC buffer
+
+;	uses d0.l, d1.l, d2.l, d3.l, d4.l, d5.l, d6.l, d7.w, a0, a1, a3, a4, a5
 ; ---------------------------------------------------------------------------
 
 nem_tile_count:	= 9
@@ -227,7 +239,9 @@ ProcessPLC_Finish:
 ; frame
 
 ; input:
-;	d0 = index of PLC list
+;	d0.w = index of PLC list
+
+;	uses d0.l, d1.w, a1
 ; ---------------------------------------------------------------------------
 
 QuickPLC:

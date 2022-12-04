@@ -15,7 +15,7 @@ SmashWall:
 		
 		;bra.w	DespawnObject
 ; ===========================================================================
-Smash_Index:	index *,,2
+Smash_Index:	index offset(*),,2
 		ptr Smash_Main
 		ptr Smash_Solid
 		ptr Smash_FragMove
@@ -129,11 +129,11 @@ SmashObject:
 		bcc.s	.parent_earlier				; if yes, branch
 
 		; fragment OST is before parent, so Smash_FragMove must be duplicated here
-		move.l	a0,-(sp)
+		pushr	a0
 		movea.l	a1,a0
 		bsr.w	SpeedToPos				; update position now
 		add.w	d2,ost_y_vel(a0)			; apply gravity
-		movea.l	(sp)+,a0
+		popr	a0
 		bsr.w	DisplaySprite_a1
 
 	.parent_earlier:

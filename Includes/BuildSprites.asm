@@ -9,7 +9,8 @@ BldSpr_ScrPos:	dc.l 0						; blank
 
 ; output:
 ;	a2 = address of last sprite in sprite buffer
-;	uses d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a4
+
+;	uses d0.l, d1.w, d2.w, d3.w, d4.w, d5.l, d6.l, d7.l, a0, a1, a4
 ; ---------------------------------------------------------------------------
 
 BuildSprites:
@@ -45,9 +46,9 @@ BuildSprites:
 		bmi.w	.next_object				; branch if object is outside left side of screen
 		move.w	d3,d1
 		sub.w	d0,d1					; d1 = x pos of object's left edge on screen
-		cmpi.w	#320,d1
+		cmpi.w	#screen_width,d1
 		bge.s	.next_object				; branch if object is outside right side of screen
-		addi.w	#128,d3					; d3 = x pos of object on screen, +128px for VDP sprite coordinate
+		addi.w	#screen_left,d3				; d3 = x pos of object on screen, +128px for VDP sprite coordinate
 
 		btst	#render_useheight_bit,d4		; is use height flag on?
 		beq.s	.assume_height				; if not, branch
@@ -60,9 +61,9 @@ BuildSprites:
 		bmi.s	.next_object				; branch if object is outside top side of screen
 		move.w	d2,d1
 		sub.w	d0,d1					; d1 = y pos of object's top edge on screen
-		cmpi.w	#224,d1
+		cmpi.w	#screen_height,d1
 		bge.s	.next_object				; branch if object is outside bottom side of screen
-		addi.w	#128,d2					; d2 = y pos of object on screen, +128px for VDP sprite coordinate
+		addi.w	#screen_top,d2				; d2 = y pos of object on screen, +128px for VDP sprite coordinate
 		bra.s	.draw_object
 ; ===========================================================================
 
@@ -75,10 +76,10 @@ BuildSprites:
 	.assume_height:
 		move.w	ost_y_pos(a0),d2
 		sub.w	4(a1),d2				; d2 = y pos of object on screen
-		addi.w	#128,d2
-		cmpi.w	#96,d2
+		addi.w	#screen_top,d2
+		cmpi.w	#screen_top-32,d2
 		blo.s	.next_object				; branch if > 32px outside top side of screen
-		cmpi.w	#384,d2
+		cmpi.w	#screen_bottom+32,d2
 		bhs.s	.next_object				; branch if > 32px outside bottom side of screen
 
 	.draw_object:
@@ -123,15 +124,15 @@ BuildSprites:
 ; Subroutine to	convert	and add sprite mappings to the sprite buffer
 ;
 ; input:
-;	d1 = number of sprite pieces
-;	d2 = VDP y position
-;	d3 = VDP x position
-;	d4 = render flags (ost_render)
-;	d5 = current sprite count
+;	d1.w = number of sprite pieces
+;	d2.w = VDP y position
+;	d3.w = VDP x position
+;	d4.b = render flags (ost_render)
+;	d5.b = current sprite count
 ;	a1 = current address in sprite mappings
 ;	a2 = current address in sprite buffer
 
-;	uses d0, d1, d4, d5, a1, a2
+;	uses d0, d1.w, d4.w, d5.b, a1, a2
 ; ---------------------------------------------------------------------------
 
 BuildSpr_Draw:

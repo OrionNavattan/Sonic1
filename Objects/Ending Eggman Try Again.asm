@@ -12,7 +12,7 @@ EndEggman:
 		jsr	EEgg_Index(pc,d1.w)
 		jmp	(DisplaySprite).l
 ; ===========================================================================
-EEgg_Index:	index *,,2
+EEgg_Index:	index offset(*),,2
 		ptr EEgg_Main
 		ptr EEgg_Animate
 		ptr EEgg_Juggle
@@ -25,8 +25,8 @@ ost_eeggman_wait_time:	rs.w 1					; $30 ; time between juggle motions
 
 EEgg_Main:	; Routine 0
 		addq.b	#2,ost_routine(a0)			; goto EEgg_Animate next
-		move.w	#$120,ost_x_pos(a0)
-		move.w	#$F4,ost_y_screen(a0)
+		move.w	#screen_left+160,ost_x_pos(a0)
+		move.w	#screen_top+116,ost_y_screen(a0)
 		move.l	#Map_EEgg,ost_mappings(a0)
 		move.w	#tile_Nem_TryAgain,ost_tile(a0)
 		move.b	#render_abs,ost_render(a0)
@@ -80,7 +80,7 @@ EEgg_Wait:	; Routine 6
 ; Animation script
 ; ---------------------------------------------------------------------------
 
-Ani_EEgg:	index *
+Ani_EEgg:	index offset(*)
 		ptr ani_eegg_juggle1
 		ptr ani_eegg_juggle2
 		ptr ani_eegg_end
