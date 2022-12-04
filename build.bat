@@ -1,8 +1,13 @@
 @echo off
 
 rem compress kosinski files
-for %%f in ("256x256 Mappings\*.unc") do "bin\kosinski_compress.exe" "%%f" "256x256 Mappings\%%~nf.kos"
-for %%f in ("Graphics Kosinski\*.bin") do "bin\kosinski_compress.exe" "%%f" "Graphics Kosinski\%%~nf.kos"
+echo Compressing Kosinski files
+for %%f in ("256x256 Mappings\*.unc") do "bin\koscmp.exe" "%%f" "256x256 Mappings\%%~nf.kos"
+for %%f in ("Graphics Kosinski\*.bin") do "bin\koscmp.exe" "%%f" "Graphics Kosinski\%%~nf.kos"
+
+rem compress nemesis files
+echo Compressing Nemesis files
+for %%f in ("Graphics Nemesis\*.bin") do "bin\nemcmp.exe" "%%f" "Graphics Nemesis\%%~nf.nem"
 
 rem assemble final rom and generate symbol file
 IF EXIST s1built.bin move /Y s1built.bin s1built.prev.bin >NUL
@@ -13,7 +18,7 @@ type errors.txt
 if not exist s1built.bin pause & exit
 
 rem compress and insert DAC driver
-"bin\DualPCM_Compress.exe" "sound\DAC Driver.unc" "sound\DAC Driver Offset & Size.dat" s1built.bin "bin\kosinski_compress.exe"
+"bin\DualPCM_Compress.exe" "sound\DAC Driver.unc" "sound\DAC Driver Offset & Size.dat" s1built.bin "bin\koscmp.exe"
 
 rem encode symbols and append to end of assembled rom
 IF EXIST s1built.bin convsym sonic.lst s1built.bin -input asm68k_lst -inopt "/localSign=@ /localJoin=. /ignoreMacroDefs+ /ignoreMacroExp- /addMacrosAsOpcodes+" -a

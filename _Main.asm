@@ -252,7 +252,6 @@ EntryPoint:
 		cmp.w	(a1),d4			; compare checksum in header to ROM
 		beq.s	.init_joypads	; if they match, branch
 		move.w	#cRed,(a5)		; set BG color to red
-		;enable_display
 		bra.s	* 				; stay here forever	
 	
 	.init_joypads:
@@ -1041,13 +1040,14 @@ Art_LivesNums:	incbin	"Graphics\Lives Counter Numbers.bin"	; 8x8 pixel numbers o
 		include_levelheaders				; Includes\LevelDataLoad, LevelLayoutLoad & LevelHeaders.asm
 		include "Pattern Load Cues.asm"
 
-		align	$200,$FF
+		;align	$200,$FF
 ;		if Revision=0
 ;			incfile	Nem_SegaLogo
 ;	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo (REV00).eni" ; large Sega logo (mappings)
 ;			even
 ;		else
-		dcb.b	$300,$FF
+		;dcb.b	$300,$FF
+		even
 		incfile	Nem_SegaLogo
 
 	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo.eni"	; large Sega logo (mappings)
@@ -1293,7 +1293,8 @@ Eni_SSBg2:	incbin	"Tilemaps\SS Background 2.eni"		; special stage background (ma
 		;if Revision=0
 		;	dcb.b $104,$FF				; why?
 		;else
-		dcb.b $40,$FF
+		;dcb.b $40,$FF
+		even
 		;endc
 ; ---------------------------------------------------------------------------
 ; Collision data
@@ -1567,8 +1568,8 @@ Level_End_unused:	dc.b 0,	0, 0, 0
 
 		incfile	Art_BigRing
 
-		align	$100,$FF
-
+		;align	$100,$FF
+		even
 ; ---------------------------------------------------------------------------
 ; Object position index
 ; ---------------------------------------------------------------------------
@@ -1686,10 +1687,10 @@ ObjPos_Null:	endobj
 		;if Revision=0
 			;dcb.b $62A,$FF
 		;else
-			dcb.b $63C,$FF
+		;	dcb.b $63C,$FF
 		;endc
 		;dcb.b ($10000-(*%$10000))-(ROM_End-SoundDriver),$FF
-
+		even
 ; ---------------------------------------------------------------------------
 ; Sound driver data
 ; ---------------------------------------------------------------------------
