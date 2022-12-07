@@ -173,8 +173,9 @@ EntryPoint:
 		move.b	(a0)+,d2				; load next register value 
 		dbf	d1,.loop_vdp				; repeat for all registers ; final value loaded will be used later to initialize I/0 ports
 		
+		
 		move.l	(a0)+,(a6)				; set DMA fill destination
-		move.w	d4,(a5)					; set DMA fill value (0000), clearing the VRAM
+ 		move.w	d4,(a5)					; set DMA fill value (0000), clearing the VRAM
 		
 		tst.w	port_e_control_hi-z80_bus_request(a3)		; was this a soft reset?
 		bne.s	.clear_every_reset			; if so, skip clearing RAM addresses $FE00-$FFFF
@@ -299,12 +300,12 @@ SetupValues:
 		dc.b	vdp_320px_screen_width&$FF			; $8C81 ; 40-cell display mode
 		dc.b	(vdp_hscroll_table+(vram_hscroll>>10))&$FF	; set background hscroll address
 		dc.b	vdp_nametable_hi&$FF				; unused
-		dc.b 	(vdp_auto_inc+2)&$FF				; set VDP increment size
+		dc.b 	(vdp_auto_inc+1)&$FF				; set VDP increment size
 		dc.b	(vdp_plane_width_64|vdp_plane_height_32)&$FF	; $9001 ; 64x32 cell plane size
 		dc.b	vdp_window_x_pos&$FF				; window horizontal position
 		dc.b 	vdp_window_y_pos&$FF				; window vertical position
 
-		dc.l 	(sizeof_vram/4)-1					; VDP $93/94 - DMA length
+		dc.w 	sizeof_vram-1					; VDP $93/94 - DMA length
 		dc.w 	0						; VDP $95/96 - DMA source
 		dc.b 	vdp_dma_vram_fill&$FF			; VDP $97 - DMA fill VRAM
 		
@@ -330,6 +331,7 @@ SetupValues:
 		pop	iy
 		ld	i,a
 		ld	r,a
+		pop	bc
 		pop	de
 		pop	hl
 		pop	af
