@@ -1,5 +1,5 @@
 ;  =========================================================================
-; |           Sonic the Hedgehog Disassembly for Sega Mega Drive            |
+; |			  Sonic the Hedgehog Disassembly for Sega Mega Drive			|
 ;  =========================================================================
 
 ; Disassembly created by Hivebrain
@@ -7,13 +7,13 @@
 
 ; ===========================================================================
 
-		opt	l.					; . is the local label symbol
-		opt	ae-					; automatic evens are disabled by default
-		opt	ws+					; allow statements to contain white-spaces
-		opt	w+					; print warnings
-		opt	m+					; do not expand macros - if enabled, this can break assembling
+		opt l.					; . is the local label symbol
+		opt ae-					; automatic evens are disabled by default
+		opt ws+					; allow statements to contain white-spaces
+		opt w+					; print warnings
+		opt m+					; do not expand macros - if enabled, this can break assembling
 
-Main: 		group org(0)
+Main:		group org(0)
 		section MainProgram,Main
 
 		include "Debugger.asm"
@@ -24,13 +24,13 @@ Main: 		group org(0)
 		include "sound\Sound Equates.asm"
 		include "Constants.asm"
 		include "RAM Addresses.asm"
-		include	"Start Positions.asm"
+		include "Start Positions.asm"
 		include "Includes\Compatibility.asm"
 
-		cpu	68000
+		cpu 68000
 
-EnableSRAM:	equ 0						; change to 1 to enable SRAM
-BackupSRAM:	equ 0
+EnableSRAM: equ 0						; change to 1 to enable SRAM
+BackupSRAM: equ 0
 AddressSRAM:	equ 0						; 0 = odd+even; 2 = even only; 3 = odd only
 
 ;	if ~def(Revision)					; bit-perfect check will automatically set this variable
@@ -49,7 +49,7 @@ SpikeFix:	equ 1	; Set to 1 to modify spike behavior to match all later games.
 
 RemoveSpeedCaps: equ 1 ; Self-explanatory.
 
-SimultaneousPaletteFades: equ 1	; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential.
+SimultaneousPaletteFades: equ 1 ; Modifies palette fades to be simultaneous on all three colors, as opposed to sequential.
 
 ExtraLivesForPoints: equ 1 ; Extra lives will be awarded at 50000 point intervals for all regions.
 
@@ -106,8 +106,8 @@ Vectors:
 
 		dc.b "SEGA MEGA DRIVE "				; Hardware system ID (Console name)
 		dc.b "(C)SEGA 1991.APR"				; Copyright holder and release date (generally year)
-		dc.b "SONIC THE               HEDGEHOG                " ; Domestic name
-		dc.b "SONIC THE               HEDGEHOG                " ; International name
+		dc.b "SONIC THE				  HEDGEHOG				  " ; Domestic name
+		dc.b "SONIC THE				  HEDGEHOG				  " ; International name
 
 ;	if Revision=0
 ;		dc.b "GM 00001009-00"				; Serial/version number (Rev 0)
@@ -115,8 +115,8 @@ Vectors:
 		dc.b "GM 00004049-01"				; Serial/version number (Rev non-0)
 ;	endc
 
-Checksum: 	dc.w $0
-		dc.b "J               "				; I/O support
+Checksum:	dc.w $0
+		dc.b "J				  "				; I/O support
 ROM_Start_Ptr:	dc.l ROM_Start					; Start address of ROM
 ROM_End_Ptr:	dc.l ROM_End-1					; End address of ROM
 		dc.l $FF0000					; Start address of RAM
@@ -132,8 +132,8 @@ ROM_End_Ptr:	dc.l ROM_End-1					; End address of ROM
 		dc.l $20202020					; SRAM end
 	endc
 
-		dc.b "                                                    " ; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
-		dc.b "JUE             "				; Region (Country code)
+		dc.b "													  " ; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
+		dc.b "JUE			  "				; Region (Country code)
 EndOfHeader:
 
 ; ===========================================================================
@@ -146,220 +146,226 @@ EndOfHeader:
 ; ===========================================================================
 
 EntryPoint:
-		disable_ints			; disable interrupts during setup; they will be reenabled by the Sega Screen
-		lea SetupValues(pc),a0	; load setup array
-		movem.l	(a0)+,a1-a3/a5/a6	; Z80 RAM start, work RAM start, Z80 bus request register, VDP data port, VDP control port
-		movem.w (a0)+,d1/d2/d5	; VDP registers loop counter, first VDP register value ($8004), VDP register increment/value for Z80 stop and reset release ($100)
-		moveq	#0,d4			; DMA fill and memory clearing value
-		movea.l	d4,a4
-		move.l	a4,usp			; clear user stack pointer
+		lea SetupValues(pc),a0	 ; load setup array
+		move.w	(a0)+,sr	   ; disable interrupts during setup; they will be reenabled by the Sega Screen
+		movem.l (a0)+,a1-a3/a5/a6	; Z80 RAM start, work RAM start, Z80 bus request register, VDP data port, VDP control port
+		movem.w (a0)+,d1/d2/d5	 ; VDP registers loop counter, first VDP register value ($8004), VDP register increment/value for Z80 stop and reset release ($100)
+		moveq	#0,d4			; DMA fill and memory clear value
+		move.l	d4,d7
+		movea.l d4,a4		 
+		move.l	a4,usp			 ; clear user stack pointer
 
 		tst.w	port_e_control_hi-z80_bus_request(a3)	; was this a soft reset?
-		bne.w	.wait_DMA								; if so, skip the TMSS check
-		
-		move.b	console_version-z80_bus_request(a3),d3	; load hardware version
-		asl.b	#4,d3									; get only hardware version ID (equ flag will be cleared if any of the first three bits are nonzero)
-	
-		beq.s	.wait_DMA								; if Model 1 VA4 or earlier (ID = 0), branch
+		bne.s	.wait_dma								; if so, skip setting region and the TMSS check
+
+		move.b	console_version-z80_bus_request(a3),d6	 ; load hardware version
+		move.b	d6,d3									; copy to d3 for checking revision (d6 will be used later to set region and speed)
+		andi.b	#console_revision,d3				   ; get only hardware version ID
+		beq.s	.wait_dma							   ; if Model 1 VA4 or earlier (ID = 0), branch
 		move.l	#'SEGA',tmss_sega-z80_bus_request(a3)	; satisfy the TMSS
-		
-	.wait_dma:	
+   
+   .wait_dma:
 		move.w	(a6),ccr		; get status register, resetting the 2nd write flag in the process
-		bvs.s	.wait_dma		; if a DMA was in progress during a soft reset, wait until it is finished...
-		
-	.loop_vdp:
-		move.w	d2,(a6)					; set VDP register
+		bvs.s	.wait_dma		; if a DMA was in progress during a soft reset, wait until it is finished
+   
+   .loop_vdp:
+		move.w	 d2,(a6)				; set VDP register
 		add.w	d5,d2					; advance register ID
-		move.b	(a0)+,d2				; load next register value 
-		dbf	d1,.loop_vdp				; repeat for all registers ; final value loaded will be used later to initialize I/0 ports
-		
-		
-		move.l	(a0)+,(a6)				; set DMA fill destination
- 		move.w	d4,(a5)					; set DMA fill value (0000), clearing the VRAM
-		
+		move.b	 (a0)+,d2				; load next register value
+		dbf	  d1,.loop_vdp				; repeat for all registers ; final value loaded will be used later to initialize I/0 ports
+   
+		move.l	 (a0)+,(a6)				; set DMA fill destination
+		move.w	 d4,(a5)				; set DMA fill value (0000), clearing the VRAM
+			
 		tst.w	port_e_control_hi-z80_bus_request(a3)		; was this a soft reset?
-		bne.s	.clear_every_reset			; if so, skip clearing RAM addresses $FE00-$FFFF
-		
-		lea	(v_keep_after_reset).w,a4		; $FFFFFE00		
-		move.w	#(($FFFFFFFF-v_keep_after_reset+1)/4)-1,d1	; repeat times
-	.loop_ram1:
-		move.l	d4,(a4)+
-		dbf	d1,.loop_ram1				; clear RAM ($FE00-$FFFF)
+		bne.s	.clear_every_reset			 ; if so, skip clearing RAM addresses $FE00-$FFFF
+   
+		lea	  (a0),a4		; $FFFFFE00	  (increment will happen later)
+		move.w	 4(a0),d1	; repeat times
+   .loop_ram1:
+		move.l	 d4,(a4)+
+		dbf	  d1,.loop_ram1				  ; clear RAM ($FE00-$FFFF)
 
-	.clear_every_reset:
-		move.w	#((v_keep_after_reset&$FFFF)/4)-1,d1	; set repeat times
-	.loop_ram2:
-		move.l	d4,(a2)+				; a2 = start of 68K RAM
-		dbf	d1,.loop_ram2				; clear RAM ($0000-$FDFF)
-		
-		move.w	d5,(a3)									; stop the Z80 (we will clear the VSRAM and CRAM while waiting for it to stop)
-		move.w	d5,z80_reset-z80_bus_request(a3)		; ensure Z80 reset is not set
-	
-		move.w	(a0)+,(a6) ; set VDP increment to 2
-	
-		move.l	(a0)+,(a6)		; set VDP to VSRAM write
-		moveq	#(sizeof_vsram/4)-1,d1	; set repeat times
-	.loop_vsram:	
-		move.l	d4,(a5)		; clear 4 bytes of VSRAM
-		dbf	d1,.loop_vsram	; repeat until entire VSRAM has been cleared	
-		
-		move.l	(a0)+,(a6)				; set VDP to CRAM write
-		moveq	#(sizeof_pal_all/4)-1,d1	; set repeat times
-	.loop_cram:	
-		move.l	d4,(a5)		; clear two palette entries
-		dbf	d1,.loop_cram	; repeat until entire CRAM has been cleared
-		
-	.waitz80:
-		btst	d4,(a3)					; has the Z80 stopped?
-		bne.s	.waitz80				; if not, branch
-		
-		move.w	#(Z80_Startup_end-Z80_Startup)-1,d1	; load size of Z80 startup program
-	.load_z80:	
-		move.b (a0)+,(a1)+ ; load Z80 startup program byte by byte into the Z80 RAM
+   .clear_every_reset:
+		addq   #6,a0		; advance to next position in setup array
+		move.w	 (a0)+,d1	; repeat times
+   .loop_ram2:
+		move.l	 d4,(a2)+				; a2 = start of 68K RAM
+		dbf	  d1,.loop_ram2				; clear RAM ($0000-$FDFF)
+
+		move.w	 d5,(a3)								; stop the Z80 (we will clear the VSRAM and CRAM while waiting for it to stop)
+		move.w	 d5,z80_reset-z80_bus_request(a3)		; ensure Z80 reset is not set
+
+		move.w	 (a0)+,(a6) ; set VDP increment to 2
+
+		move.l	(a0)+,(a6)				; set VDP to VSRAM write
+		moveq	#(sizeof_vsram/4)-1,d1	 ; set repeat times
+   .loop_vsram:
+		move.l	 d4,(a5)	   ; clear 4 bytes of VSRAM
+		dbf	d1,.loop_vsram   ; repeat until entire VSRAM has been cleared
+
+		move.l	 (a0)+,(a6)				  ; set VDP to CRAM write
+		moveq	#(sizeof_pal_all/4)-1,d1  ; set repeat times
+   .loop_cram:
+		move.l	 d4,(a5)			; clear two palette entries
+		dbf	  d1,.loop_cram		; repeat until entire CRAM has been cleared
+
+   .waitz80:
+		btst   d4,(a3)				   ; has the Z80 stopped?
+		bne.s	.waitz80			   ; if not, branch
+
+		move.w	 #(Z80_Startup_end-Z80_Startup)-1,d1   ; load size of Z80 startup program
+   .load_z80:
+		move.b (a0)+,(a1)+		; load Z80 startup program byte by byte into the Z80 RAM
 		dbf d1,.load_z80
-		
-		move.w #(sizeof_z80_ram-(Z80_Startup_end-Z80_Startup))-1,d1	; size of remaining Z80 ram
-	.clear_Z80_ram:	
-		move.b d4,(a1)+ 	; clear the rest of Z80 RAM
-		dbf	d1,.clear_Z80_ram
 
-		move.w	d4,z80_reset-z80_bus_request(a3)		; reset Z80
+		move.w #(sizeof_z80_ram-(Z80_Startup_end-Z80_Startup))-1,d1	  ; size of remaining Z80 ram
+   .clear_Z80_ram:
+		move.b d4,(a1)+			; clear the rest of the Z80 RAM
+		dbf	  d1,.clear_Z80_ram
+
+		move.w	 d4,z80_reset-z80_bus_request(a3)		; reset Z80
 		rept 4
-		nop						; wait a little time to finish resetting
+		nop						  ; wait a little time to finish resetting
 		endr
-		
-		move.w	d5,z80_reset-z80_bus_request(a3)		; release Z80 reset
-		move.w	d4,(a3)									; start the Z80 
-	
-		moveq	#4-1,d1				; set number of PSG channels to mute 
-	.psg_loop:
-		move.b	(a0)+,psg_input-vdp_data_port(a6)		; set the PSG channel volume to null (no sound)
-		dbf	d1,.psg_loop				; repeat for all channels	
 
-	; Checksum check; delete everything from here to .init_joypads to remove
+		move.w	 d5,z80_reset-z80_bus_request(a3)		; release Z80 reset
+		move.w	 d4,(a3)								   ; start the Z80
+
+		moveq	#4-1,d1				  ; set number of PSG channels to mute
+   .psg_loop:
+		move.b	 (a0)+,psg_input-vdp_data_port(a6)		 ; set the PSG channel volume to null (no sound)
+		dbf	  d1,.psg_loop				 ; repeat for all channels
+
 		tst.w	port_e_control_hi-z80_bus_request(a3)		; was this a soft reset?
-		bne.w	.init_joypads		; if so,  skip the checksum check
-	
-		movea.l	#EndOfHeader,a1				; start	checking bytes after the header	($200)
-		movea.l	#ROM_End_Ptr,a2				; stop at end of ROM
+		bne.w	.set_vdp_buffer		  ; if so, skip the checksum check and setting the region variable
+
+   ; Checksum check; delete everything from here to .set_region to remove
+		movea.l	  #EndOfHeader,a1				; start	  checking bytes after the header	($200)
+		movea.l	  #ROM_End_Ptr,a2				; stop at end of ROM
 		move.l	(a2),d0
 
-	.checksum_loop:
-		add.w	(a1)+,d4	; add each word of the rom to d4
+   .checksum_loop:
+		add.w	(a1)+,d7   ; add each word of the rom to d4
 		cmp.l	a1,d0		; have we reached the end?
-		bcc.s	.checksum_loop	; if not, branch
+		bcc.s	.checksum_loop	 ; if not, branch
+
+		movea.l #Checksum,a1		; read checksum
+		cmp.w	(a1),d7				; compare checksum in header to ROM
+		beq.s	.set_region			; if they match, branch
+		move.w	#cRed,(a5)			; set BG color to red
+		bra.s	*					; stay here forever
+
+	.set_region:
+		andi.b	 #console_region+console_speed,d6	; get region and speed settings
+		move.b	 d6,(v_console_region).w		   ; set in RAM
 		
-		movea.l	#Checksum,a1	; read checksum
-		cmp.w	(a1),d4			; compare checksum in header to ROM
-		beq.s	.init_joypads	; if they match, branch
-		move.w	#cRed,(a5)		; set BG color to red
-		bra.s	* 				; stay here forever	
-	
-	.init_joypads:
-		move.w	d2,port_1_control_hi-z80_bus_request(a3)				; initialise port 1
-		move.w	d2,port_2_control_hi-z80_bus_request(a3)				; initialise port 2
-		move.w	d2,port_e_control_hi-z80_bus_request(a3)				; initialise port e (last one)
+	.set_vdp_buffer:
+		move.b	 (SetupVDP).l,d4   ; get first entry of SetupVDP
+		ori.w	#vdp_mode_register2,d4		 ; make it a valid command word ($8134)
+		move.w	 d4,(v_vdp_mode_buffer).w		; save to buffer for later use
+		move.w	 #vdp_hint_counter+(screen_height-1),(v_vdp_hint_counter).w ; horizontal interrupt every 224th scanline
 		
-		movem.l	-4(sp),d0-a6		; clear all registers
-		
-		move.b	(SetupVDP).l,d0	; get first entry of SetupVDP
-		ori.w	#$8100,d0		; make it a valid command word ($8134)
-		move.w	d0,(v_vdp_mode_buffer).w		; save to buffer for later use
-		move.w	#vdp_hint_counter+(screen_height-1),(v_vdp_hint_counter).w ; horizontal interrupt every 224th scanline
-		
-		move.b	(console_version).l,d0
-		andi.b	#console_region+console_speed,d0
-		move.b	d0,(v_console_region).w			; get region setting
-		
+		move.w	 d2,port_1_control_hi-z80_bus_request(a3)	; initialise port 1
+		move.w	 d2,port_2_control_hi-z80_bus_request(a3)	; initialise port 2
+		move.w	 d2,port_e_control_hi-z80_bus_request(a3)	; initialise port e
+
+		movem.l -4(sp),d0-a6	   ; clear all registers
+
 		bsr.w	DacDriverLoad		; load the DAC Driver
-		move.b	#id_Sega,(v_gamemode).w			; set Game Mode to Sega Screen
-		bra.s	MainGameLoop
-		
+
+		move.b	#id_Sega,(v_gamemode).w			  ; set Game Mode to Sega Screen
+		bra.s	MainGameLoop				   ; continue to main program
+
 SetupValues:
-		dc.l	z80_ram
-		dc.l	$FFFF0000	;ram_start 
-		dc.l	z80_bus_request
-		dc.l	vdp_data_port
-		dc.l	vdp_control_port
-		
-		dc.w	SetupVDP_end-SetupVDP-1				; number of VDP registers to write
-		dc.w	vdp_md_color		; $8004, normal color mode
-		dc.w	vdp_mode_register2-vdp_mode_register1	; VDP Reg increment value & opposite initialisation flag for Z80
-	SetupVDP:	
-		dc.b	(vdp_enable_vint|vdp_enable_dma|vdp_ntsc_display|vdp_md_display)&$FF 
-		dc.b	(vdp_fg_nametable+(vram_fg>>10))&$FF		; set foreground nametable address
-		dc.b	(vdp_window_nametable+(vram_window>>10))&$FF	; set window nametable address
-		dc.b	(vdp_bg_nametable+(vram_bg>>13))&$FF		; set background nametable address
-		dc.b	(vdp_sprite_table+(vram_sprites>>9))&$FF		; set sprite table address
-		dc.b	vdp_sprite_table2&$FF				; unused
-		dc.b	(vdp_bg_color+0)&$FF			; set background colour (palette entry 0)
-		dc.b	vdp_sms_hscroll&$FF				; unused
-		dc.b 	vdp_sms_vscroll&$FF				; unused
-		dc.b	(vdp_hint_counter+0)&$FF				; default horizontal interrupt register
-		dc.b	(vdp_full_vscroll|vdp_full_hscroll)&$FF		; $8B00 ; full-screen vertical/horizontal scrolling
-		dc.b	vdp_320px_screen_width&$FF			; $8C81 ; 40-cell display mode
-		dc.b	(vdp_hscroll_table+(vram_hscroll>>10))&$FF	; set background hscroll address
-		dc.b	vdp_nametable_hi&$FF				; unused
-		dc.b 	(vdp_auto_inc+1)&$FF				; set VDP increment size
-		dc.b	(vdp_plane_width_64|vdp_plane_height_32)&$FF	; $9001 ; 64x32 cell plane size
-		dc.b	vdp_window_x_pos&$FF				; window horizontal position
-		dc.b 	vdp_window_y_pos&$FF				; window vertical position
+		dc.w   $2700	   ; disable interrupts
+		dc.l   z80_ram
+		dc.l   $FFFF0000   ; ram_start
+		dc.l   z80_bus_request
+		dc.l   vdp_data_port
+		dc.l   vdp_control_port
 
-		dc.w 	sizeof_vram-1					; VDP $93/94 - DMA length
-		dc.w 	0						; VDP $95/96 - DMA source
-		dc.b 	vdp_dma_vram_fill&$FF			; VDP $97 - DMA fill VRAM
-		
-		dc.b	$40			; I/O port initialization value
-		
-	SetupVDP_end:	
-	
-		dc.l	$40000080	; DMA fill VRAM
-		dc.w vdp_auto_inc+2				; VDP increment
-		dc.l	$40000010				; VSRAM write mode
-		dc.l	$C0000000				; CRAM write mode
-		
-		
-	Z80_Startup:
-		; Cut down from Sega's original: the 68K now zeros the Z80 RAM,
+		dc.w   SetupVDP_end-SetupVDP-1				 ; number of VDP registers to write
+		dc.w   vdp_md_color		  ; $8004, normal color mode
+		dc.w   vdp_mode_register2-vdp_mode_register1   ; VDP Reg increment value & opposite initialisation flag for Z80
+   SetupVDP:
+		dc.b   (vdp_enable_vint|vdp_enable_dma|vdp_ntsc_display|vdp_md_display)&$FF
+		dc.b   (vdp_fg_nametable+(vram_fg>>10))&$FF		  ; set foreground nametable address
+		dc.b   (vdp_window_nametable+(vram_window>>10))&$FF	  ; set window nametable address
+		dc.b   (vdp_bg_nametable+(vram_bg>>13))&$FF		  ; set background nametable address
+		dc.b   (vdp_sprite_table+(vram_sprites>>9))&$FF		  ; set sprite table address
+		dc.b   vdp_sprite_table2&$FF			   ; unused
+		dc.b   (vdp_bg_color+0)&$FF			  ; set background colour (palette entry 0)
+		dc.b   vdp_sms_hscroll&$FF				 ; unused
+		dc.b   vdp_sms_vscroll&$FF				 ; unused
+		dc.b   (vdp_hint_counter+0)&$FF				  ; default horizontal interrupt register
+		dc.b   (vdp_full_vscroll|vdp_full_hscroll)&$FF		 ; $8B00 ; full-screen vertical/horizontal scrolling
+		dc.b   vdp_320px_screen_width&$FF			; $8C81 ; 40-cell display mode
+		dc.b   (vdp_hscroll_table+(vram_hscroll>>10))&$FF	; set background hscroll address
+		dc.b   vdp_nametable_hi&$FF				  ; unused
+		dc.b   (vdp_auto_inc+1)&$FF				  ; set VDP increment size
+		dc.b   (vdp_plane_width_64|vdp_plane_height_32)&$FF	  ; $9001 ; 64x32 cell plane size
+		dc.b   vdp_window_x_pos&$FF				  ; window horizontal position
+		dc.b   vdp_window_y_pos&$FF				  ; window vertical position
+
+		dc.w	sizeof_vram-1					; VDP $93/94 - DMA length
+		dc.w	0						; VDP $95/96 - DMA source
+		dc.b	vdp_dma_vram_fill&$FF			; VDP $97 - DMA fill VRAM
+
+		dc.b   $40			 ; I/O port initialization value
+   
+   SetupVDP_end:
+
+		dc.l   $40000080   ; DMA fill VRAM
+		dc.l   v_keep_after_reset
+		dc.w   (($FFFFFFFF-v_keep_after_reset+1)/4)-1
+		dc.w   ((v_keep_after_reset&$FFFF)/4)-1
+		dc.w   vdp_auto_inc+2				; VDP increment
+		dc.l   $40000010			   ; VSRAM write mode
+		dc.l   $C0000000			   ; CRAM write mode
+   
+   
+   Z80_Startup:
+		; Cut down from Sega's original: the 68K now clears the Z80 RAM,
 		; so this just handles clearing the registers.
-		cpu	Z80
-		obj 	0
+		cpu	  Z80
+		obj	  0
 
-		xor	a					; clear a
-		ld	sp,.end				; set stack pointer to end of program (causing all of the pops to fill registers with 0)
-		pop	ix					; clear all other registers
-		pop	iy
-		ld	i,a
-		ld	r,a
-		pop	bc
-		pop	de
-		pop	hl
-		pop	af
-		
-		
-		ex	af,af				; swap af with af'
-		exx						; swap bc, de, and hl
-		pop	bc					; clear the shadow registers as well
-		pop	de
-		pop	hl
-		pop	af
-		ld	sp,hl				; clear stack pointer
+		xor	  a					  ; clear a
+		ld	 sp,.end			   ; set stack pointer to end of program (causing all of the pops to fill registers with 0)
+		pop	  ix				   ; clear all other registers
+		pop	  iy
+		ld	 i,a
+		ld	 r,a
+		pop	  bc
+		pop	  de
+		pop	  hl
+		pop	  af
 
-		di						; disable interrupts
-		jp *					; jump here to stay here forever
 
-	.end:							; the space from here til end of Z80 RAM will be filled with 00's
-		even						; align the Z80 start up code to the next even byte. Values below require alignment
+		ex	 af,af				 ; swap af with af'
+		exx						  ; swap bc, de, and hl
+		pop	  bc				   ; clear the shadow registers as well
+		pop	  de
+		pop	  hl
+		pop	  af
+		ld	 sp,hl				 ; clear stack pointer
+
+		di						 ; disable interrupts
+		jp *				   ; jump here to stay here forever
+
+   .end:						   ; the space from here til end of Z80 RAM will be filled with 00's
+		even					   ; align the Z80 start up code to the next even byte. Values below require alignment
 		objend
-		cpu 68000		
-	Z80_Startup_end:
-	
-		dc.b	$9F,$BF,$DF,$FF				; PSG mute values (PSG 1 to 4)		
+		cpu 68000	 
+   Z80_Startup_end:
+
+		dc.b   $9F,$BF,$DF,$FF				 ; PSG mute values (PSG 1 to 4) 
 
 MainGameLoop:
 		move.b	(v_gamemode).w,d0			; load Game Mode
 		andi.w	#$1C,d0					; limit Game Mode value to $1C max (change to $7C to add more game modes)
-		jsr	GameModeArray(pc,d0.w)			; jump to apt location in ROM
+		jsr GameModeArray(pc,d0.w)			; jump to apt location in ROM
 		bra.s	MainGameLoop				; loop indefinitely
 
 ; ---------------------------------------------------------------------------
@@ -389,24 +395,24 @@ GameModeArray:
 ;
 ;	.fillred:
 ;		move.w	#cRed,(vdp_data_port).l			; fill palette with red
-;		dbf	d7,.fillred				; repeat $3F more times
+;		dbf d7,.fillred				; repeat $3F more times
 ;
 ;	.endlessloop:
 ;		bra.s	.endlessloop
 ; ===========================================================================
 
 
-;		include	"Includes\Errors.asm"
+;		include "Includes\Errors.asm"
 
-		incfile	Art_Text
+		incfile Art_Text
 
-		include	"Includes\VBlank & HBlank.asm"
-		include	"Includes\JoypadInit & ReadJoypads.asm"
-;		include	"Includes\VDPSetupGame.asm"
-		include	"Includes\ClearScreen.asm"
-		include	"sound\PlaySound + DacDriverLoad.asm"
-		include	"Includes\PauseGame.asm"
-		include	"Includes\TilemapToVRAM.asm"
+		include "Includes\VBlank & HBlank.asm"
+		include "Includes\JoypadInit & ReadJoypads.asm"
+;		include "Includes\VDPSetupGame.asm"
+		include "Includes\ClearScreen.asm"
+		include "sound\PlaySound + DacDriverLoad.asm"
+		include "Includes\PauseGame.asm"
+		include "Includes\TilemapToVRAM.asm"
 
 		include "Includes\Nemesis Decompression.asm"
 		include "Includes\AddPLC, NewPLC, RunPLC, ProcessPLC & QuickPLC.asm"
@@ -418,67 +424,67 @@ GameModeArray:
 ; Palette data & routines
 ; ---------------------------------------------------------------------------
 		include "Includes\PaletteCycle.asm"
-		incfile	Pal_TitleCyc
-		incfile	Pal_GHZCyc
-		incfile	Pal_LZCyc1
-		incfile	Pal_LZCyc2
-		incfile	Pal_LZCyc3
-		incfile	Pal_SBZ3Cyc1
-		incfile	Pal_MZCyc
-		incfile	Pal_SLZCyc
-		incfile	Pal_SYZCyc1
-		incfile	Pal_SYZCyc2
+		incfile Pal_TitleCyc
+		incfile Pal_GHZCyc
+		incfile Pal_LZCyc1
+		incfile Pal_LZCyc2
+		incfile Pal_LZCyc3
+		incfile Pal_SBZ3Cyc1
+		incfile Pal_MZCyc
+		incfile Pal_SLZCyc
+		incfile Pal_SYZCyc1
+		incfile Pal_SYZCyc2
 		include_Pal_SBZCycList				; "Includes\PaletteCycle.asm"
 
-		incfile	Pal_SBZCyc1
-		incfile	Pal_SBZCyc2
-		incfile	Pal_SBZCyc3
-		incfile	Pal_SBZCyc4
-		incfile	Pal_SBZCyc5
-		incfile	Pal_SBZCyc6
-		incfile	Pal_SBZCyc7
-		incfile	Pal_SBZCyc8
-		incfile	Pal_SBZCyc9
-		incfile	Pal_SBZCyc10
+		incfile Pal_SBZCyc1
+		incfile Pal_SBZCyc2
+		incfile Pal_SBZCyc3
+		incfile Pal_SBZCyc4
+		incfile Pal_SBZCyc5
+		incfile Pal_SBZCyc6
+		incfile Pal_SBZCyc7
+		incfile Pal_SBZCyc8
+		incfile Pal_SBZCyc9
+		incfile Pal_SBZCyc10
 
 	if SimultaneousPaletteFades = 1
 		include "Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut (Simultaneous).asm"
 	else
-		include	"Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut.asm"
+		include "Includes\PaletteFadeIn, PaletteFadeOut, PaletteWhiteIn & PaletteWhiteOut.asm"
 	endc
 	
-		include	"Includes\GM_Sega.asm"
-		incfile	Pal_Sega1
-		incfile	Pal_Sega2
+		include "Includes\GM_Sega.asm"
+		incfile Pal_Sega1
+		incfile Pal_Sega2
 		include "Includes\PalLoad & PalPointers.asm"
-		incfile	Pal_SegaBG
-		incfile	Pal_Title
-		incfile	Pal_LevelSel
-		incfile	Pal_Sonic
-		incfile	Pal_GHZ
-		incfile	Pal_LZ
-		incfile	Pal_LZWater
-		incfile	Pal_MZ
-		incfile	Pal_SLZ
-		incfile	Pal_SYZ
-		incfile	Pal_SBZ1
-		incfile	Pal_SBZ2
-		incfile	Pal_Special
-		incfile	Pal_SBZ3
-		incfile	Pal_SBZ3Water
-		incfile	Pal_LZSonWater
-		incfile	Pal_SBZ3SonWat
-		incfile	Pal_SSResult
-		incfile	Pal_Continue
-		incfile	Pal_Ending
+		incfile Pal_SegaBG
+		incfile Pal_Title
+		incfile Pal_LevelSel
+		incfile Pal_Sonic
+		incfile Pal_GHZ
+		incfile Pal_LZ
+		incfile Pal_LZWater
+		incfile Pal_MZ
+		incfile Pal_SLZ
+		incfile Pal_SYZ
+		incfile Pal_SBZ1
+		incfile Pal_SBZ2
+		incfile Pal_Special
+		incfile Pal_SBZ3
+		incfile Pal_SBZ3Water
+		incfile Pal_LZSonWater
+		incfile Pal_SBZ3SonWat
+		incfile Pal_SSResult
+		incfile Pal_Continue
+		incfile Pal_Ending
 
 		include "Includes\WaitForVBlank.asm"
 		include "Objects\_RandomNumber.asm"
 		include "Objects\_CalcSine & CalcAngle.asm"
-Sine_Data:	incbin	"Misc Data\Sine & Cosine Waves.bin"	; values for a 256 degree sine wave
+Sine_Data:	incbin	"Misc Data\Sine & Cosine Waves.bin" ; values for a 256 degree sine wave
 		incbin	"Misc Data\Sine & Cosine Waves.bin",,$80 ; contains duplicate data at the end!
 		include_CalcAngle				; "Objects\_CalcSine & CalcAngle.asm"
-Angle_Data:	incbin	"Misc Data\Angle Table.bin"
+Angle_Data: incbin	"Misc Data\Angle Table.bin"
 
 		include_Sega					; "Includes\GM_Sega.asm"
 		include "Includes\Demo Pointers.asm"
@@ -515,23 +521,23 @@ Demo_SS:	incbin	"Demos\Intro - Special Stage.bin"
 
 		include "Includes\GM_Special.asm"
 
-Pal_SSCyc1:	incbin	"Palettes\Cycle - Special Stage 1.bin"
+Pal_SSCyc1: incbin	"Palettes\Cycle - Special Stage 1.bin"
 		even
-Pal_SSCyc2:	incbin	"Palettes\Cycle - Special Stage 2.bin"
+Pal_SSCyc2: incbin	"Palettes\Cycle - Special Stage 2.bin"
 		even
 
 		include_Special_2				; Includes\GM_Special.asm
 
 		include "Includes\GM_Continue.asm"
 
-		include "Objects\Continue Screen Items.asm"	; ContScrItem
-		include "Objects\Continue Screen Sonic.asm"	; ContSonic
+		include "Objects\Continue Screen Items.asm" ; ContScrItem
+		include "Objects\Continue Screen Sonic.asm" ; ContSonic
 		include "Objects\Continue Screen [Mappings].asm" ; Map_ContScr
 
 		include "Includes\GM_Ending.asm"
 
 		include "Objects\Ending Sonic.asm"		; EndSonic
-		include "Objects\Ending Chaos Emeralds.asm"	; EndChaos
+		include "Objects\Ending Chaos Emeralds.asm" ; EndChaos
 		include "Objects\Ending StH Text.asm"		; EndSTH
 
 		include "Objects\Ending Sonic [Mappings].asm"	; Map_ESon
@@ -549,11 +555,11 @@ Pal_SSCyc2:	incbin	"Palettes\Cycle - Special Stage 2.bin"
 ; ---------------------------------------------------------------------------
 Demo_EndGHZ1:	incbin	"Demos\Ending - GHZ1.bin"
 		even
-Demo_EndMZ:	incbin	"Demos\Ending - MZ.bin"
+Demo_EndMZ: incbin	"Demos\Ending - MZ.bin"
 		even
 Demo_EndSYZ:	incbin	"Demos\Ending - SYZ.bin"
 		even
-Demo_EndLZ:	incbin	"Demos\Ending - LZ.bin"
+Demo_EndLZ: incbin	"Demos\Ending - LZ.bin"
 		even
 Demo_EndSLZ:	incbin	"Demos\Ending - SLZ.bin"
 		even
@@ -564,9 +570,9 @@ Demo_EndSBZ2:	incbin	"Demos\Ending - SBZ2.bin"
 Demo_EndGHZ2:	incbin	"Demos\Ending - GHZ2.bin"
 		even
 
-		include	"Includes\LevelParameterLoad.asm"
-		include	"Includes\DeformLayers.asm"
-		include	"Includes\DrawTilesWhenMoving, DrawTilesAtStart & DrawChunks.asm"
+		include "Includes\LevelParameterLoad.asm"
+		include "Includes\DeformLayers.asm"
+		include "Includes\DrawTilesWhenMoving, DrawTilesAtStart & DrawChunks.asm"
 
 		include "Includes\LevelDataLoad, LevelLayoutLoad & LevelHeaders.asm"
 		include "Includes\DynamicLevelEvents.asm"
@@ -583,7 +589,7 @@ Demo_EndGHZ2:	incbin	"Demos\Ending - GHZ2.bin"
 		include "Objects\_ExitPlatform.asm"
 
 		include_Bridge_3				; Objects\GHZ Bridge.asm
-		include "Objects\GHZ Bridge [Mappings].asm"	; Map_Bri
+		include "Objects\GHZ Bridge [Mappings].asm" ; Map_Bri
 
 		include_SwingingPlatform_1			; Objects\GHZ, MZ & SLZ Swinging Platforms, SBZ Ball on Chain.asm
 
@@ -599,7 +605,7 @@ Demo_EndGHZ2:	incbin	"Demos\Ending - GHZ2.bin"
 		include "Objects\GHZ & MZ Swinging Platforms [Mappings].asm" ; Map_Swing_GHZ
 		include "Objects\SLZ Swinging Platforms [Mappings].asm" ; Map_Swing_SLZ
 
-		include "Objects\GHZ Spiked Helix Pole.asm"	; Helix
+		include "Objects\GHZ Spiked Helix Pole.asm" ; Helix
 		include "Objects\GHZ Spiked Helix Pole [Mappings].asm" ; Map_Hel
 
 		include "Objects\Platforms.asm"			; BasicPlatform
@@ -607,7 +613,7 @@ Demo_EndGHZ2:	incbin	"Demos\Ending - GHZ2.bin"
 
 		blankobj Obj19
 		
-		include "Objects\GHZ Giant Ball [Mappings].asm"	; Map_GBall
+		include "Objects\GHZ Giant Ball [Mappings].asm" ; Map_GBall
 
 		include "Objects\GHZ Collapsing Ledge.asm"	; CollapseLedge
 		include "Objects\MZ, SLZ & SBZ Collapsing Floors.asm" ; CollapseFloor
@@ -645,7 +651,7 @@ Ledge_SlopeData:
 		include_BallHog_animation
 		include "Objects\Ball Hog [Mappings].asm"	; Map_Hog
 		include "Objects\Buzz Bomber Missile Vanishing [Mappings].asm" ; Map_MisDissolve
-		include "Objects\Explosions [Mappings].asm"	; Map_ExplodeItem & Map_ExplodeBomb
+		include "Objects\Explosions [Mappings].asm" ; Map_ExplodeItem & Map_ExplodeBomb
 
 		include "Objects\Animals.asm"			; Animals
 		include "Objects\Points.asm"			; Points
@@ -669,7 +675,7 @@ Ledge_SlopeData:
 		include "Objects\Giant Ring Flash.asm"		; RingFlash
 		include_Rings_animation
 		include "Objects\Ring [Mappings].asm"		; Map_Ring
-		include "Objects\Giant Ring [Mappings].asm"	; Map_GRing
+		include "Objects\Giant Ring [Mappings].asm" ; Map_GRing
 		include "Objects\Giant Ring Flash [Mappings].asm" ; Map_Flash
 
 		include "Objects\Monitors.asm"			; Monitor
@@ -712,7 +718,7 @@ LGrass_Coll_Sloped:
 		include "Objects\MZ Grass Platforms [Mappings].asm" ; Map_LGrass
 		include "Objects\Fireballs [Mappings].asm"	; Map_Fire
 
-		include "Objects\MZ Green Glass Blocks.asm"	; GlassBlock
+		include "Objects\MZ Green Glass Blocks.asm" ; GlassBlock
 		include "Objects\MZ Green Glass Blocks [Mappings].asm" ; Map_Glass
 
 		include "Objects\MZ Chain Stompers.asm"		; ChainStomp
@@ -727,10 +733,10 @@ LGrass_Coll_Sloped:
 		include "Objects\MZ & LZ Pushable Blocks [Mappings].asm" ; Map_Push
 
 		include "Objects\Title Cards.asm"		; TitleCard
-		include "Objects\Game Over & Time Over.asm"	; GameOverCard
+		include "Objects\Game Over & Time Over.asm" ; GameOverCard
 		include "Objects\Sonic Has Passed Title Card.asm" ; HasPassedCard
 
-		include "Objects\Special Stage Results.asm"	; SSResult
+		include "Objects\Special Stage Results.asm" ; SSResult
 		include "Objects\Special Stage Results Chaos Emeralds.asm" ; SSRChaos
 		include "Objects\Title Cards [Mappings].asm"	; Map_Card
 		include "Objects\Game Over & Time Over [Mappings].asm" ; Map_Over
@@ -751,7 +757,7 @@ LGrass_Coll_Sloped:
 		include "Includes\ExecuteObjects & Object Pointers.asm"
 
 NullObject:
-		jmp	(DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
+		jmp (DeleteObject).l ; It would be safer to have this instruction here, but instead it just falls through to ObjectFall
 
 		include "Objects\_ObjectFall & SpeedToPos.asm"
 
@@ -783,14 +789,14 @@ NullObject:
 		include "Objects\SBZ Flamethrower.asm"		; Flamethrower
 		include "Objects\SBZ Flamethrower [Mappings].asm" ; Map_Flame
 
-		include "Objects\MZ Purple Brick Block.asm"	; MarbleBrick
+		include "Objects\MZ Purple Brick Block.asm" ; MarbleBrick
 		include "Objects\MZ Purple Brick Block [Mappings].asm" ; Map_Brick
 
 		include "Objects\SYZ Lamp.asm"			; SpinningLight
 		include "Objects\SYZ Lamp [Mappings].asm"	; Map_Light
 
 		include "Objects\SYZ Bumper.asm"		; Bumper
-		include "Objects\SYZ Bumper [Mappings].asm"	; Map_Bump
+		include "Objects\SYZ Bumper [Mappings].asm" ; Map_Bump
 
 		include "Objects\Signpost & HasPassedAct.asm"	; Signpost & HasPassedAct
 		include "Objects\Signpost [Mappings].asm"	; Map_Sign
@@ -798,11 +804,11 @@ NullObject:
 		include "Objects\MZ Lava Geyser Maker.asm"	; GeyserMaker
 		include "Objects\MZ Lava Geyser.asm"		; LavaGeyser
 		include "Objects\MZ Lava Wall.asm"		; LavaWall
-		include "Objects\MZ Invisible Lava Tag.asm"	; LavaTag
+		include "Objects\MZ Invisible Lava Tag.asm" ; LavaTag
 		include "Objects\MZ Invisible Lava Tag [Mappings].asm" ; Map_LTag
 		include_LavaGeyser_animation
 		include_LavaWall_animation
-		include "Objects\MZ Lava Geyser [Mappings].asm"	; Map_Geyser
+		include "Objects\MZ Lava Geyser [Mappings].asm" ; Map_Geyser
 		include "Objects\MZ Lava Wall [Mappings].asm"	; Map_LWall
 
 		include "Objects\Moto Bug.asm"			; MotoBug
@@ -829,20 +835,20 @@ NullObject:
 		include "Objects\SYZ & SLZ Floating Blocks, LZ Doors.asm" ; FloatingBlock
 		include "Objects\SYZ & SLZ Floating Blocks, LZ Doors [Mappings].asm" ; Map_FBlock
 
-		include "Objects\SYZ & LZ Spike Ball Chain.asm"	; SpikeBall
+		include "Objects\SYZ & LZ Spike Ball Chain.asm" ; SpikeBall
 		include "Objects\SYZ & LZ Spike Ball Chain [Mappings].asm" ; Map_SBall, Map_SBall2
 
-		include "Objects\SYZ Large Spike Balls.asm"	; BigSpikeBall
+		include "Objects\SYZ Large Spike Balls.asm" ; BigSpikeBall
 		include "Objects\SYZ & SBZ Large Spike Balls [Mappings].asm" ; Map_BBall
 
 		include "Objects\SLZ Elevator.asm"		; Elevator
 		include "Objects\SLZ Elevator [Mappings].asm"	; Map_Elev
 
-		include "Objects\SLZ Circling Platform.asm"	; CirclingPlatform
+		include "Objects\SLZ Circling Platform.asm" ; CirclingPlatform
 		include "Objects\SLZ Circling Platform [Mappings].asm" ; Map_Circ
 
 		include "Objects\SLZ Stairs.asm"		; Staircase
-		include "Objects\SLZ Stairs [Mappings].asm"	; Map_Stair
+		include "Objects\SLZ Stairs [Mappings].asm" ; Map_Stair
 
 		include "Objects\SLZ Pylon.asm"			; Pylon
 		include "Objects\SLZ Pylon [Mappings].asm"	; Map_Pylon
@@ -867,17 +873,17 @@ See_DataSlope:	incbin	"Collision\SLZ Seesaw Heightmap (Sloped).bin" ; used by Se
 		even
 See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesaw
 		even
-		include "Objects\SLZ Seesaw [Mappings].asm"	; Map_Seesaw
+		include "Objects\SLZ Seesaw [Mappings].asm" ; Map_Seesaw
 		include "Objects\SLZ Seesaw Spike Ball [Mappings].asm" ; Map_SSawBall
 
 		include "Objects\Bomb Enemy.asm"		; Bomb
-		include "Objects\Bomb Enemy [Mappings].asm"	; Map_Bomb
+		include "Objects\Bomb Enemy [Mappings].asm" ; Map_Bomb
 
 		include "Objects\Orbinaut.asm"			; Orbinaut
 		include "Objects\Orbinaut [Mappings].asm"	; Map_Orb
 
 		include "Objects\LZ Harpoon.asm"		; Harpoon
-		include "Objects\LZ Harpoon [Mappings].asm"	; Map_Harp
+		include "Objects\LZ Harpoon [Mappings].asm" ; Map_Harp
 
 		include "Objects\LZ Blocks.asm"			; LabyrinthBlock
 		include "Objects\LZ Blocks [Mappings].asm"	; Map_LBlock
@@ -889,7 +895,7 @@ See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesa
 		include "Objects\LZ Conveyor Belt Platforms [Mappings].asm" ; Map_LConv
 
 		include "Objects\LZ Bubbles.asm"		; Bubble
-		include "Objects\LZ Bubbles [Mappings].asm"	; Map_Bub
+		include "Objects\LZ Bubbles [Mappings].asm" ; Map_Bub
 
 		include "Objects\LZ Waterfall.asm"		; Waterfall
 		include "Objects\LZ Waterfall [Mappings].asm"	; Map_WFall
@@ -905,7 +911,7 @@ See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesa
 		include "Objects\LZ Sonic's Drowning Face [Mappings].asm" ; Map_Drown
 
 		include "Objects\Shield & Invincibility.asm"	; ShieldItem
-		include "Objects\Unused Special Stage Warp.asm"	; VanishSonic
+		include "Objects\Unused Special Stage Warp.asm" ; VanishSonic
 		include "Objects\LZ Water Splash.asm"		; Splash
 		include_ShieldItem_animation
 		include "Objects\Shield & Invincibility [Mappings].asm" ; Map_Shield
@@ -917,7 +923,7 @@ See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesa
 		include_Sonic_2					; Objects\Sonic.asm
 		include "Objects\_FindNearestTile, FindFloor & FindWall.asm"
 
-		include	"Includes\ConvertCollisionArray.asm"
+		include "Includes\ConvertCollisionArray.asm"
 
 		include_Sonic_3					; Objects\Sonic.asm
 		include "Objects\_FindFloorObj, FindWallRightObj, FindCeilingObj & FindWallLeftObj.asm"
@@ -1003,7 +1009,7 @@ See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesa
 		include "Objects\FZ Plasma Balls [Mappings].asm" ; Map_Plasma
 
 		include "Objects\Prison Capsule.asm"		; Prison
-		include "Objects\Prison Capsule [Mappings].asm"	; Map_Pri
+		include "Objects\Prison Capsule [Mappings].asm" ; Map_Pri
 
 		include "Objects\_ReactToItem, HurtSonic & KillSonic.asm"
 
@@ -1030,7 +1036,7 @@ See_DataFlat:	incbin	"Collision\SLZ Seesaw Heightmap (Flat).bin" ; used by Seesa
 		include "Includes\HUD_Update, HUD_Base & ContScrCounter.asm"
 
 ; ---------------------------------------------------------------------------
-; Uncompressed graphics	- HUD and lives counter
+; Uncompressed graphics - HUD and lives counter
 ; ---------------------------------------------------------------------------
 Art_Hud:	incbin	"Graphics\HUD Numbers.bin"		; 8x16 pixel numbers on HUD
 		even
@@ -1044,31 +1050,31 @@ Art_LivesNums:	incbin	"Graphics\Lives Counter Numbers.bin"	; 8x8 pixel numbers o
 
 		;align	$200,$FF
 ;		if Revision=0
-;			incfile	Nem_SegaLogo
+;			incfile Nem_SegaLogo
 ;	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo (REV00).eni" ; large Sega logo (mappings)
 ;			even
 ;		else
 		;dcb.b	$300,$FF
 		even
-		incfile	Nem_SegaLogo
+		incfile Nem_SegaLogo
 
 	Eni_SegaLogo:	incbin	"Tilemaps\Sega Logo.eni"	; large Sega logo (mappings)
 		even
 ;		endc
 Eni_Title:	incbin	"Tilemaps\Title Screen.eni"		; title screen foreground (mappings)
 		even
-		incfile	Nem_TitleFg
-		incfile	Nem_TitleSonic
-		incfile	Nem_TitleTM
+		incfile Nem_TitleFg
+		incfile Nem_TitleSonic
+		incfile Nem_TitleTM
 Eni_JapNames:	incbin	"Tilemaps\Hidden Japanese Credits.eni"	; Japanese credits (mappings)
 		even
-		incfile	Nem_JapNames
+		incfile Nem_JapNames
 
 		include "Objects\Sonic [Mappings].asm"		; Map_Sonic
 		include "Objects\Sonic DPLCs.asm"		; SonicDynPLC
 
 ; ---------------------------------------------------------------------------
-; Uncompressed graphics	- Sonic
+; Uncompressed graphics - Sonic
 ; ---------------------------------------------------------------------------
 Art_Sonic:	incbin	"Graphics\Sonic.bin"			; Sonic
 		even
@@ -1076,16 +1082,16 @@ Art_Sonic:	incbin	"Graphics\Sonic.bin"			; Sonic
 ; Compressed graphics - various
 ; ---------------------------------------------------------------------------
 ;		if Revision=0
-;			incfile	Nem_Smoke
-;			incfile	Nem_SyzSparkle
+;			incfile Nem_Smoke
+;			incfile Nem_SyzSparkle
 ;		endc
-		incfile	Nem_Shield
-		incfile	Nem_Stars
+		incfile Nem_Shield
+		incfile Nem_Stars
 ;		if Revision=0
-;			incfile	Nem_LzSonic
-;			incfile	Nem_UnkFire
-;			incfile	Nem_Warp
-;			incfile	Nem_Goggle
+;			incfile Nem_LzSonic
+;			incfile Nem_UnkFire
+;			incfile Nem_Warp
+;			incfile Nem_Goggle
 ;		endc
 
 
@@ -1094,202 +1100,202 @@ Art_Sonic:	incbin	"Graphics\Sonic.bin"			; Sonic
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - special stage
 ; ---------------------------------------------------------------------------
-		incfile	Nem_SSWalls
+		incfile Nem_SSWalls
 Eni_SSBg1:	incbin	"Tilemaps\SS Background 1.eni"		; special stage background (mappings)
 		even
-		incfile	Nem_SSBgFish
+		incfile Nem_SSBgFish
 Eni_SSBg2:	incbin	"Tilemaps\SS Background 2.eni"		; special stage background (mappings)
 		even
-		incfile	Nem_SSBgCloud
-		incfile	Nem_SSGOAL
-		incfile	Nem_SSRBlock
-		incfile	Nem_SS1UpBlock
-		incfile	Nem_SSEmStars
-		incfile	Nem_SSRedWhite
-		incfile	Nem_SSZone1
-		incfile	Nem_SSZone2
-		incfile	Nem_SSZone3
-		incfile	Nem_SSZone4
-		incfile	Nem_SSZone5
-		incfile	Nem_SSZone6
-		incfile	Nem_SSUpDown
-		incfile	Nem_SSEmerald
-		incfile	Nem_SSGhost
-		incfile	Nem_SSWBlock
-		incfile	Nem_SSGlass
-		incfile	Nem_ResultEm
+		incfile Nem_SSBgCloud
+		incfile Nem_SSGOAL
+		incfile Nem_SSRBlock
+		incfile Nem_SS1UpBlock
+		incfile Nem_SSEmStars
+		incfile Nem_SSRedWhite
+		incfile Nem_SSZone1
+		incfile Nem_SSZone2
+		incfile Nem_SSZone3
+		incfile Nem_SSZone4
+		incfile Nem_SSZone5
+		incfile Nem_SSZone6
+		incfile Nem_SSUpDown
+		incfile Nem_SSEmerald
+		incfile Nem_SSGhost
+		incfile Nem_SSWBlock
+		incfile Nem_SSGlass
+		incfile Nem_ResultEm
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - GHZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Stalk
-		incfile	Nem_Swing
-		incfile	Nem_Bridge
-		incfile	Nem_GhzUnkBlock
-		incfile	Nem_Ball
-		incfile	Nem_Spikes
-		incfile	Nem_GhzUnkLog
-		incfile	Nem_SpikePole
-		incfile	Nem_PurpleRock
-		incfile	Nem_GhzSmashWall
-		incfile	Nem_GhzEdgeWall
+		incfile Nem_Stalk
+		incfile Nem_Swing
+		incfile Nem_Bridge
+		incfile Nem_GhzUnkBlock
+		incfile Nem_Ball
+		incfile Nem_Spikes
+		incfile Nem_GhzUnkLog
+		incfile Nem_SpikePole
+		incfile Nem_PurpleRock
+		incfile Nem_GhzSmashWall
+		incfile Nem_GhzEdgeWall
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - LZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Water
-		incfile	Nem_Splash
-		incfile	Nem_LzSpikeBall
-		incfile	Nem_FlapDoor
-		incfile	Nem_Bubbles
-		incfile	Nem_LzHalfBlock
-		incfile	Nem_LzDoorV
-		incfile	Nem_Harpoon
-		incfile	Nem_LzPole
-		incfile	Nem_LzDoorH
-		incfile	Nem_LzWheel
-		incfile	Nem_Gargoyle
-		incfile	Nem_Sbz3HugeDoor
-		incfile	Nem_LzPlatform
-		incfile	Nem_Cork
-		incfile	Nem_LzBlock
+		incfile Nem_Water
+		incfile Nem_Splash
+		incfile Nem_LzSpikeBall
+		incfile Nem_FlapDoor
+		incfile Nem_Bubbles
+		incfile Nem_LzHalfBlock
+		incfile Nem_LzDoorV
+		incfile Nem_Harpoon
+		incfile Nem_LzPole
+		incfile Nem_LzDoorH
+		incfile Nem_LzWheel
+		incfile Nem_Gargoyle
+		incfile Nem_Sbz3HugeDoor
+		incfile Nem_LzPlatform
+		incfile Nem_Cork
+		incfile Nem_LzBlock
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - MZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_MzMetal
-		incfile	Nem_MzButton
-		incfile	Nem_MzGlass
-		incfile	Nem_MzUnkGrass
-		incfile	Nem_Fireball
-		incfile	Nem_Lava
-		incfile	Nem_MzBlock
-		incfile	Nem_MzUnkBlock
+		incfile Nem_MzMetal
+		incfile Nem_MzButton
+		incfile Nem_MzGlass
+		incfile Nem_MzUnkGrass
+		incfile Nem_Fireball
+		incfile Nem_Lava
+		incfile Nem_MzBlock
+		incfile Nem_MzUnkBlock
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - SLZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Seesaw
-		incfile	Nem_SlzSpike
-		incfile	Nem_Fan
-		incfile	Nem_SlzWall
-		incfile	Nem_Pylon
-		incfile	Nem_SlzSwing
-		incfile	Nem_SlzBlock
-		incfile	Nem_SlzCannon
+		incfile Nem_Seesaw
+		incfile Nem_SlzSpike
+		incfile Nem_Fan
+		incfile Nem_SlzWall
+		incfile Nem_Pylon
+		incfile Nem_SlzSwing
+		incfile Nem_SlzBlock
+		incfile Nem_SlzCannon
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - SYZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Bumper
-		incfile	Nem_SmallSpike
-		incfile	Nem_Button
-		incfile	Nem_BigSpike
+		incfile Nem_Bumper
+		incfile Nem_SmallSpike
+		incfile Nem_Button
+		incfile Nem_BigSpike
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - SBZ stuff
 ; ---------------------------------------------------------------------------
-		incfile	Nem_SbzDisc
-		incfile	Nem_SbzJunction
-		incfile	Nem_Cutter
-		incfile	Nem_Stomper
-		incfile	Nem_SpinPlatform
-		incfile	Nem_TrapDoor
-		incfile	Nem_SbzFloor
-		incfile	Nem_Electric
-		incfile	Nem_SbzBlock
-		incfile	Nem_FlamePipe
-		incfile	Nem_SbzDoorV
-		incfile	Nem_SlideFloor
-		incfile	Nem_SbzDoorH
-		incfile	Nem_Girder
+		incfile Nem_SbzDisc
+		incfile Nem_SbzJunction
+		incfile Nem_Cutter
+		incfile Nem_Stomper
+		incfile Nem_SpinPlatform
+		incfile Nem_TrapDoor
+		incfile Nem_SbzFloor
+		incfile Nem_Electric
+		incfile Nem_SbzBlock
+		incfile Nem_FlamePipe
+		incfile Nem_SbzDoorV
+		incfile Nem_SlideFloor
+		incfile Nem_SbzDoorH
+		incfile Nem_Girder
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - enemies
 ; ---------------------------------------------------------------------------
-		incfile	Nem_BallHog
-		incfile	Nem_Crabmeat
-		incfile	Nem_Buzz
-		incfile	Nem_UnkExplode
-		incfile	Nem_Burrobot
-		incfile	Nem_Chopper
-		incfile	Nem_Jaws
-		incfile	Nem_Roller
-		incfile	Nem_Motobug
-		incfile	Nem_Newtron
-		incfile	Nem_Yadrin
-		incfile	Nem_Batbrain
-		incfile	Nem_Splats
-		incfile	Nem_Bomb
-		incfile	Nem_Orbinaut
-		incfile	Nem_Cater
+		incfile Nem_BallHog
+		incfile Nem_Crabmeat
+		incfile Nem_Buzz
+		incfile Nem_UnkExplode
+		incfile Nem_Burrobot
+		incfile Nem_Chopper
+		incfile Nem_Jaws
+		incfile Nem_Roller
+		incfile Nem_Motobug
+		incfile Nem_Newtron
+		incfile Nem_Yadrin
+		incfile Nem_Batbrain
+		incfile Nem_Splats
+		incfile Nem_Bomb
+		incfile Nem_Orbinaut
+		incfile Nem_Cater
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - various
 ; ---------------------------------------------------------------------------
-		incfile	Nem_TitleCard
-		incfile	Nem_Hud
-		incfile	Nem_Lives
-		incfile	Nem_Ring
-		incfile	Nem_Monitors
-		incfile	Nem_Explode
-		incfile	Nem_Points
-		incfile	Nem_GameOver
-		incfile	Nem_HSpring
-		incfile	Nem_VSpring
-		incfile	Nem_SignPost
-		incfile	Nem_Lamp
-		incfile	Nem_BigFlash
-		incfile	Nem_Bonus
+		incfile Nem_TitleCard
+		incfile Nem_Hud
+		incfile Nem_Lives
+		incfile Nem_Ring
+		incfile Nem_Monitors
+		incfile Nem_Explode
+		incfile Nem_Points
+		incfile Nem_GameOver
+		incfile Nem_HSpring
+		incfile Nem_VSpring
+		incfile Nem_SignPost
+		incfile Nem_Lamp
+		incfile Nem_BigFlash
+		incfile Nem_Bonus
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - continue screen
 ; ---------------------------------------------------------------------------
-		incfile	Nem_ContSonic
-		incfile	Nem_MiniSonic
+		incfile Nem_ContSonic
+		incfile Nem_MiniSonic
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - animals
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Rabbit
-		incfile	Nem_Chicken
-		incfile	Nem_BlackBird
-		incfile	Nem_Seal
-		incfile	Nem_Pig
-		incfile	Nem_Flicky
-		incfile	Nem_Squirrel
+		incfile Nem_Rabbit
+		incfile Nem_Chicken
+		incfile Nem_BlackBird
+		incfile Nem_Seal
+		incfile Nem_Pig
+		incfile Nem_Flicky
+		incfile Nem_Squirrel
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - primary patterns and block mappings
 ; ---------------------------------------------------------------------------
-		incfile	Blk16_GHZ
-		incfile	Nem_GHZ_1st
-		incfile	Nem_GHZ_2nd
-		incfile	Blk256_GHZ
-		incfile	Blk16_LZ
-		incfile	Nem_LZ
-		incfile	Blk256_LZ
-		incfile	Blk16_MZ
-		incfile	Nem_MZ
-		incfile	Blk256_MZ
-		incfile	Blk16_SLZ
-		incfile	Nem_SLZ
-		incfile	Blk256_SLZ
-		incfile	Blk16_SYZ
-		incfile	Nem_SYZ
-		incfile	Blk256_SYZ
-		incfile	Blk16_SBZ
-		incfile	Nem_SBZ
-		incfile	Blk256_SBZ
+		incfile Blk16_GHZ
+		incfile Nem_GHZ_1st
+		incfile Nem_GHZ_2nd
+		incfile Blk256_GHZ
+		incfile Blk16_LZ
+		incfile Nem_LZ
+		incfile Blk256_LZ
+		incfile Blk16_MZ
+		incfile Nem_MZ
+		incfile Blk256_MZ
+		incfile Blk16_SLZ
+		incfile Nem_SLZ
+		incfile Blk256_SLZ
+		incfile Blk16_SYZ
+		incfile Nem_SYZ
+		incfile Blk256_SYZ
+		incfile Blk16_SBZ
+		incfile Nem_SBZ
+		incfile Blk256_SBZ
 ; ---------------------------------------------------------------------------
 ; Compressed graphics - bosses and ending sequence
 ; ---------------------------------------------------------------------------
-		incfile	Nem_Eggman
-		incfile	Nem_Weapons
-		incfile	Nem_Prison
-		incfile	Nem_Sbz2Eggman
-		incfile	Nem_FzBoss
-		incfile	Nem_FzEggman
-		incfile	Nem_Exhaust
-		incfile	Nem_EndEm
-		incfile	Nem_EndSonic
-		incfile	Nem_TryAgain
+		incfile Nem_Eggman
+		incfile Nem_Weapons
+		incfile Nem_Prison
+		incfile Nem_Sbz2Eggman
+		incfile Nem_FzBoss
+		incfile Nem_FzEggman
+		incfile Nem_Exhaust
+		incfile Nem_EndEm
+		incfile Nem_EndSonic
+		incfile Nem_TryAgain
 ;		if Revision=0
-;			incfile	Nem_EndEggman
+;			incfile Nem_EndEggman
 ;		endc
-		incfile	Kos_EndFlowers
-		incfile	Nem_EndFlower
-		incfile	Nem_CreditText
-		incfile	Nem_EndStH
+		incfile Kos_EndFlowers
+		incfile Nem_EndFlower
+		incfile Nem_CreditText
+		incfile Nem_EndStH
 
 
 		;if Revision=0
@@ -1303,9 +1309,9 @@ Eni_SSBg2:	incbin	"Tilemaps\SS Background 2.eni"		; special stage background (ma
 ; ---------------------------------------------------------------------------
 AngleMap:	incbin	"Collision\Angle Map.bin"
 		even
-CollArray1:	incbin	"Collision\Collision Array (Normal).bin"
+CollArray1: incbin	"Collision\Collision Array (Normal).bin"
 		even
-CollArray2:	incbin	"Collision\Collision Array (Rotated).bin"
+CollArray2: incbin	"Collision\Collision Array (Rotated).bin"
 		even
 Col_GHZ:	incbin	"Collision\GHZ.bin"			; GHZ index
 		even
@@ -1345,9 +1351,9 @@ SS_4:		incbin	"Special Stage Layouts\4.eni"
 ; ---------------------------------------------------------------------------
 Art_GhzWater:	incbin	"Graphics\GHZ Waterfall.bin"
 		even
-Art_GhzFlower1:	incbin	"Graphics\GHZ Flower Large.bin"
+Art_GhzFlower1: incbin	"Graphics\GHZ Flower Large.bin"
 		even
-Art_GhzFlower2:	incbin	"Graphics\GHZ Flower Small.bin"
+Art_GhzFlower2: incbin	"Graphics\GHZ Flower Small.bin"
 		even
 Art_MzLava1:	incbin	"Graphics\MZ Lava Surface.bin"
 		even
@@ -1359,7 +1365,7 @@ Art_SbzSmoke:	incbin	"Graphics\SBZ Background Smoke.bin"
 		even
 
 ; ---------------------------------------------------------------------------
-; Level	layout index
+; Level layout index
 ; ---------------------------------------------------------------------------
 Level_Index:	index offset(*)
 		; GHZ
@@ -1483,33 +1489,33 @@ Level_Index:	index offset(*)
 		ptr Level_End_unused
 		ptr Level_End_unused
 
-Level_GHZ1:	incbin	"Level Layouts\ghz1.bin"
+Level_GHZ1: incbin	"Level Layouts\ghz1.bin"
 		even
-Level_GHZ1_unused:	dc.b 0,	0, 0, 0
-Level_GHZ2:	incbin	"Level Layouts\ghz2.bin"
+Level_GHZ1_unused:	dc.b 0, 0, 0, 0
+Level_GHZ2: incbin	"Level Layouts\ghz2.bin"
 		even
-Level_GHZ2_unused:	dc.b 0,	0, 0, 0
-Level_GHZ3:	incbin	"Level Layouts\ghz3.bin"
+Level_GHZ2_unused:	dc.b 0, 0, 0, 0
+Level_GHZ3: incbin	"Level Layouts\ghz3.bin"
 		even
 Level_GHZ_bg:	incbin	"Level Layouts\ghzbg.bin"
 		even
-Level_GHZ3_unused:	dc.b 0,	0, 0, 0
-Level_GHZ4_unused:	dc.b 0,	0, 0, 0
+Level_GHZ3_unused:	dc.b 0, 0, 0, 0
+Level_GHZ4_unused:	dc.b 0, 0, 0, 0
 
 Level_LZ1:	incbin	"Level Layouts\lz1.bin"
 		even
 Level_LZ_bg:	incbin	"Level Layouts\lzbg.bin"
 		even
-Level_LZ1_unused:	dc.b 0,	0, 0, 0
+Level_LZ1_unused:	dc.b 0, 0, 0, 0
 Level_LZ2:	incbin	"Level Layouts\lz2.bin"
 		even
-Level_LZ2_unused:	dc.b 0,	0, 0, 0
+Level_LZ2_unused:	dc.b 0, 0, 0, 0
 Level_LZ3:	incbin	"Level Layouts\lz3.bin"
 		even
-Level_LZ3_unused:	dc.b 0,	0, 0, 0
-Level_SBZ3:	incbin	"Level Layouts\sbz3.bin"
+Level_LZ3_unused:	dc.b 0, 0, 0, 0
+Level_SBZ3: incbin	"Level Layouts\sbz3.bin"
 		even
-Level_SBZ3_unused:	dc.b 0,	0, 0, 0
+Level_SBZ3_unused:	dc.b 0, 0, 0, 0
 
 Level_MZ1:	incbin	"Level Layouts\mz1.bin"
 		even
@@ -1519,25 +1525,25 @@ Level_MZ2:	incbin	"Level Layouts\mz2.bin"
 		even
 Level_MZ2bg:	incbin	"Level Layouts\mz2bg.bin"
 		even
-Level_MZ2_unused:	dc.b 0,	0, 0, 0
+Level_MZ2_unused:	dc.b 0, 0, 0, 0
 Level_MZ3:	incbin	"Level Layouts\mz3.bin"
 		even
 Level_MZ3bg:	incbin	"Level Layouts\mz3bg.bin"
 		even
-Level_MZ3_unused:	dc.b 0,	0, 0, 0
-Level_MZ4_unused:	dc.b 0,	0, 0, 0
+Level_MZ3_unused:	dc.b 0, 0, 0, 0
+Level_MZ4_unused:	dc.b 0, 0, 0, 0
 
-Level_SLZ1:	incbin	"Level Layouts\slz1.bin"
+Level_SLZ1: incbin	"Level Layouts\slz1.bin"
 		even
 Level_SLZ_bg:	incbin	"Level Layouts\slzbg.bin"
 		even
-Level_SLZ2:	incbin	"Level Layouts\slz2.bin"
+Level_SLZ2: incbin	"Level Layouts\slz2.bin"
 		even
-Level_SLZ3:	incbin	"Level Layouts\slz3.bin"
+Level_SLZ3: incbin	"Level Layouts\slz3.bin"
 		even
-Level_SLZ_unused:	dc.b 0,	0, 0, 0
+Level_SLZ_unused:	dc.b 0, 0, 0, 0
 
-Level_SYZ1:	incbin	"Level Layouts\syz1.bin"
+Level_SYZ1: incbin	"Level Layouts\syz1.bin"
 		even
 Level_SYZ_bg:	;if Revision=0
 ;			incbin	"Level Layouts\syzbg.bin"
@@ -1545,30 +1551,30 @@ Level_SYZ_bg:	;if Revision=0
 			incbin	"Level Layouts\syzbg (JP1).bin"
 ;		endc
 		even
-Level_SYZ1_unused:	dc.b 0,	0, 0, 0
-Level_SYZ2:	incbin	"Level Layouts\syz2.bin"
+Level_SYZ1_unused:	dc.b 0, 0, 0, 0
+Level_SYZ2: incbin	"Level Layouts\syz2.bin"
 		even
-Level_SYZ2_unused:	dc.b 0,	0, 0, 0
-Level_SYZ3:	incbin	"Level Layouts\syz3.bin"
+Level_SYZ2_unused:	dc.b 0, 0, 0, 0
+Level_SYZ3: incbin	"Level Layouts\syz3.bin"
 		even
-Level_SYZ3_unused:	dc.b 0,	0, 0, 0
-Level_SYZ4_unused:	dc.b 0,	0, 0, 0
+Level_SYZ3_unused:	dc.b 0, 0, 0, 0
+Level_SYZ4_unused:	dc.b 0, 0, 0, 0
 
-Level_SBZ1:	incbin	"Level Layouts\sbz1.bin"
+Level_SBZ1: incbin	"Level Layouts\sbz1.bin"
 		even
 Level_SBZ1bg:	incbin	"Level Layouts\sbz1bg.bin"
 		even
-Level_SBZ2:	incbin	"Level Layouts\sbz2.bin"
+Level_SBZ2: incbin	"Level Layouts\sbz2.bin"
 		even
 Level_SBZ2bg:	incbin	"Level Layouts\sbz2bg.bin"
 		even
-Level_SBZ2_unused:	dc.b 0,	0, 0, 0
-Level_SBZ4_unused:	dc.b 0,	0, 0, 0
+Level_SBZ2_unused:	dc.b 0, 0, 0, 0
+Level_SBZ4_unused:	dc.b 0, 0, 0, 0
 Level_End:	incbin	"Level Layouts\ending.bin"
 		even
-Level_End_unused:	dc.b 0,	0, 0, 0
+Level_End_unused:	dc.b 0, 0, 0, 0
 
-		incfile	Art_BigRing
+		incfile Art_BigRing
 
 		;align	$100,$FF
 		even
@@ -1662,28 +1668,28 @@ ObjPosSBZPlatform_Index:
 		endobj
 		
 		include "Object Subtypes.asm"
-		include	"Object Placement\GHZ1.asm"
-		include	"Object Placement\GHZ2.asm"
-		include	"Object Placement\GHZ3.asm"
-		include	"Object Placement\LZ1.asm"
-		include	"Object Placement\LZ2.asm"
-		include	"Object Placement\LZ3.asm"
-		include	"Object Placement\SBZ3.asm"
-		include	"Object Placement\LZ Platforms.asm"
-		include	"Object Placement\MZ1.asm"
-		include	"Object Placement\MZ2.asm"
-		include	"Object Placement\MZ3.asm"
-		include	"Object Placement\SLZ1.asm"
-		include	"Object Placement\SLZ2.asm"
-		include	"Object Placement\SLZ3.asm"
-		include	"Object Placement\SYZ1.asm"
-		include	"Object Placement\SYZ2.asm"
-		include	"Object Placement\SYZ3.asm"
-		include	"Object Placement\SBZ1.asm"
-		include	"Object Placement\SBZ2.asm"
-		include	"Object Placement\FZ.asm"
-		include	"Object Placement\SBZ Platforms.asm"
-		include	"Object Placement\Ending.asm"
+		include "Object Placement\GHZ1.asm"
+		include "Object Placement\GHZ2.asm"
+		include "Object Placement\GHZ3.asm"
+		include "Object Placement\LZ1.asm"
+		include "Object Placement\LZ2.asm"
+		include "Object Placement\LZ3.asm"
+		include "Object Placement\SBZ3.asm"
+		include "Object Placement\LZ Platforms.asm"
+		include "Object Placement\MZ1.asm"
+		include "Object Placement\MZ2.asm"
+		include "Object Placement\MZ3.asm"
+		include "Object Placement\SLZ1.asm"
+		include "Object Placement\SLZ2.asm"
+		include "Object Placement\SLZ3.asm"
+		include "Object Placement\SYZ1.asm"
+		include "Object Placement\SYZ2.asm"
+		include "Object Placement\SYZ3.asm"
+		include "Object Placement\SBZ1.asm"
+		include "Object Placement\SBZ2.asm"
+		include "Object Placement\FZ.asm"
+		include "Object Placement\SBZ Platforms.asm"
+		include "Object Placement\Ending.asm"
 ObjPos_Null:	endobj
 
 		;if Revision=0
@@ -1703,7 +1709,7 @@ ObjPos_Null:	endobj
 ; Debugging modules
 ; --------------------------------------------------------------
 
-   		include   "ErrorHandler.asm"
+		include	  "ErrorHandler.asm"
 
 		even	
 
